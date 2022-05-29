@@ -31,6 +31,16 @@ ERROR_MSG = ["Success",  # 0
              "Out of domain"  # 3
              ]
 
+COLOURS = ["red",
+           "blue",
+           "lime green",
+           "magenta",
+           "gold",
+           "blue violet",
+           "dark orange",
+           "deep sky blue"]
+
+
 def InverseTrig(type, val):
     if type == "s":
         return math.asin(val)
@@ -69,12 +79,12 @@ def DrawAxis():
     screen.update()
 
 
-def DrawFunction():
+def DrawFunction(colour):
     screen.tracer( math.ceil(3 * GRAPH_INCREASE))
 
     t.penup()
     t.pensize(5)
-    t.pencolor("red")
+    t.pencolor(colour)
 
     lastWasInfinity = False
 
@@ -141,20 +151,38 @@ def ThrowError(code=0, ttl=None, extraData=None):
     tk.messagebox.showerror(title=ttl, message=msg)
 
 
-def GraphProcess():
-    global zoom
+def GraphProcess(equString, colour):
 
-    zoom = float(zoomEntry.get())
-    success = UpdateEquation(entry1.get())
+    success = UpdateEquation(equString)
 
     if success[0] != 0:
-        ThrowError(success[0], extraData=success[1])
+        ThrowError(success[0], extraData=f"'{equString}'\n{success[1]}")
         return
+
+    DrawFunction(colour)
+
+
+def ProcessAllGraphs():
+    global zoom
+    zoom = float(zoomEntry.get())
+
+    colourCount = 0
 
     screen.clearscreen()
     DrawAxis()
-    DrawFunction()
+
+    for i in entries:
+        if i.get() == "":
+            continue
+
+        GraphProcess(i.get(), COLOURS[colourCount])
+        colourCount = (colourCount + 1) % len(COLOURS)
+
     DrawBorder(4)
+
+
+
+
 
 
 if __name__ == "__main__":
@@ -175,16 +203,25 @@ if __name__ == "__main__":
     t.hideturtle()
     t.speed(100)
 
-    graphButton = tk.Button(master=window, text="Update graph!", command=GraphProcess)
+    graphButton = tk.Button(master=window, text="Update graph!", command=ProcessAllGraphs)
     graphButton.config(fg="black")
     graphButton.grid(padx=2, pady=2, row=1, column=16, rowspan=1, columnspan=2, sticky='nsew')
 
-    entry1 = tk.Entry(master=window)
-    entry1.grid(row=2, column=16)
+
+    entries = []
+    i = 0
+    for row in range(2, 13):
+        entries.append(tk.Entry(master=window))
+        entries[i].grid(row=row, column=16)
+        i += 1
 
     zoomEntry = tk.Entry(master=window)
-    zoomEntry.grid(row=3, column=16)
-    zoomEntry.insert(0, "50")
+    zoomEntry.grid(row=15, column=16)
+    zoomEntry.insert(0, "100")
+
+    zoomTxt = tk.Label(window, text="Zoom %")
+    zoomTxt.config(font=("Arial", 16))
+    zoomTxt.grid(row=14, column=16)
 
     DrawAxis()
     DrawBorder(4)
