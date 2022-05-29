@@ -3,12 +3,13 @@ import turtle, math, random
 
 GRAPH_WIDTH = GRAPH_HEIGHT = 700
 INFINITY_POS = GRAPH_WIDTH * 2
+GRAPH_INCREASE = 1
 
 BOUNDS = {"x": [-GRAPH_WIDTH // 2, GRAPH_WIDTH // 2 - 1],
           "y": [-GRAPH_HEIGHT // 2, GRAPH_WIDTH // 2 - 1]}
 
 REPLACE = {
-    "^(": "**",
+    "^": "**",
     "asin(": "InverseTrig('s', ",
     "acos(": "InverseTrig('c', ",
     "atan(": "InverseTrig('t', ",
@@ -26,9 +27,8 @@ processing = False
 
 ERROR_MSG = ["Success",  # 0
              "Improper equation notation",  # 1
-             "Empty equation input",  # 2,
-             "Constant division of zero",  # 3
-             "Out of domain"
+             "Empty equation input",  # 2
+             "Out of domain"  # 3
              ]
 
 def InverseTrig(type, val):
@@ -70,7 +70,7 @@ def DrawAxis():
 
 
 def DrawFunction():
-    screen.tracer(3)
+    screen.tracer( math.ceil(3 * GRAPH_INCREASE))
 
     t.penup()
     t.pensize(5)
@@ -78,7 +78,7 @@ def DrawFunction():
 
     lastWasInfinity = False
 
-    for x in FloatRange(BOUNDS["y"][0] / zoom, BOUNDS["y"][1] / zoom, 1 / zoom):
+    for x in FloatRange(BOUNDS["y"][0] / zoom, BOUNDS["y"][1] / zoom, 1 / zoom / GRAPH_INCREASE):
         try:
             y = eval(equation)
             print(f"x = {x}: y = {y}")
@@ -107,6 +107,7 @@ def DrawBorder(width=5):
     t.goto(BOUNDS["x"][1], BOUNDS["y"][1])
     t.goto(BOUNDS["x"][0], BOUNDS["y"][1])
     t.goto(BOUNDS["x"][0], BOUNDS["y"][0])
+    screen.update()
 
 
 def UpdateEquation(eq):
@@ -119,14 +120,12 @@ def UpdateEquation(eq):
 
     if equation == "":
         return 2, None
-    elif equation == "1/0":
-        return 3, None
     try:
         x = random.randint(-100, 100)
         eval(equation)
     except Exception as e:
         if str(e) == "math domain error":
-            return 4, None
+            return 3, None
         return 1, str(e)
     return 0, None
 
@@ -143,10 +142,7 @@ def ThrowError(code=0, ttl=None, extraData=None):
 
 
 def GraphProcess():
-    global processing, zoom
-    # if processing:
-    #    return
-    processing = True
+    global zoom
 
     zoom = float(zoomEntry.get())
     success = UpdateEquation(entry1.get())
@@ -159,8 +155,6 @@ def GraphProcess():
     DrawAxis()
     DrawFunction()
     DrawBorder(4)
-
-    processing = False
 
 
 if __name__ == "__main__":
@@ -190,6 +184,7 @@ if __name__ == "__main__":
 
     zoomEntry = tk.Entry(master=window)
     zoomEntry.grid(row=3, column=16)
+    zoomEntry.insert(0, "50")
 
     DrawAxis()
     DrawBorder(4)
