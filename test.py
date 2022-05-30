@@ -2,12 +2,13 @@ import tkinter as tk
 import tkinter.font as font
 import turtle, math, random
 
-GRAPH_WIDTH = GRAPH_HEIGHT = 800
+GRAPH_WIDTH = 1000
+GRAPH_HEIGHT = 750
 INFINITY_POS = GRAPH_WIDTH * 2
-GRAPH_INCREASE = 1
+GRAPH_INCREASE = 0.5
 
 BOUNDS = {"x": [-GRAPH_WIDTH // 2, GRAPH_WIDTH // 2 - 1],
-          "y": [-GRAPH_HEIGHT // 2, GRAPH_WIDTH // 2 - 1]}
+          "y": [-GRAPH_HEIGHT // 2, GRAPH_HEIGHT // 2 - 1]}
 
 REPLACE = {
     "^": "**",
@@ -19,6 +20,7 @@ REPLACE = {
     "tan(": "math.tan(",
     "floor(": "math.floor(",
     "ceiling(": "math.ceil(",
+    "log(": "math.log10(",
 
     "skip": "skip"}
 
@@ -51,7 +53,22 @@ def InverseTrig(type, val):
         return math.atan(val)
 
 
-def FloatRange(start, stop, step):
+def FloatRange(start, stop, step, centre=None):
+    if centre is not None:
+        array = [centre]
+
+        x = centre
+        while x > start:
+            x -= step
+            array.append(x)
+        x = centre
+        while x < stop:
+            x += step
+            array.append(x)
+
+        array.sort()
+        return array
+
     n = []
     while start < stop:
         n.append(start)
@@ -62,7 +79,7 @@ def FloatRange(start, stop, step):
 def DrawAxis():
     t.pencolor("black")
     screen.tracer(0)
-    for i in range(BOUNDS["x"][0], BOUNDS["x"][1], 50):
+    for i in FloatRange(BOUNDS["x"][0], BOUNDS["x"][1], zoom, 0):
         if i == BOUNDS["x"][0]:
             continue
 
@@ -80,28 +97,50 @@ def DrawAxis():
     screen.update()
 
 
-def DrawFunction(colour):
-    screen.tracer( math.ceil(3 * GRAPH_INCREASE))
+def DrawFunction(colour, iValue):
+    screen.tracer(math.floor(3 * GRAPH_INCREASE))
+    #screen.tracer(0)
 
     t.penup()
     t.pensize(5)
     t.pencolor(colour)
 
-    lastWasInfinity = False
+    i = iValue
+    pi = math.pi
 
-    for x in FloatRange(BOUNDS["y"][0] / zoom, BOUNDS["y"][1] / zoom, 1 / zoom / GRAPH_INCREASE):
+    first = True
+    lastValue = 0
+    extremeVal = BOUNDS["y"][0] / zoom * GRAPH_INCREASE * -5
+
+    print(f"Extreme value is {extremeVal}")
+
+    for x in FloatRange(BOUNDS["x"][0] / zoom, BOUNDS["x"][1] / zoom, 1 / zoom / GRAPH_INCREASE, 0):
         try:
             y = eval(equation)
-            print(f"x = {x}: y = {y}")
+
+            '''print(extremeVal)
+            print(lastValue)
+            print(y)
+            print(lastValue > extremeVal)
+            print(y > extremeVal)
+            print(lastValue < extremeVal)
+            print(y < extremeVal)
+
+            print(f"\nSo: {(lastValue > extremeVal and y < -extremeVal)}, "\
+                  f"{(lastValue < -extremeVal and y < -extremeVal)}"\
+                  f", {not first}")'''
+
+            if ((lastValue > extremeVal and y < -extremeVal) or
+                (lastValue < -extremeVal and y < -extremeVal)) and not first:
+                # print(f"Penning up at x: {x}, y: {y}")
+                t.penup()
+
             t.goto(x * zoom, y * zoom)
             t.pendown()
-            # if lastWasInfinity:
-            #    t.penup()
-            #    lastWasInfinity = False
-        except ZeroDivisionError as e:  # infinity
-            print(e)
-            # t.pendown()
-            # lastWasInfinity = True
+            lastValue = y
+            first = False
+
+        except:
             continue
 
     screen.tracer(0)
@@ -129,14 +168,20 @@ def UpdateEquation(eq):
 
     equation = eq
 
+    i = 1
+    pi = math.pi
+
     if equation == "":
         return 2, None
     try:
-        x = random.randint(-100, 100)
+        x = random.randint(-10, 10)
+        i = 1
         eval(equation)
+
     except Exception as e:
         if str(e) == "math domain error":
-            return 3, None
+            return 0, None  # Remove!
+            # return 3, None
         return 1, str(e)
     return 0, None
 
@@ -152,21 +197,25 @@ def ThrowError(code=0, ttl=None, extraData=None):
     tk.messagebox.showerror(title=ttl, message=msg)
 
 
-def GraphProcess(equString, colour):
-
+def GraphProcess(equString, colour, iValue):
     success = UpdateEquation(equString)
 
     if success[0] != 0:
-        success[1] = ("\n" + success[1]) if success[1] is not None else None
+        success = (success[0], ("\n" + success[1]) if success[1] is not None else None)
         ThrowError(success[0], extraData=f"'{equString}'{(success[1]) if success[1] is not None else ''}")
         return
 
-    DrawFunction(colour)
+    DrawFunction(colour, iValue)
 
 
 def ProcessAllGraphs():
     global zoom, GRAPH_INCREASE
     zoom = float(zoomEntry.get()) / 2
+    if zoom == 0:
+        zoom = 0.5
+        zoomEntry.delete(0, "end")
+        zoomEntry.insert(0, "1")
+
     GRAPH_INCREASE = float(accuracy.get())
 
     colourCount = 0
@@ -181,14 +230,14 @@ def ProcessAllGraphs():
         counter += 1
 
         if i.get() == "":
-            x = tk.Label(window, text=f"Equation {counter+1}")
+            x = tk.Label(window, text=f"Equation {counter + 1}")
             x.config(font=("Arial", 12), fg="black")
             x.grid(row=row, column=16)
             continue
 
-        GraphProcess(i.get(), COLOURS[colourCount])
+        GraphProcess(i.get(), COLOURS[colourCount], counter + 1)
 
-        x = tk.Label(window, text=f"Equation {counter+1}")
+        x = tk.Label(window, text=f"Equation {counter + 1}")
         x.config(font=("Arial", 12), fg=COLOURS[colourCount])
         x.grid(row=row, column=16)
 
@@ -198,12 +247,13 @@ def ProcessAllGraphs():
     screen.update()
 
 
-
+def ClearEntries():
+    for i in entries:
+        i.delete(0, "end")
 
 
 
 if __name__ == "__main__":
-
     window = tk.Tk(className="Graphulator")
     entriesFont = font.Font(size=16, weight="bold")
 
@@ -215,7 +265,7 @@ if __name__ == "__main__":
     author.grid(row=0, column=1)
 
     canvas = turtle.Canvas(master=window, width=GRAPH_WIDTH, height=GRAPH_HEIGHT)
-    canvas.grid(padx=2, pady=2, row=1, column=0, rowspan=16, columnspan=16)  # , sticky='nsew')
+    canvas.grid(padx=2, pady=2, row=1, column=0, rowspan=24, columnspan=16)  # , sticky='nsew')
     screen = turtle.TurtleScreen(canvas)
     screen.tracer(0)
     t = turtle.RawTurtle(screen)
@@ -223,41 +273,45 @@ if __name__ == "__main__":
     t.speed(100)
 
     graphButton = tk.Button(master=window, text="Update Graph", command=ProcessAllGraphs)
-    graphButton.config(fg="black", font=entriesFont )
+    graphButton.config(fg="black", font=entriesFont)
     graphButton.grid(padx=2, pady=2, row=1, column=16, rowspan=1, columnspan=3, sticky='nsew')
 
+    clearButton = tk.Button(master=window, text="Clear Equations", command=ClearEntries)
+    clearButton.config(fg="black", font= font.Font(size=12, weight="bold") )
+    clearButton.grid(padx=2, pady=2, row=0, column=18, rowspan=1, columnspan=1, sticky='nsew')
 
     entries = []
     i = 0
-    for row in range(2, 13):
-        x = tk.Label(window, text=f"Equation {i+1}")
-        x.config(font=("Arial", 12))
-        x.grid(row=row, column=16)
-        x = tk.Label(window, text=f"y=")
-        x.config(font=("Arial", 12, "bold"))
-        x.grid(row=row, column=17)
+    for row in range(2, 20):
+        txt = tk.Label(window, text=f"Equation {i + 1}")
+        txt.config(font=("Arial", 12))
+        txt.grid(row=row, column=16)
+        txt = tk.Label(window, text=f"   y =")
+        txt.config(font=("Arial", 12, "bold"))
+        txt.grid(row=row, column=17)
         entries.append(tk.Entry(master=window))
         entries[i].grid(row=row, column=18)
         i += 1
 
+    entries[0].insert(0, "sin(x)")
+
     zoomEntry = tk.Entry(master=window)
-    zoomEntry.grid(row=14, column=18)
+    zoomEntry.grid(row=22, column=18)
     zoomEntry.insert(0, "100")
 
     zoomTxt = tk.Label(window, text="Zoom %")
     zoomTxt.config(font=("Arial", 16))
-    zoomTxt.grid(row=14, column=16, columnspan=2)
+    zoomTxt.grid(row=22, column=16, columnspan=2)
 
     accuracy = tk.Entry(master=window)
-    accuracy.grid(row=15, column=18)
+    accuracy.grid(row=23, column=18)
     accuracy.insert(0, "1")
 
     accuracyTxt = tk.Label(window, text="Accuracy")
     accuracyTxt.config(font=("Arial", 16))
-    accuracyTxt.grid(row=15, column=16, columnspan=2)
+    accuracyTxt.grid(row=23, column=16, columnspan=2)
 
-
-    DrawAxis()
-    DrawBorder(4)
+    zoom = 50
+    ProcessAllGraphs()
 
     window.mainloop()
