@@ -1,7 +1,8 @@
 import tkinter as tk
+import tkinter.font as font
 import turtle, math, random
 
-GRAPH_WIDTH = GRAPH_HEIGHT = 700
+GRAPH_WIDTH = GRAPH_HEIGHT = 800
 INFINITY_POS = GRAPH_WIDTH * 2
 GRAPH_INCREASE = 1
 
@@ -156,29 +157,45 @@ def GraphProcess(equString, colour):
     success = UpdateEquation(equString)
 
     if success[0] != 0:
-        ThrowError(success[0], extraData=f"'{equString}'\n{success[1]}")
+        success[1] = ("\n" + success[1]) if success[1] is not None else None
+        ThrowError(success[0], extraData=f"'{equString}'{(success[1]) if success[1] is not None else ''}")
         return
 
     DrawFunction(colour)
 
 
 def ProcessAllGraphs():
-    global zoom
-    zoom = float(zoomEntry.get())
+    global zoom, GRAPH_INCREASE
+    zoom = float(zoomEntry.get()) / 2
+    GRAPH_INCREASE = float(accuracy.get())
 
     colourCount = 0
+    counter = -1
+    row = 1
 
     screen.clearscreen()
     DrawAxis()
 
     for i in entries:
+        row += 1
+        counter += 1
+
         if i.get() == "":
+            x = tk.Label(window, text=f"Equation {counter+1}")
+            x.config(font=("Arial", 12), fg="black")
+            x.grid(row=row, column=16)
             continue
 
         GraphProcess(i.get(), COLOURS[colourCount])
+
+        x = tk.Label(window, text=f"Equation {counter+1}")
+        x.config(font=("Arial", 12), fg=COLOURS[colourCount])
+        x.grid(row=row, column=16)
+
         colourCount = (colourCount + 1) % len(COLOURS)
 
     DrawBorder(4)
+    screen.update()
 
 
 
@@ -186,7 +203,9 @@ def ProcessAllGraphs():
 
 
 if __name__ == "__main__":
-    window = tk.Tk()
+
+    window = tk.Tk(className="Graphulator")
+    entriesFont = font.Font(size=16, weight="bold")
 
     title = tk.Label(window, text="  Graphulator   ")
     author = tk.Label(window, text="A graphing calculator made by Harrison McGrath")
@@ -203,25 +222,40 @@ if __name__ == "__main__":
     t.hideturtle()
     t.speed(100)
 
-    graphButton = tk.Button(master=window, text="Update graph!", command=ProcessAllGraphs)
-    graphButton.config(fg="black")
-    graphButton.grid(padx=2, pady=2, row=1, column=16, rowspan=1, columnspan=2, sticky='nsew')
+    graphButton = tk.Button(master=window, text="Update Graph", command=ProcessAllGraphs)
+    graphButton.config(fg="black", font=entriesFont )
+    graphButton.grid(padx=2, pady=2, row=1, column=16, rowspan=1, columnspan=3, sticky='nsew')
 
 
     entries = []
     i = 0
     for row in range(2, 13):
+        x = tk.Label(window, text=f"Equation {i+1}")
+        x.config(font=("Arial", 12))
+        x.grid(row=row, column=16)
+        x = tk.Label(window, text=f"y=")
+        x.config(font=("Arial", 12, "bold"))
+        x.grid(row=row, column=17)
         entries.append(tk.Entry(master=window))
-        entries[i].grid(row=row, column=16)
+        entries[i].grid(row=row, column=18)
         i += 1
 
     zoomEntry = tk.Entry(master=window)
-    zoomEntry.grid(row=15, column=16)
+    zoomEntry.grid(row=14, column=18)
     zoomEntry.insert(0, "100")
 
     zoomTxt = tk.Label(window, text="Zoom %")
     zoomTxt.config(font=("Arial", 16))
-    zoomTxt.grid(row=14, column=16)
+    zoomTxt.grid(row=14, column=16, columnspan=2)
+
+    accuracy = tk.Entry(master=window)
+    accuracy.grid(row=15, column=18)
+    accuracy.insert(0, "1")
+
+    accuracyTxt = tk.Label(window, text="Accuracy")
+    accuracyTxt.config(font=("Arial", 16))
+    accuracyTxt.grid(row=15, column=16, columnspan=2)
+
 
     DrawAxis()
     DrawBorder(4)
