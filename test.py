@@ -1,26 +1,31 @@
 import tkinter as tk
 import tkinter.font as font
 import turtle, math, random
+import maths
 
 GRAPH_WIDTH = 1000
 GRAPH_HEIGHT = 750
 INFINITY_POS = GRAPH_WIDTH * 2
 GRAPH_INCREASE = 0.5
+EQUATIONS_AMOUNT = 16
+
 
 BOUNDS = {"x": [-GRAPH_WIDTH // 2, GRAPH_WIDTH // 2 - 1],
           "y": [-GRAPH_HEIGHT // 2, GRAPH_HEIGHT // 2 - 1]}
 
 REPLACE = {
     "^": "**",
-    "asin(": "InverseTrig('s', ",
-    "acos(": "InverseTrig('c', ",
-    "atan(": "InverseTrig('t', ",
+    "asin(": "maths.InverseTrig('s', ",
+    "acos(": "maths.InverseTrig('c', ",
+    "atan(": "maths.InverseTrig('t', ",
     "sin(": "math.sin(",
     "cos(": "math.cos(",
     "tan(": "math.tan(",
     "floor(": "math.floor(",
     "ceiling(": "math.ceil(",
-    "log(": "math.log10(",
+    "log(": "maths.Logarithm(10, ",
+    "log2(": "maths.Logarithm(2, ",
+    "factorial(": "maths.StartFactorial(",
 
     "skip": "skip"}
 
@@ -44,13 +49,8 @@ COLOURS = ["red",
            "deep sky blue"]
 
 
-def InverseTrig(type, val):
-    if type == "s":
-        return math.asin(val)
-    elif type == "c":
-        return math.acos(val)
-    else:
-        return math.atan(val)
+
+    
 
 
 def FloatRange(start, stop, step, centre=None):
@@ -98,8 +98,8 @@ def DrawAxis():
 
 
 def DrawFunction(colour, iValue):
-    screen.tracer(math.floor(3 * GRAPH_INCREASE))
-    #screen.tracer(0)
+    screen.tracer(math.floor(3 * GRAPH_INCREASE) if instant.get() == 0 else 0)
+    print(instant)
 
     t.penup()
     t.pensize(5)
@@ -108,7 +108,6 @@ def DrawFunction(colour, iValue):
     i = iValue
     pi = math.pi
 
-    first = True
     lastValue = 0
     extremeVal = BOUNDS["y"][0] / zoom * GRAPH_INCREASE * -5
 
@@ -116,29 +115,16 @@ def DrawFunction(colour, iValue):
 
     for x in FloatRange(BOUNDS["x"][0] / zoom, BOUNDS["x"][1] / zoom, 1 / zoom / GRAPH_INCREASE, 0):
         try:
+            n = x
             y = eval(equation)
-
-            '''print(extremeVal)
-            print(lastValue)
-            print(y)
-            print(lastValue > extremeVal)
-            print(y > extremeVal)
-            print(lastValue < extremeVal)
-            print(y < extremeVal)
-
-            print(f"\nSo: {(lastValue > extremeVal and y < -extremeVal)}, "\
-                  f"{(lastValue < -extremeVal and y < -extremeVal)}"\
-                  f", {not first}")'''
 
             if ((lastValue > extremeVal and y < -extremeVal) or
                 (lastValue < -extremeVal and y < -extremeVal)) and not first:
-                # print(f"Penning up at x: {x}, y: {y}")
                 t.penup()
 
             t.goto(x * zoom, y * zoom)
             t.pendown()
             lastValue = y
-            first = False
 
         except:
             continue
@@ -175,6 +161,7 @@ def UpdateEquation(eq):
         return 2, None
     try:
         x = random.randint(-10, 10)
+        n = x
         i = 1
         eval(equation)
 
@@ -282,7 +269,7 @@ if __name__ == "__main__":
 
     entries = []
     i = 0
-    for row in range(2, 20):
+    for row in range(2, 2+EQUATIONS_AMOUNT):
         txt = tk.Label(window, text=f"Equation {i + 1}")
         txt.config(font=("Arial", 12))
         txt.grid(row=row, column=16)
@@ -296,20 +283,25 @@ if __name__ == "__main__":
     entries[0].insert(0, "sin(x)")
 
     zoomEntry = tk.Entry(master=window)
-    zoomEntry.grid(row=22, column=18)
+    zoomEntry.grid(row=21, column=18)
     zoomEntry.insert(0, "100")
 
     zoomTxt = tk.Label(window, text="Zoom %")
     zoomTxt.config(font=("Arial", 16))
-    zoomTxt.grid(row=22, column=16, columnspan=2)
+    zoomTxt.grid(row=21, column=16, columnspan=2)
 
     accuracy = tk.Entry(master=window)
-    accuracy.grid(row=23, column=18)
+    accuracy.grid(row=22, column=18)
     accuracy.insert(0, "1")
 
     accuracyTxt = tk.Label(window, text="Accuracy")
     accuracyTxt.config(font=("Arial", 16))
-    accuracyTxt.grid(row=23, column=16, columnspan=2)
+    accuracyTxt.grid(row=22, column=16, columnspan=2)
+
+    instant = tk.IntVar()
+    instantButton = tk.Checkbutton(window, text = "Instant drawing", variable=instant)
+    instantButton.config(font=("Arial", 16))
+    instantButton.grid(row=23, column=16, columnspan=3)
 
     zoom = 50
     ProcessAllGraphs()
