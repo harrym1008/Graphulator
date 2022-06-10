@@ -99,7 +99,6 @@ def DrawAxis():
 
 def DrawFunction(colour, iValue):
     screen.tracer(math.floor(3 * GRAPH_INCREASE) if instant.get() == 0 else 0)
-    print(instant)
 
     t.penup()
     t.pensize(5)
@@ -108,20 +107,27 @@ def DrawFunction(colour, iValue):
     i = iValue
     pi = math.pi
 
-    lastValue = 0
-    extremeVal = BOUNDS["y"][0] / zoom * GRAPH_INCREASE * -5
+    first = True
 
-    print(f"Extreme value is {extremeVal}")
+    lastValue = 0
+    extremeVal = [BOUNDS["y"][0] * 1.25, BOUNDS["y"][1] * 1.25]
+
+    extremeVal[0] /= zoom
+    extremeVal[1] /= zoom
+
+    #print(f"Extreme value is {extremeVal}")
+    #print(BOUNDS)
 
     for x in FloatRange(BOUNDS["x"][0] / zoom, BOUNDS["x"][1] / zoom, 1 / zoom / GRAPH_INCREASE, 0):
         try:
             n = x
             y = eval(equation)
 
-            if ((lastValue > extremeVal and y < -extremeVal) or
-                (lastValue < -extremeVal and y < -extremeVal)) and not first:
+            if ((lastValue > extremeVal[0] and y < -extremeVal[1]) or
+                (lastValue < -extremeVal[1] and y < -extremeVal[0])) and not first:
                 t.penup()
 
+            first = False
             t.goto(x * zoom, y * zoom)
             t.pendown()
             lastValue = y
