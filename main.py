@@ -1,5 +1,5 @@
 import tkinter as tk
-import pygame, threading, time, sys, os
+import pygame, threading
 import tkinter.font as font
 
 running = True
@@ -26,7 +26,28 @@ def PygameLoop():
 
 
 def BeforeThreads():
-    guiScreen
+    global guiScreen
+    title = tk.Label(guiScreen, text="Graphulator   ")
+    title.config(font=("Arial", 20, "bold"))
+    title.grid(row=0, column=0, columnspan=3)
+    author = tk.Label(guiScreen, text="A graphing calculator made by Harrison McGrath", justify=tk.LEFT)
+    author.config(font=("Arial", 8))
+    author.grid(row=1, column=0, columnspan=3)
+
+    equations = []
+
+    EQUATIONS_AMOUNT = 10
+    EQUATIONS_OFFSET = 2
+
+    for row in range(EQUATIONS_AMOUNT):
+        txt = tk.Label(guiScreen, text=f"   Equation {row + 1}")
+        txt.config(font=("Arial", 12))
+        txt.grid(row=row+EQUATIONS_OFFSET, column=0)
+        txt = tk.Label(guiScreen, text=f"   y =")
+        txt.config(font=("Arial", 12, "bold"))
+        txt.grid(row=row+EQUATIONS_OFFSET, column=1)
+        equations.append(tk.Entry(master=guiScreen))
+        equations[row].grid(row=row+EQUATIONS_OFFSET, column=2)
 
 
 
@@ -50,6 +71,8 @@ if __name__ == "__main__":
     pygame.init()
     graphScreen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
     pygame.display.set_caption("Display Window")
+
+    BeforeThreads()
 
     # pygame loop thread
     pygameThread = threading.Thread(target=PygameLoop)
