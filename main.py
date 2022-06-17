@@ -1,8 +1,8 @@
 import tkinter as tk
-import pygame, threading
-import tkinter.font as font
+import pygame, threading, drawfunc, graph
 
 running = True
+screensize = 800, 600
 
 
 def PygameLoop():
@@ -69,9 +69,10 @@ if __name__ == "__main__":
     guiScreen.title("Graphulator v2")
 
     pygame.init()
-    graphScreen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+    graphScreen = pygame.display.set_mode(screensize, pygame.RESIZABLE)
     pygame.display.set_caption("Display Window")
 
+    # run code before threads are begun
     BeforeThreads()
 
     # pygame loop thread
