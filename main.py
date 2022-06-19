@@ -1,32 +1,22 @@
 import tkinter as tk
-import pygame, threading, drawfunc, graph
+from tkinter import messagebox
+
+import colours
+import graph
+import time
+import pygame
+
 
 running = True
-screensize = 800, 600
+screenSize = [800, 600]
+FPS = 60
+
+threads = []
 
 
-def PygameLoop():
-    global running, graphScreen
 
-    clock = pygame.time.Clock()
-
-    while running:
-        clock.tick(60)
-
-        pygame.display.flip()
-
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                Kill()
-                break
-            if e.type == pygame.VIDEORESIZE:
-                pass
-                # if e.w > 64 and e.h > 64:
-                #     graphScreen = pygame.display.set_mode((e.w, e.h), pygame.RESIZABLE)
-
-
-def BeforeThreads():
-    global guiScreen
+def Initiate():
+    global guiScreen, screenSize
     title = tk.Label(guiScreen, text="Graphulator   ")
     title.config(font=("Arial", 20, "bold"))
     title.grid(row=0, column=0, columnspan=3)
@@ -59,9 +49,55 @@ def Main():
 def Kill():
     global running
     running = False
-    pygame.display.quit()
+
+    if not messagebox.askyesno("Quit", "Do you really wish to quit?"):
+        return False
+
+    for t in threads:
+        t.terminate()
+
+    pygame.quit()
     guiScreen.destroy()
     quit()
+
+    return True
+
+
+
+def MainLoop():
+    global screenSize, running, graphScreen, guiScreen, clock
+
+    while running:
+        # main logic
+
+
+        graph.offset[0] += 0.1
+        graph.offset[1] += 1
+        graph.DrawAxis(graphScreen)
+
+
+
+        # updating screens, quitting from pygame, resizing and waiting for 60 FPS
+
+        guiScreen.update()
+        clock.tick(FPS)
+        pygame.display.set_caption(f"Display Window - {round(clock.get_fps(), 2)} FPS")
+
+        pygame.display.flip()
+
+        for e in pygame.event.get():
+
+            if e.type == pygame.QUIT:
+                if Kill():
+                    break
+            if e.type == pygame.VIDEORESIZE:
+                graphScreen = pygame.display.set_mode((e.w, e.h), pygame.RESIZABLE)
+                screenSize = [e.w, e.h]
+
+                graph.screenSize = screenSize
+                graph.screenCentre = [e.w//2, e.h//2]
+
+
 
 
 if __name__ == "__main__":
@@ -69,21 +105,15 @@ if __name__ == "__main__":
     guiScreen.title("Graphulator v2")
 
     pygame.init()
-    graphScreen = pygame.display.set_mode(screensize, pygame.RESIZABLE)
+    graphScreen = pygame.display.set_mode(screenSize, pygame.RESIZABLE)
     pygame.display.set_caption("Display Window")
-
-    # run code before threads are begun
-    BeforeThreads()
-
-    # pygame loop thread
-    pygameThread = threading.Thread(target=PygameLoop)
-    pygameThread.start()
-
-    # creating a thread for the main screen
-    thread = threading.Thread(target=Main)
-    thread.start()
+    graphScreen.fill(colours.PygameColour("white"))
 
     # run Kill() when the tkinter window is closed
     guiScreen.protocol("WM_DELETE_WINDOW", Kill)
-    # using the main thread to do tkinter (required by the Tkinter module)
-    guiScreen.mainloop()
+
+    # initiation code
+    Initiate()
+    clock = pygame.time.Clock()
+    MainLoop()
+

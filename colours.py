@@ -29,6 +29,3 @@ def HexColour(key: str) -> str:
         hexStr += hexLetters[val]
 
     return hexStr
-
-
-print(HexColour("white"))
