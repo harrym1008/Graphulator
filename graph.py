@@ -7,11 +7,12 @@ screenSize = [800, 600]
 screenCentre = [400, 300]
 
 offset = [0, 0]
-zoom = 0.1
+zoom = 10
 
+font = None
+clock = pygame.time.Clock()
 bounds = []
 
-font = pygame.font.SysFont("Arial", 20)
 
 # 1, 2, 3, 4, 5
 # 2, 4, 6, 8, 10
@@ -37,13 +38,12 @@ def DrawXY(surface):
 def DrawGraphLines(surface):
     zoomedOffset = Vector2(offset[0] * zoom, offset[1] * zoom)
 
-    print(zoomedOffset)
-
     for row in range(-12, 28):
-        start = Vector2(0, row * (screenSize[0]/16)) - zoomedOffset
-        end = Vector2(screenSize[1], row * (screenSize[0]/16)) - zoomedOffset
+        start = Vector2(0, row * (screenSize[0] / 16)) - zoomedOffset
+        end = Vector2(screenSize[1], row * (screenSize[0] / 16)) - zoomedOffset
 
         pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
+
 
 
 
@@ -59,9 +59,21 @@ def DrawAxis(surface):
     DrawXY(surface)
     DrawGraphLines(surface)
 
-    DrawDebugText()
+    DrawDebugText(surface)
 
 
+def DrawDebugText(surface):
+    textToRender = [
+        f"{round(clock.get_fps(), 3)} FPS",
+        f"Offset: {Vector2(offset[0], offset[1])}",
+        f"Zoom: {zoom}"
+    ]
 
-def DrawDebugText():
-    
+    for i, txt in enumerate(textToRender):
+        txtSurface = font.render(txt, True, colours.PygameColour("red"))
+        surface.blit(txtSurface, (0, i * 20))
+
+
+def CreateFont():
+    global font
+    font = pygame.font.SysFont("Consolas", 20)

@@ -6,6 +6,7 @@ import graph
 import time
 import pygame
 
+clock = None
 
 running = True
 screenSize = [800, 600]
@@ -80,8 +81,7 @@ def MainLoop():
         # updating screens, quitting from pygame, resizing and waiting for 60 FPS
 
         guiScreen.update()
-        clock.tick(FPS)
-        pygame.display.set_caption(f"Display Window - {round(clock.get_fps(), 2)} FPS")
+        graph.clock.tick(FPS)
 
         pygame.display.flip()
 
@@ -109,11 +109,12 @@ if __name__ == "__main__":
     pygame.display.set_caption("Display Window")
     graphScreen.fill(colours.PygameColour("white"))
 
+    graph.CreateFont()
+
     # run Kill() when the tkinter window is closed
     guiScreen.protocol("WM_DELETE_WINDOW", Kill)
 
     # initiation code
     Initiate()
-    clock = pygame.time.Clock()
     MainLoop()
 

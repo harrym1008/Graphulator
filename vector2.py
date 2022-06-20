@@ -6,11 +6,14 @@ class Vector2:
     def __add__(self, other):
         return Vector2(self.x + other.x, self.y + other.y)
 
-    def __str__(self):
-        return f"x: {self.x}, y: {self.y}"
+    def __sub__(self, other):
+        return Vector2(self.x - other.x, self.y - other.y)
 
     def __mul__(self, scale):
         return Vector2(self.x * scale, self.y * scale)
+
+    def __str__(self):
+        return f"x: {round(self.x, 2)}, y: {round(self.y, 2)}"
 
     def Tuple(self):
         return self.x, self.y
