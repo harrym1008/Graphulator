@@ -9,7 +9,7 @@ screenSize = [800, 600]
 screenCentre = [400, 300]
 
 offset = [0, 0]
-zoom = 10
+zoom = 20
 
 font = None
 clock = pygame.time.Clock()
@@ -41,16 +41,16 @@ def DrawGraphLines(surface):
     zoomedOffset = Vector2(offset[0] * zoom, offset[1] * zoom)
 
     for row in range(-112, 128):
-        start = Vector2(0, row * (screenSize[0] / 16)) - zoomedOffset
-        end = Vector2(screenSize[1], row * (screenSize[0] / 16)) - zoomedOffset
+        start = Vector2(-1000, row * (screenSize[0] / 16)) - zoomedOffset
+        end = Vector2(screenSize[1]+1000, row * (screenSize[0] / 16)) - zoomedOffset
 
         pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
 
 
 
     for column in range(-112, 128):
-        start = Vector2(column * (screenSize[1] / 16), 0) - zoomedOffset
-        end = Vector2(column * (screenSize[1] / 16), screenSize[0]) - zoomedOffset
+        start = Vector2(column * (screenSize[1] / 16), -1000) - zoomedOffset
+        end = Vector2(column * (screenSize[1] / 16), screenSize[0]+1000) - zoomedOffset
 
         pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
 

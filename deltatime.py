@@ -15,4 +15,4 @@ def Update():
 
 
 def GetMultiplier():
-    return deltaTime * main.FPS
+    return deltaTime * main.targetFPS

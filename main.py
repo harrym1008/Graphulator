@@ -11,7 +11,7 @@ clock = None
 
 running = True
 screenSize = [800, 600]
-FPS = 60
+targetFPS = 60
 
 threads = []
 
@@ -70,14 +70,14 @@ def MainLoop():
     while running:
         # main logic
 
-        graph.offset[0] += 0.3
+        graph.offset[0] += 0.3 * deltatime.GetMultiplier()
 
-        if graph.offset[0] > 30:
-            graph.offset[0] = -30
+        if graph.offset[0] > 40:
+            graph.offset[0] = -40
 
 
 
-        graph.offset[1] += 0.2
+        graph.offset[1] += 0.2 * deltatime.GetMultiplier()
 
         if graph.offset[1] > 30:
             graph.offset[1] = -30
@@ -86,10 +86,10 @@ def MainLoop():
 
 
 
-        # updating screens, quitting from pygame, resizing and waiting for 60 FPS
+        # updating screens, quitting from pygame, resizing and waiting for 60 targetFPS
 
         guiScreen.update()
-        graph.clock.tick(FPS)
+        graph.clock.tick(targetFPS)
         deltatime.Update()
 
         pygame.display.flip()
