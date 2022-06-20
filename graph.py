@@ -1,7 +1,9 @@
 import colours
 import main
 import pygame
+import deltatime
 from vector2 import *
+
 
 screenSize = [800, 600]
 screenCentre = [400, 300]
@@ -38,9 +40,17 @@ def DrawXY(surface):
 def DrawGraphLines(surface):
     zoomedOffset = Vector2(offset[0] * zoom, offset[1] * zoom)
 
-    for row in range(-12, 28):
+    for row in range(-112, 128):
         start = Vector2(0, row * (screenSize[0] / 16)) - zoomedOffset
         end = Vector2(screenSize[1], row * (screenSize[0] / 16)) - zoomedOffset
+
+        pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
+
+
+
+    for column in range(-112, 128):
+        start = Vector2(column * (screenSize[1] / 16), 0) - zoomedOffset
+        end = Vector2(column * (screenSize[1] / 16), screenSize[0]) - zoomedOffset
 
         pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
 
@@ -66,7 +76,8 @@ def DrawDebugText(surface):
     textToRender = [
         f"{round(clock.get_fps(), 3)} FPS",
         f"Offset: {Vector2(offset[0], offset[1])}",
-        f"Zoom: {zoom}"
+        f"Zoom: {zoom}",
+        f"Deltatime: {round(deltatime.deltaTime, 5)}"
     ]
 
     for i, txt in enumerate(textToRender):
@@ -77,3 +88,9 @@ def DrawDebugText(surface):
 def CreateFont():
     global font
     font = pygame.font.SysFont("Consolas", 20)
+
+
+
+
+if __name__ == "__main__":
+    main.Main()

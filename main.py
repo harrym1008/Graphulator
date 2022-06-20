@@ -3,8 +3,9 @@ from tkinter import messagebox
 
 import colours
 import graph
-import time
+import deltatime
 import pygame
+
 
 clock = None
 
@@ -41,12 +42,6 @@ def Initiate():
         equations[row].grid(row=row+EQUATIONS_OFFSET, column=2)
 
 
-
-
-def Main():
-    pass
-
-
 def Kill():
     global running
     running = False
@@ -68,12 +63,25 @@ def Kill():
 def MainLoop():
     global screenSize, running, graphScreen, guiScreen, clock
 
+
+
+
+
     while running:
         # main logic
 
+        graph.offset[0] += 0.3
 
-        graph.offset[0] += 0.1
-        graph.offset[1] += 1
+        if graph.offset[0] > 30:
+            graph.offset[0] = -30
+
+
+
+        graph.offset[1] += 0.2
+
+        if graph.offset[1] > 30:
+            graph.offset[1] = -30
+
         graph.DrawAxis(graphScreen)
 
 
@@ -82,6 +90,7 @@ def MainLoop():
 
         guiScreen.update()
         graph.clock.tick(FPS)
+        deltatime.Update()
 
         pygame.display.flip()
 
@@ -99,8 +108,9 @@ def MainLoop():
 
 
 
+def Main():
+    global guiScreen, graphScreen
 
-if __name__ == "__main__":
     guiScreen = tk.Tk()
     guiScreen.title("Graphulator v2")
 
@@ -118,3 +128,8 @@ if __name__ == "__main__":
     Initiate()
     MainLoop()
 
+
+
+
+if __name__ == "__main__":
+    Main()
