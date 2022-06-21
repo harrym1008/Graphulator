@@ -1,10 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
 
-import colours
-import graph
-import deltatime
 import pygame
+
+import colours
+import deltatime
+import graph
+
+quit()
 
 
 clock = None
