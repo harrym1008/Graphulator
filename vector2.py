@@ -1,3 +1,6 @@
+import standardform
+
+
 class Vector2:
     def __init__(self, x, y):
         self.x = x
@@ -13,7 +16,8 @@ class Vector2:
         return Vector2(self.x * scale, self.y * scale)
 
     def __str__(self):
-        return f"x: {round(self.x, 2)}, y: {round(self.y, 2)}"
+        print(f"{self.x}, {self.y}")
+        return f"x: {standardform.StandardForm(self.x)}, y: {standardform.StandardForm(self.y)}"
 
     def Tuple(self):
         return self.x, self.y
