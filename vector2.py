@@ -16,8 +16,7 @@ class Vector2:
         return Vector2(self.x * scale, self.y * scale)
 
     def __str__(self):
-        print(f"{self.x}, {self.y}")
-        return f"x: {standardform.StandardForm(self.x)}, y: {standardform.StandardForm(self.y)}"
+        return f"x: {standardform.GetNumString(self.x)}, y: {standardform.GetNumString(self.y)}"
 
     def Tuple(self):
         return self.x, self.y

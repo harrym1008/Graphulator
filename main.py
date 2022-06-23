@@ -5,8 +5,8 @@ import pygame
 import standardform
 import colours
 import deltatime
+import drawfunc
 import graph
-
 
 clock = None
 
@@ -15,7 +15,6 @@ screenSize = [800, 600]
 targetFPS = 60
 
 threads = []
-
 
 
 def Initiate():
@@ -35,12 +34,12 @@ def Initiate():
     for row in range(EQUATIONS_AMOUNT):
         txt = tk.Label(guiScreen, text=f"   Equation {row + 1}")
         txt.config(font=("Arial", 12))
-        txt.grid(row=row+EQUATIONS_OFFSET, column=0)
+        txt.grid(row=row + EQUATIONS_OFFSET, column=0)
         txt = tk.Label(guiScreen, text=f"   y =")
         txt.config(font=("Arial", 12, "bold"))
-        txt.grid(row=row+EQUATIONS_OFFSET, column=1)
+        txt.grid(row=row + EQUATIONS_OFFSET, column=1)
         equations.append(tk.Entry(master=guiScreen))
-        equations[row].grid(row=row+EQUATIONS_OFFSET, column=2)
+        equations[row].grid(row=row + EQUATIONS_OFFSET, column=2)
 
 
 def Kill():
@@ -60,32 +59,26 @@ def Kill():
     return True
 
 
-
 def MainLoop():
     global screenSize, running, graphScreen, guiScreen, clock
-
-
-
-
 
     while running:
         # main logic
 
-        graph.offset[0] += 0.3 * deltatime.GetMultiplier()
+        graph.CalculateBounds()
+        '''graph.offset[0] += 0.3 * deltatime.GetMultiplier()
 
         if graph.offset[0] > 40:
             graph.offset[0] = -40
 
-
-
         graph.offset[1] += 0.2 * deltatime.GetMultiplier()
 
         if graph.offset[1] > 30:
-            graph.offset[1] = -30
+            graph.offset[1] = -30'''
 
         graph.DrawAxis(graphScreen)
-
-
+        drawfunc.SineTest(graphScreen)
+        graph.DrawDebugText(graphScreen)
 
         # updating screens, quitting from pygame, resizing and waiting for 60 targetFPS
 
@@ -94,6 +87,7 @@ def MainLoop():
         deltatime.Update()
 
         pygame.display.flip()
+        PygameInput()
 
         for e in pygame.event.get():
 
@@ -105,18 +99,36 @@ def MainLoop():
                 screenSize = [e.w, e.h]
 
                 graph.screenSize = screenSize
-                graph.screenCentre = [e.w//2, e.h//2]
+                graph.screenCentre = [e.w // 2, e.h // 2]
 
 
+def PygameInput():
+    keys = pygame.key.get_pressed()
 
-def Main():
-    global guiScreen, graphScreen
+    if keys[pygame.K_LEFT]:
+        graph.offset[0] += 0.05 * deltatime.GetMultiplier() * graph.zoom
+    elif keys[pygame.K_RIGHT]:
+        graph.offset[0] -= 0.05 * deltatime.GetMultiplier() * graph.zoom
+    elif keys[pygame.K_UP]:
+        graph.offset[1] -= 0.05 * deltatime.GetMultiplier() * graph.zoom
+    elif keys[pygame.K_DOWN]:
+        graph.offset[1] += 0.05 * deltatime.GetMultiplier() * graph.zoom
+    elif keys[pygame.K_o]:
+        graph.zoom += 0.1 * deltatime.GetMultiplier()
+    elif keys[pygame.K_p]:
+        graph.zoom -= 0.1 * deltatime.GetMultiplier()
 
+
+graphScreen = None
+guiScreen = None
+
+if __name__ == "__main__":
     guiScreen = tk.Tk()
     guiScreen.title("Graphulator v2")
 
     pygame.init()
     graphScreen = pygame.display.set_mode(screenSize, pygame.RESIZABLE)
+    print(graphScreen)
     pygame.display.set_caption("Display Window")
     graphScreen.fill(colours.PygameColour("white"))
 
@@ -130,7 +142,5 @@ def Main():
     MainLoop()
 
 
-
-
-if __name__ == "__main__":
-    Main()
+def GetResolution():
+    return screenSize

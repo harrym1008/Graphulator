@@ -1,27 +1,32 @@
-import math
+import math, time
+import random, sys
 
 SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"  # ⁺⁻⁼⁽⁾"
-MULT = "×"
 
 
-def GetNumString(n: float, sigfigs: int = 3) -> str:
+def GetNumString(n: float) -> str:
     if n == 0:
         return "0"
 
-    powersOf10 = math.log(math.fabs(n), 10)
-    print(powersOf10)
+    powersOf10 = int(math.log(math.fabs(n), 10))
 
-    if 8 > powersOf10 > -4:
-        s = str(SigFig(n, sigfigs))
-        print(f"/{s}/")
+    if 9 > powersOf10 > -4:
+        if n % 1 == 0:
+            return str(int(n))
 
-        try:
-            print(s[-2:])
-            if s[-2:] == ".0":
-                return s[-2:]
-        finally:
-            return s
-    return StandardForm(n, sigfigs)
+        return GetFractionalNumber(n, powersOf10)
+
+    return StandardForm(n, 4)
+
+
+def GetFractionalNumber(n, powersOf10) -> str:
+    dp = 6 - powersOf10 if 6 - powersOf10 >= 0 else 0
+    dp = dp if powersOf10 > -2 else 8
+    floatN = round(n, dp)
+
+    if floatN % 1 == 0:
+        return str(int(floatN))
+    return str(floatN)
 
 
 def SigFig(x, sig):
@@ -30,7 +35,7 @@ def SigFig(x, sig):
 
 def StandardForm(n: float, dp: int = 3) -> str:
     if n == 0:
-        return f"0.0{MULT}10{StringToSuperscript(0)}"
+        return f"0.0×10{StringToSuperscript(0)}"
 
     negative = "-" if n < 0 else ""
     n = math.fabs(n)
@@ -46,7 +51,7 @@ def StandardForm(n: float, dp: int = 3) -> str:
             normalisedN *= 10
             x -= 1
 
-    return f"{negative}{round(normalisedN, dp)}{MULT}10{StringToSuperscript(int(x))}"
+    return f"{negative}{round(normalisedN, dp)}×10{StringToSuperscript(int(x))}"  #
 
 
 def StringToSuperscript(n: int) -> str:
@@ -61,7 +66,11 @@ def StringToSuperscript(n: int) -> str:
 
     return string
 
+'''
+v = time.perf_counter()
 
-print(GetNumString(0.000002))
-print(GetNumString(3482957.3245))
-print(GetNumString(-21.432))
+while True:
+    n = random.uniform(-1, 1) * 10000.5123 * 10 ** random.randint(-4, 8)
+    s = GetNumString(n)
+    print(f"{n}:  '{s}'  --->  {len(s)}    took {time.perf_counter() - v}")
+    v = time.perf_counter()'''

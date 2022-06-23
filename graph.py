@@ -1,10 +1,10 @@
 import colours
-import main
 import pygame
 import deltatime
 
 from standardform import *
 from vector2 import *
+from main import *
 
 screenSize = [800, 600]
 screenCentre = [400, 300]
@@ -14,7 +14,7 @@ zoom = 20
 
 font = None
 clock = pygame.time.Clock()
-bounds = []
+bounds = [[0, 0], [0, 0]]
 
 
 # 1, 2, 3, 4, 5
@@ -48,8 +48,8 @@ def DrawGraphLines(surface):
         pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
 
     for column in range(-112, 128):
-        start = Vector2(column * (screenSize[1] / 16), -1000) - zoomedOffset
-        end = Vector2(column * (screenSize[1] / 16), screenSize[0] + 1000) - zoomedOffset
+        start = Vector2(column * (screenSize[1] / 12), -1000) - zoomedOffset
+        end = Vector2(column * (screenSize[1] / 12), screenSize[0] + 1000) - zoomedOffset
 
         pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
 
@@ -69,19 +69,27 @@ def DrawDebugText(surface):
     textToRender = [
         f"{round(clock.get_fps(), 3)} FPS",
         f"Offset: {Vector2(offset[0], offset[1])}",
-        f"Zoom: {zoom}",
-        f"Delta-time: { StandardForm(deltatime.deltaTime)}"
+        f"Zoom: {GetNumString(zoom)}",
+        f"Delta-time: {GetNumString(deltatime.deltaTime)}",
+        f"Res: X:{screenSize[0]}, Y:{screenSize[1]}"
     ]
 
     for i, txt in enumerate(textToRender):
-        txtSurface = font.render(txt, True, colours.PygameColour("red"))
+        txtSurface = font.render(txt, True, colours.PygameColour("blue"))
         surface.blit(txtSurface, (0, i * 20))
+
+
+def CalculateBounds():
+    global bounds
+    zoomedOffset = offset[0] * zoom, offset[1] * zoom
+    drawCentre = 0 - zoomedOffset[0] + screenCentre[0], 0 - zoomedOffset[1] + screenCentre[1]
+
+    bounds[0] = [drawCentre[0] - screenSize[0], drawCentre[0] + screenSize[0]]
+    bounds[1] = [drawCentre[1] - screenSize[1], drawCentre[1] + screenSize[1]]
+
+    print(bounds)
 
 
 def CreateFont():
     global font
     font = pygame.font.SysFont("Consolas", 20)
-
-
-if __name__ == "__main__":
-    main.Main()
