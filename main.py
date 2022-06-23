@@ -14,6 +14,9 @@ running = True
 screenSize = [800, 600]
 targetFPS = 60
 
+panSpeed = 2
+zoomSpeed = 0.05
+
 threads = []
 
 
@@ -44,10 +47,11 @@ def Initiate():
 
 def Kill():
     global running
-    running = False
 
     if not messagebox.askyesno("Quit", "Do you really wish to quit?"):
         return False
+
+    running = False
 
     for t in threads:
         t.terminate()
@@ -65,7 +69,6 @@ def MainLoop():
     while running:
         # main logic
 
-        graph.CalculateBounds()
         '''graph.offset[0] += 0.3 * deltatime.GetMultiplier()
 
         if graph.offset[0] > 40:
@@ -77,8 +80,9 @@ def MainLoop():
             graph.offset[1] = -30'''
 
         graph.DrawAxis(graphScreen)
-        drawfunc.SineTest(graphScreen)
+        # drawfunc.SineTest(graphScreen)
         graph.DrawDebugText(graphScreen)
+        graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen)
 
         # updating screens, quitting from pygame, resizing and waiting for 60 targetFPS
 
@@ -106,17 +110,17 @@ def PygameInput():
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_LEFT]:
-        graph.offset[0] += 0.05 * deltatime.GetMultiplier() * graph.zoom
-    elif keys[pygame.K_RIGHT]:
-        graph.offset[0] -= 0.05 * deltatime.GetMultiplier() * graph.zoom
-    elif keys[pygame.K_UP]:
-        graph.offset[1] -= 0.05 * deltatime.GetMultiplier() * graph.zoom
-    elif keys[pygame.K_DOWN]:
-        graph.offset[1] += 0.05 * deltatime.GetMultiplier() * graph.zoom
-    elif keys[pygame.K_o]:
-        graph.zoom += 0.1 * deltatime.GetMultiplier()
-    elif keys[pygame.K_p]:
-        graph.zoom -= 0.1 * deltatime.GetMultiplier()
+        graph.offset[0] += panSpeed * deltatime.GetMultiplier() / graph.zoom
+    if keys[pygame.K_RIGHT]:
+        graph.offset[0] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
+    if keys[pygame.K_UP]:
+        graph.offset[1] += panSpeed * deltatime.GetMultiplier() / graph.zoom
+    if keys[pygame.K_DOWN]:
+        graph.offset[1] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
+    if keys[pygame.K_KP_PLUS]:
+        graph.zoom *= 1 + zoomSpeed * deltatime.GetMultiplier()
+    if keys[pygame.K_KP_MINUS]:
+        graph.zoom /= 1 + zoomSpeed * deltatime.GetMultiplier()
 
 
 graphScreen = None

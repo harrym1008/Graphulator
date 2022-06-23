@@ -8,13 +8,18 @@ from main import *
 
 screenSize = [800, 600]
 screenCentre = [400, 300]
+zoomedOffset = [0, 0]
+orgPos = [0, 0]
 
 offset = [0, 0]
-zoom = 20
+zoom = 2.5
 
 font = None
 clock = pygame.time.Clock()
-bounds = [[0, 0], [0, 0]]
+
+'''bounds = {"high": [0, 0, 0],
+          "mid": [0, 0, 0],
+          "low": [0, 0, 0]}'''
 
 
 # 1, 2, 3, 4, 5
@@ -23,35 +28,43 @@ bounds = [[0, 0], [0, 0]]
 
 
 def DrawXY(surface):
-    zoomedOffset = offset[0] * zoom, offset[1] * zoom
+    global orgPos
+    orgPosX, orgPosY = orgPos
 
-    drawCentre = 0 - zoomedOffset[0] + screenCentre[0], 0 - zoomedOffset[1] + screenCentre[1]
+    lines = [(orgPos, (0, orgPosY)), (orgPos, (screenSize[0], orgPosY)),
+             (orgPos, (orgPosX, 0)), (orgPos, (orgPosX, screenSize[1]))]
 
-    maxLineEdges = [
-        (0, drawCentre[1]),
-        (screenSize[0], drawCentre[1]),
-        (drawCentre[0], 0),
-        (drawCentre[0], screenSize[1])
-    ]
-
-    for end in maxLineEdges:
-        pygame.draw.line(surface, colours.PygameColour("black"), drawCentre, end, width=3)
+    for line in lines:
+        pygame.draw.line(surface, colours.PygameColour("black"), line[0], line[1], 2)
 
 
 def DrawGraphLines(surface):
-    zoomedOffset = Vector2(offset[0] * zoom, offset[1] * zoom)
 
-    for row in range(-112, 128):
-        start = Vector2(-1000, row * (screenSize[0] / 16)) - zoomedOffset
-        end = Vector2(screenSize[1] + 1000, row * (screenSize[0] / 16)) - zoomedOffset
+    increment = 16 * zoom
+    lineOffset = [orgPos[0] % increment, orgPos[1] % increment]
 
-        pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
+    n = -increment
 
-    for column in range(-112, 128):
-        start = Vector2(column * (screenSize[1] / 12), -1000) - zoomedOffset
-        end = Vector2(column * (screenSize[1] / 12), screenSize[0] + 1000) - zoomedOffset
+    while n < screenSize[0] + increment or n < screenSize[1] + increment:
 
-        pygame.draw.line(surface, colours.PygameColour("black"), start.Tuple(), end.Tuple())
+        startX, endX = (n + lineOffset[0], -lineOffset[1]), (n + lineOffset[0], screenSize[1] + lineOffset[1])
+        startY, endY = (-lineOffset[0], n + lineOffset[1]), (screenSize[0] + lineOffset[0], n + lineOffset[1])
+
+        pygame.draw.line(surface, colours.PygameColour("cyan"), startX, endX)
+        pygame.draw.line(surface, colours.PygameColour("cyan"), startY, endY)
+
+        n += increment
+
+
+# Broken, please fix!
+def WritePosOnGraph(pos, surface):
+    x, y = (pos[0] - screenCentre[0]) * zoom + zoomedOffset[0], (pos[1] - screenCentre[1]) * zoom + zoomedOffset[1]
+    writtenPosition = f"{GetNumString(x)}, {GetNumString(y)}"
+
+    txtSurface = font.render(writtenPosition, True, colours.PygameColour("blue"))
+    surface.blit(txtSurface, (pos[0] - txtSurface.get_width()/2, pos[1] - 16))
+
+
 
 
 def DrawAxis(surface):
@@ -59,8 +72,9 @@ def DrawAxis(surface):
 
     screenCentre = [screenSize[0] // 2, screenSize[1] // 2]
     surface.fill(colours.PygameColour("white"))
-    DrawXY(surface)
+    CalculateBounds(surface)
     DrawGraphLines(surface)
+    DrawXY(surface)
 
     DrawDebugText(surface)
 
@@ -69,27 +83,27 @@ def DrawDebugText(surface):
     textToRender = [
         f"{round(clock.get_fps(), 3)} FPS",
         f"Offset: {Vector2(offset[0], offset[1])}",
-        f"Zoom: {GetNumString(zoom)}",
+        f"Zoom: {GetNumString(zoom * 100)}%",
         f"Delta-time: {GetNumString(deltatime.deltaTime)}",
         f"Res: X:{screenSize[0]}, Y:{screenSize[1]}"
     ]
 
     for i, txt in enumerate(textToRender):
         txtSurface = font.render(txt, True, colours.PygameColour("blue"))
-        surface.blit(txtSurface, (0, i * 20))
+        surface.blit(txtSurface, (2, i * 16))
 
 
-def CalculateBounds():
-    global bounds
+def CalculateBounds(surface):
+    global bounds, zoomedOffset, orgPos
     zoomedOffset = offset[0] * zoom, offset[1] * zoom
-    drawCentre = 0 - zoomedOffset[0] + screenCentre[0], 0 - zoomedOffset[1] + screenCentre[1]
 
-    bounds[0] = [drawCentre[0] - screenSize[0], drawCentre[0] + screenSize[0]]
-    bounds[1] = [drawCentre[1] - screenSize[1], drawCentre[1] + screenSize[1]]
+    orgPosX, orgPosY = -zoomedOffset[0] + screenCentre[0], -zoomedOffset[1] + screenCentre[1]
+    orgPos = [orgPosX, orgPosY]
 
-    print(bounds)
+    # txtSurface = font.render("(0, 0)", True, colours.PygameColour("blue"))
+    # surface.blit(txtSurface, orgPos)
 
 
 def CreateFont():
     global font
-    font = pygame.font.SysFont("Consolas", 20)
+    font = pygame.font.SysFont("Consolas", 16)
