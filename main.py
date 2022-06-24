@@ -19,9 +19,9 @@ targetFPS = 60
 panSpeed = 2
 zoomSpeed = 0.05
 
-graphMouseStart = (-1, -1)
+graphMouseStart = [-1, -1]
 mouseStart = [-1, -1]
-mouseMoved = ()
+mouseMoved = (0, 0)
 
 threads = []
 
@@ -80,29 +80,32 @@ def MainLoop():
         graph.DrawDebugText(graphScreen)
         graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen)
 
-        # updating screens, quitting from pygame, resizing and waiting for 60 targetFPS
+
+        # updating screens, quitting from pygame, resizing and waiting for 60 FPS
 
         guiScreen.update()
         graph.clock.tick(targetFPS)
         deltatime.Update()
 
         pygame.display.flip()
-        PygameInput()
 
-        for e in pygame.event.get():
+        events = pygame.event.get()
+        PygameInput(events)
+
+        for e in events:
 
             if e.type == pygame.QUIT:
                 if Kill():
                     break
             if e.type == pygame.VIDEORESIZE:
-                graphScreen = pygame.display.set_mode((e.w, e.h), pygame.RESIZABLE)
+                graphScreen = pygame.display.set_mode((e.w, e.h), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                 screenSize = [e.w, e.h]
 
                 graph.screenSize = screenSize
                 graph.screenCentre = [e.w // 2, e.h // 2]
 
 
-def PygameInput():
+def PygameInput(events):
     global mouseStart, mouseMoved, graphMouseStart
 
     keys = pygame.key.get_pressed()
@@ -117,9 +120,9 @@ def PygameInput():
     if keys[pygame.K_DOWN]:
         graph.offset[1] += panSpeed * deltatime.GetMultiplier() / graph.zoom
     if keys[pygame.K_KP_PLUS]:
-        graph.zoom *= 1 + zoomSpeed * deltatime.GetMultiplier()
+        graph.zoom *= 1 + zoomSpeed
     if keys[pygame.K_KP_MINUS]:
-        graph.zoom /= 1 + zoomSpeed * deltatime.GetMultiplier()
+        graph.zoom /= 1 + zoomSpeed
 
     # Panning the graph with the mouse
     mouseClicked = pygame.mouse.get_pressed()
@@ -127,30 +130,30 @@ def PygameInput():
     if mouseClicked[0] and mouseStart == [-1, -1]:
         mouseStart = pygame.mouse.get_pos()
         print("updating graph mouse start")
-        graphMouseStart = (graph.offset[0], graph.offset[1])
+        graphMouseStart = [graph.offset[0], graph.offset[1]]
 
     if not mouseClicked[0] and mouseStart != [-1, -1]:
         mouseMoved = tuple(numpy.subtract(pygame.mouse.get_pos(), mouseStart))
         mouseStart = [-1, -1]
-        graphMouseStart = (-1, -1)
+        graphMouseStart = [-1, -1]
 
     elif mouseClicked[0]:
         mouseMoved = tuple(numpy.subtract(pygame.mouse.get_pos(), mouseStart))
 
     # print((mouseStart, mouseMoved, graphMouseStart))
 
-    if mouseStart != [-1, -1] and mouseMoved != ():
+    if mouseStart != [-1, -1]:
         graph.offset[0] = graphMouseStart[0] - mouseMoved[0] / graph.zoom
         graph.offset[1] = graphMouseStart[1] - mouseMoved[1] / graph.zoom
 
     # Zoom in and out with the scroll wheel
 
-    for e in pygame.event.get():
+    for e in events:
         if e.type == pygame.MOUSEBUTTONDOWN:
             if e.button == 4:
-                graph.zoom *= 1 + zoomSpeed * deltatime.GetMultiplier()
+                graph.zoom *= 1 + zoomSpeed
             elif e.button == 5:
-                graph.zoom /= 1 + zoomSpeed * deltatime.GetMultiplier()
+                graph.zoom /= 1 + zoomSpeed
 
 
 graphScreen = None
@@ -161,7 +164,7 @@ if __name__ == "__main__":
     guiScreen.title("Graphulator v2")
 
     pygame.init()
-    graphScreen = pygame.display.set_mode(screenSize, pygame.RESIZABLE)
+    graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
     print(graphScreen)
     pygame.display.set_caption("Display Window")
     graphScreen.fill(colours.PygameColour("white"))
@@ -175,6 +178,3 @@ if __name__ == "__main__":
     Initiate()
     MainLoop()
 
-
-def GetResolution():
-    return screenSize

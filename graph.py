@@ -20,9 +20,9 @@ font = None
 clock = pygame.time.Clock()
 
 LOG_2 = math.log(2, 10)
-LOG_5 = math.log(5, 10)
+LOG_4 = math.log(4, 10)
 
-print(LOG_2, LOG_5)
+
 
 '''bounds = {"high": [0, 0, 0],
           "mid": [0, 0, 0],
@@ -46,23 +46,30 @@ def DrawXY(surface):
 
 
 def GetGraphLineIncrement():
-    powersOf10 = math.log(zoom, 10) + 100
-    fractionalValue = math.fabs(powersOf10 - math.trunc(powersOf10))
-    print(powersOf10, fractionalValue)
+    logarithm = math.log(zoom, 10)
 
-    if fractionalValue <= LOG_2:
-        return 10 * zoom
-    elif fractionalValue <= LOG_5:
-        return 20 * zoom
+    factor = zoom
+    while not 1 <= factor < 10:
+        if factor >= 10:
+            factor /= 10
+        else:
+            factor *= 10
+
+    fractionalValue = math.fabs(logarithm + 100 - math.trunc(logarithm + 100))
+
+    if fractionalValue >= LOG_4:
+        return 5 * factor
+    elif fractionalValue >= LOG_2:
+        return 10 * factor
     else:
-        return 4 * zoom
+        return 20 * factor
 
 
 def DrawGraphLines(surface):
     increment = GetGraphLineIncrement()
     lineOffset = [orgPos[0] % increment, orgPos[1] % increment]
 
-    n = -increment * zoom
+    n = -increment
 
     while n < screenSize[0] + increment or n < screenSize[1] + increment:
         startX, endX = (n + lineOffset[0], -lineOffset[1]), (n + lineOffset[0], screenSize[1] + lineOffset[1])
@@ -106,7 +113,7 @@ def DrawAxis(surface):
 
     screenCentre = [screenSize[0] // 2, screenSize[1] // 2]
     surface.fill(colours.PygameColour("white"))
-    CalculateBounds(surface)
+    PreCalculation(surface)
     DrawGraphLines(surface)
     DrawXY(surface)
 
@@ -117,8 +124,8 @@ def DrawDebugText(surface):
     textToRender = [
         f"{round(clock.get_fps(), 3)} FPS",
         f"Offset: {Vector2(offset[0], offset[1])}",
-        f"Zoom: {GetNumString(zoom * 100)}%",
-        f"Delta-time: {GetNumString(deltatime.deltaTime)}",
+        f"Zoom: {SigFig(zoom * 100, 5)}%",
+        f"Deltatime: {GetNumString(deltatime.deltaTime)}",
         f"Res: X:{screenSize[0]}, Y:{screenSize[1]}"
     ]
 
@@ -127,8 +134,8 @@ def DrawDebugText(surface):
         surface.blit(txtSurface, (2, i * 16))
 
 
-def CalculateBounds(surface):
-    global bounds, zoomedOffset, orgPos
+def PreCalculation(surface):
+    global zoomedOffset, orgPos
     zoomedOffset = offset[0] * zoom, offset[1] * zoom
 
     orgPosX, orgPosY = -zoomedOffset[0] + screenCentre[0], -zoomedOffset[1] + screenCentre[1]
