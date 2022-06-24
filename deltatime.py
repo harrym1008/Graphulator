@@ -1,6 +1,8 @@
 import time
 import main
 
+baseFPS = 60
+
 deltaTime = 0
 lastFrameTime = 0
 
@@ -15,4 +17,4 @@ def Update():
 
 
 def GetMultiplier():
-    return deltaTime * main.targetFPS
+    return deltaTime * baseFPS

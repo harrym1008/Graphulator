@@ -1,4 +1,4 @@
-import standardform
+import numstr
 
 
 class Vector2:
@@ -16,7 +16,7 @@ class Vector2:
         return Vector2(self.x * scale, self.y * scale)
 
     def __str__(self):
-        return f"x: {standardform.GetNumString(self.x)}, y: {standardform.GetNumString(self.y)}"
+        return f"x: {numstr.GetNumString(self.x)}, y: {numstr.GetNumString(self.y)}"
 
     def Tuple(self):
         return self.x, self.y

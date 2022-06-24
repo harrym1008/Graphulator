@@ -1,8 +1,10 @@
+import math
+
 import colours
 import pygame
 import deltatime
 
-from standardform import *
+from numstr import *
 from vector2 import *
 from main import *
 
@@ -12,10 +14,15 @@ zoomedOffset = [0, 0]
 orgPos = [0, 0]
 
 offset = [0, 0]
-zoom = 2.5
+zoom = 1
 
 font = None
 clock = pygame.time.Clock()
+
+LOG_2 = math.log(2, 10)
+LOG_5 = math.log(5, 10)
+
+print(LOG_2, LOG_5)
 
 '''bounds = {"high": [0, 0, 0],
           "mid": [0, 0, 0],
@@ -38,15 +45,26 @@ def DrawXY(surface):
         pygame.draw.line(surface, colours.PygameColour("black"), line[0], line[1], 2)
 
 
-def DrawGraphLines(surface):
+def GetGraphLineIncrement():
+    powersOf10 = math.log(zoom, 10) + 100
+    fractionalValue = math.fabs(powersOf10 - math.trunc(powersOf10))
+    print(powersOf10, fractionalValue)
 
-    increment = 16 * zoom
+    if fractionalValue <= LOG_2:
+        return 10 * zoom
+    elif fractionalValue <= LOG_5:
+        return 20 * zoom
+    else:
+        return 4 * zoom
+
+
+def DrawGraphLines(surface):
+    increment = GetGraphLineIncrement()
     lineOffset = [orgPos[0] % increment, orgPos[1] % increment]
 
-    n = -increment
+    n = -increment * zoom
 
     while n < screenSize[0] + increment or n < screenSize[1] + increment:
-
         startX, endX = (n + lineOffset[0], -lineOffset[1]), (n + lineOffset[0], screenSize[1] + lineOffset[1])
         startY, endY = (-lineOffset[0], n + lineOffset[1]), (screenSize[0] + lineOffset[0], n + lineOffset[1])
 
@@ -58,13 +76,29 @@ def DrawGraphLines(surface):
 
 # Broken, please fix!
 def WritePosOnGraph(pos, surface):
-    x, y = (pos[0] - screenCentre[0]) * zoom + zoomedOffset[0], (pos[1] - screenCentre[1]) * zoom + zoomedOffset[1]
-    writtenPosition = f"{GetNumString(x)}, {GetNumString(y)}"
+    if not pygame.mouse.get_focused():  # mouse is not focused on the window
+        return
+
+    # calculate co-ordinates of the mouse position
+    x = -(pos[0] - screenCentre[0]) / zoom - offset[0] / zoom
+    y = -(pos[1] - screenCentre[1]) / zoom - offset[1] / zoom
+
+    writtenPosition = GetCoordString(x, y)
 
     txtSurface = font.render(writtenPosition, True, colours.PygameColour("blue"))
-    surface.blit(txtSurface, (pos[0] - txtSurface.get_width()/2, pos[1] - 16))
 
+    renderX = pos[0] - txtSurface.get_width() / 2 - 4
+    renderY = pos[1] - 18
 
+    if renderX < 0:
+        renderX = 0
+    elif renderX > screenSize[0] - txtSurface.get_width():
+        renderX = screenSize[0] - txtSurface.get_width()  #
+
+    if renderY < 0:
+        renderY = 0
+
+    surface.blit(txtSurface, (renderX, renderY))
 
 
 def DrawAxis(surface):
@@ -99,9 +133,6 @@ def CalculateBounds(surface):
 
     orgPosX, orgPosY = -zoomedOffset[0] + screenCentre[0], -zoomedOffset[1] + screenCentre[1]
     orgPos = [orgPosX, orgPosY]
-
-    # txtSurface = font.render("(0, 0)", True, colours.PygameColour("blue"))
-    # surface.blit(txtSurface, orgPos)
 
 
 def CreateFont():

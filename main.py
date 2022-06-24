@@ -1,8 +1,10 @@
+import time
 import tkinter as tk
 from tkinter import messagebox
 
+import numpy
 import pygame
-import standardform
+import numstr
 import colours
 import deltatime
 import drawfunc
@@ -16,6 +18,10 @@ targetFPS = 60
 
 panSpeed = 2
 zoomSpeed = 0.05
+
+graphMouseStart = (-1, -1)
+mouseStart = [-1, -1]
+mouseMoved = ()
 
 threads = []
 
@@ -69,16 +75,6 @@ def MainLoop():
     while running:
         # main logic
 
-        '''graph.offset[0] += 0.3 * deltatime.GetMultiplier()
-
-        if graph.offset[0] > 40:
-            graph.offset[0] = -40
-
-        graph.offset[1] += 0.2 * deltatime.GetMultiplier()
-
-        if graph.offset[1] > 30:
-            graph.offset[1] = -30'''
-
         graph.DrawAxis(graphScreen)
         # drawfunc.SineTest(graphScreen)
         graph.DrawDebugText(graphScreen)
@@ -107,20 +103,54 @@ def MainLoop():
 
 
 def PygameInput():
+    global mouseStart, mouseMoved, graphMouseStart
+
     keys = pygame.key.get_pressed()
 
+    # Keyboard controls
     if keys[pygame.K_LEFT]:
-        graph.offset[0] += panSpeed * deltatime.GetMultiplier() / graph.zoom
-    if keys[pygame.K_RIGHT]:
         graph.offset[0] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
+    if keys[pygame.K_RIGHT]:
+        graph.offset[0] += panSpeed * deltatime.GetMultiplier() / graph.zoom
     if keys[pygame.K_UP]:
-        graph.offset[1] += panSpeed * deltatime.GetMultiplier() / graph.zoom
-    if keys[pygame.K_DOWN]:
         graph.offset[1] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
+    if keys[pygame.K_DOWN]:
+        graph.offset[1] += panSpeed * deltatime.GetMultiplier() / graph.zoom
     if keys[pygame.K_KP_PLUS]:
         graph.zoom *= 1 + zoomSpeed * deltatime.GetMultiplier()
     if keys[pygame.K_KP_MINUS]:
         graph.zoom /= 1 + zoomSpeed * deltatime.GetMultiplier()
+
+    # Panning the graph with the mouse
+    mouseClicked = pygame.mouse.get_pressed()
+
+    if mouseClicked[0] and mouseStart == [-1, -1]:
+        mouseStart = pygame.mouse.get_pos()
+        print("updating graph mouse start")
+        graphMouseStart = (graph.offset[0], graph.offset[1])
+
+    if not mouseClicked[0] and mouseStart != [-1, -1]:
+        mouseMoved = tuple(numpy.subtract(pygame.mouse.get_pos(), mouseStart))
+        mouseStart = [-1, -1]
+        graphMouseStart = (-1, -1)
+
+    elif mouseClicked[0]:
+        mouseMoved = tuple(numpy.subtract(pygame.mouse.get_pos(), mouseStart))
+
+    # print((mouseStart, mouseMoved, graphMouseStart))
+
+    if mouseStart != [-1, -1] and mouseMoved != ():
+        graph.offset[0] = graphMouseStart[0] - mouseMoved[0] / graph.zoom
+        graph.offset[1] = graphMouseStart[1] - mouseMoved[1] / graph.zoom
+
+    # Zoom in and out with the scroll wheel
+
+    for e in pygame.event.get():
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            if e.button == 4:
+                graph.zoom *= 1 + zoomSpeed * deltatime.GetMultiplier()
+            elif e.button == 5:
+                graph.zoom /= 1 + zoomSpeed * deltatime.GetMultiplier()
 
 
 graphScreen = None

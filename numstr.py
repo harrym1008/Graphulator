@@ -4,7 +4,7 @@ import random, sys
 SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"  # ⁺⁻⁼⁽⁾"
 
 
-def GetNumString(n: float) -> str:
+def GetNumString(n: float, short: bool = False) -> str:
     if n == 0:
         return "0"
 
@@ -14,14 +14,20 @@ def GetNumString(n: float) -> str:
         if n % 1 == 0:
             return str(int(n))
 
-        return GetFractionalNumber(n, powersOf10)
+        return GetFractionalNumber(n, powersOf10, 3 if short else 6)
 
-    return StandardForm(n, 4)
+    return StandardForm(n, 2 if short else 4)
 
 
-def GetFractionalNumber(n, powersOf10) -> str:
-    dp = 6 - powersOf10 if 6 - powersOf10 >= 0 else 0
-    dp = dp if powersOf10 > -2 else 8
+def GetCoordString(x: float, y: float):
+    return f"x={GetNumString(x, short=True)}, y={GetNumString(y, short=True)}"
+
+
+
+
+def GetFractionalNumber(n, powersOf10, maxdp=6) -> str:
+    dp = maxdp - powersOf10 if maxdp - powersOf10 >= 0 else 0
+    dp = dp if powersOf10 > -2 else -2-maxdp
     floatN = round(n, dp)
 
     if floatN % 1 == 0:
