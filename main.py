@@ -22,6 +22,7 @@ zoomSpeed = 0.05
 graphMouseStart = [-1, -1]
 mouseStart = [-1, -1]
 mouseMoved = (0, 0)
+mouseFocusTime = 0
 
 threads = []
 
@@ -77,8 +78,7 @@ def MainLoop():
 
         graph.DrawAxis(graphScreen)
         # drawfunc.SineTest(graphScreen)
-        graph.DrawDebugText(graphScreen)
-        graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen)
+        graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen, mouseFocusTime)
 
 
         # updating screens, quitting from pygame, resizing and waiting for 60 FPS
@@ -106,7 +106,7 @@ def MainLoop():
 
 
 def PygameInput(events):
-    global mouseStart, mouseMoved, graphMouseStart
+    global mouseStart, mouseMoved, graphMouseStart, mouseFocusTime
 
     keys = pygame.key.get_pressed()
 
@@ -154,6 +154,14 @@ def PygameInput(events):
                 graph.zoom *= 1 + zoomSpeed
             elif e.button == 5:
                 graph.zoom /= 1 + zoomSpeed
+
+    # Mouse focus
+    if pygame.mouse.get_focused():
+        mouseFocusTime = 0.25
+    else:
+        mouseFocusTime -= deltatime.deltaTime
+
+    graph.zoom = round(graph.zoom, 10)
 
 
 graphScreen = None

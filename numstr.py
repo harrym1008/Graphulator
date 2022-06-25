@@ -48,8 +48,8 @@ def StandardForm(n: float, dp: int = 3) -> str:
     x = math.log(n, 10)
     normalisedN = n / 10 ** math.trunc(x)
 
-    # fix weird quirk with numbers less than 1
-    while normalisedN > 10 or normalisedN < 1:
+    # guarantee that the standard form is between 1 and 10
+    while normalisedN >= 10 or normalisedN < 1:
         if normalisedN > 10:
             normalisedN /= 10
             x += 1
