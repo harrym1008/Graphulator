@@ -24,7 +24,7 @@ mouseStart = [-1, -1]
 mouseMoved = (0, 0)
 mouseFocusTime = 0
 
-threads = []
+equations = [ "numpy.tan( math.floor( x ** 2 ) )" ]
 
 
 def Initiate():
@@ -36,7 +36,7 @@ def Initiate():
     author.config(font=("Arial", 8))
     author.grid(row=1, column=0, columnspan=3)
 
-    equations = []
+    equEntries = []
 
     EQUATIONS_AMOUNT = 10
     EQUATIONS_OFFSET = 2
@@ -48,8 +48,8 @@ def Initiate():
         txt = tk.Label(guiScreen, text=f"   y =")
         txt.config(font=("Arial", 12, "bold"))
         txt.grid(row=row + EQUATIONS_OFFSET, column=1)
-        equations.append(tk.Entry(master=guiScreen))
-        equations[row].grid(row=row + EQUATIONS_OFFSET, column=2)
+        equEntries.append(tk.Entry(master=guiScreen))
+        equEntries[row].grid(row=row + EQUATIONS_OFFSET, column=2)
 
 
 def Kill():
@@ -59,9 +59,6 @@ def Kill():
         return False
 
     running = False
-
-    for t in threads:
-        t.terminate()
 
     pygame.quit()
     guiScreen.destroy()
@@ -73,20 +70,30 @@ def Kill():
 def MainLoop():
     global screenSize, running, graphScreen, guiScreen, clock
 
+    timer = 0
+    timeToExec = 0
+
+
     while running:
         # main logic
 
-        graph.DrawAxis(graphScreen)
-        # drawfunc.SineTest(graphScreen)
+        graph.DrawAxis(graphScreen, timeToExec)
+
+        for eq in equations:
+            drawfunc.SineTest(graphScreen, graph.bounds, eq)
+
+
         graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen, mouseFocusTime)
 
 
         # updating screens, quitting from pygame, resizing and waiting for 60 FPS
 
-        guiScreen.update()
+        timeToExec = time.perf_counter() - timer
         graph.clock.tick(targetFPS)
+        timer = time.perf_counter()
         deltatime.Update()
 
+        guiScreen.update()
         pygame.display.flip()
 
         events = pygame.event.get()
@@ -123,6 +130,12 @@ def PygameInput(events):
         graph.zoom *= 1 + zoomSpeed
     if keys[pygame.K_KP_MINUS]:
         graph.zoom /= 1 + zoomSpeed
+
+    # Reset offset and panning
+    if keys[pygame.K_r]:
+        graph.zoom = 10
+        graph.offset = [0, 0]
+
 
     # Panning the graph with the mouse
     mouseClicked = pygame.mouse.get_pressed()
@@ -173,7 +186,6 @@ if __name__ == "__main__":
 
     pygame.init()
     graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
-    print(graphScreen)
     pygame.display.set_caption("Display Window")
     graphScreen.fill(colours.PygameColour("white"))
 

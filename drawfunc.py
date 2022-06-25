@@ -1,8 +1,34 @@
+import math
 import numpy as np
-import sys, time, math
+import colours
+import pygame
 
-from vector2 import *
+from numstr import *
 from graph import *
+from main import *
+
+INCREMENT_FACTOR = .3
+
+screenSize = [800, 600]
+screenCentre = [400, 300]
+zoomedOffset = [0, 0]
+zoomedOffsetInverse = [0, 0]
+orgPos = [0, 0]
+
+offset = [0, 0]
+zoom = 10
+
+
+def UpdateValues(_screenSize, _screenCentre, _zoomedOffset, _zoomedOffsetInverse, _orgPos, _offset, _zoom):
+    global screenSize, screenCentre, zoomedOffset, zoomedOffsetInverse, orgPos, offset, zoom
+
+    screenSize = _screenSize
+    screenCentre = _screenCentre
+    zoomedOffset = _zoomedOffset
+    zoomedOffsetInverse = _zoomedOffsetInverse
+    orgPos = _orgPos
+    offset = _offset
+    zoom = _zoom
 
 
 def FloatRange(start, stop, step, centre=None):
@@ -28,16 +54,21 @@ def FloatRange(start, stop, step, centre=None):
     return n
 
 
+def SineTest(surface, bounds, equation):
+    points = []
+    start, end = bounds.W, bounds.E
+    increment = ((end[0] - start[0]) / screenSize[0]) / INCREMENT_FACTOR
 
-def SineTest(surface):
-    arr = []
-    for x in FloatRange(bounds[0][0], bounds[0][1], (bounds[0][1] - bounds[0][0])/screenSize[0]):
-        arr.append((x, zoom*np.sin(x)))
+    for x in FloatRange(start[0], end[0], increment):
+        points.append((x, eval(equation) ))
 
-    zoomedOffset = Vector2(offset[0] * zoom, offset[1] * zoom)
+    lastX, lastY = points[0]
+    drawOffset = -zoomedOffset[0] + screenCentre[0], -zoomedOffset[1] + screenCentre[1]
 
-    for i in range(len(arr) - 1):
-        start = Vector2(i, arr[i][1] + screenSize[1] / 2)
-        end = Vector2(i, arr[i + 1][1] + screenSize[1] / 2)
+    for x, y in points:
+        plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
+        plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
-        pygame.draw.line(surface, colours.PygameColour("red"), start.Tuple(), end.Tuple(), 3)
+        pygame.draw.line(surface, colours.PygameColour("red"), plotStart, plotEnd, 3)
+
+        lastX, lastY = x, y

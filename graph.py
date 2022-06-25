@@ -2,7 +2,7 @@ import math
 
 import colours
 import pygame
-import deltatime
+import drawfunc
 
 from numstr import *
 from vector2 import *
@@ -22,16 +22,6 @@ clock = pygame.time.Clock()
 
 LOG_2 = math.log(2, 10)
 LOG_4 = math.log(4, 10)
-
-HIGH = 0
-MEDIUM = 1
-LOW = 2
-
-bounds = {HIGH: [0, 0, 0],
-          MEDIUM: [0, 0, 0],
-          LOW: [0, 0, 0]}
-
-lastFrameData = None
 
 
 # 1, 2, 3, 4, 5
@@ -67,12 +57,12 @@ class CornerValues:
         bound = {x: (-maxX / 2, maxX / 2), y: (-maxY / 2, maxY / 2)}
 
         # Calculating once all possible X and Y values
-        N = (oy * z + 0.5 * maxY - bound[y][0]) / z + bound[y][0] / z
-        S = (oy * z + 0.5 * maxY - bound[y][1]) / z + bound[y][1] / z
-        E = (ox * z - 0.5 * maxX + bound[x][1]) / z + bound[x][1] / z
-        W = (ox * z - 0.5 * maxX + bound[x][0]) / z + bound[x][0] / z
-        CENTRE_X = (ox * z - 0.5 * maxX) / z + bound[x][0] / z
-        CENTRE_Y = (oy * z - 0.5 * maxY) / z + bound[x][0] / z
+        S = (oy * z - 0.5 * maxY - bound[y][0]) / z + screenCentre[1] / z
+        N = (oy * z - 0.5 * maxY - bound[y][1]) / z + screenCentre[1] / z
+        W = (ox * z - 0.5 * maxX + bound[x][0]) / z + screenCentre[0] / z
+        E = (ox * z - 0.5 * maxX + bound[x][1]) / z + screenCentre[0] / z
+        CENTRE_X = (ox * z - 0.5 * maxX) / z + screenCentre[0] / z
+        CENTRE_Y = (oy * z - 0.5 * maxY) / z + screenCentre[1] / z
 
         # Putting together these values into x and y tuples
         self.CENTRE = CENTRE_X, CENTRE_Y
@@ -100,6 +90,10 @@ class CornerValues:
 7) NW:   {self.NW}
 8) CNTR: {self.CENTRE}
 '''
+
+
+bounds = CornerValues(offset, zoom)
+lastFrameData = None
 
 
 def CheckIfPreCalculationIsNecessary():
@@ -165,7 +159,10 @@ def WriteGraphValues(surface):
     # draw X values
     pos = (screenCentre[0] - zoomedOffset[0], screenCentre[1] - zoomedOffset[1])
 
-    for i in range(-screenSize[0] // 2, screenSize[0] // 2 + 1, 100):
+    extents = [(-screenSize[0] * 50) // 2, (screenSize[0] * 50) // 2,
+               (-screenSize[1] * 50) // 2, (screenSize[1] * 50) // 2]
+
+    for i in range(extents[0], extents[1], 100):
         txtSurface = font.render(GetNumString(i / zoom, True), True, colours.PygameColour("black"))
 
         surface.blit(txtSurface, (pos[0] + i - txtSurface.get_width() / 2, pos[1] + 2))
@@ -175,7 +172,7 @@ def WriteGraphValues(surface):
 
     # draw Y values
 
-    for i in range(-screenSize[0] // 2, screenSize[0] // 2 + 1, 100):
+    for i in range(extents[2], extents[3], 100):
         txtSurface = font.render(GetNumString(-i / zoom, True), True, colours.PygameColour("black"))
 
         surface.blit(txtSurface, (pos[0] + 2, pos[1] + i - txtSurface.get_height() / 2))
@@ -195,7 +192,7 @@ def WritePosOnGraph(pos, surface, focusTime):
 
     # Simplified:
     x = (offset[0] * zoom - 0.5 * screenSize[0] + pos[0]) / zoom
-    y = (offset[1] * zoom + 0.5 * screenSize[1] - pos[1]) / zoom
+    y = (-offset[1] * zoom + 0.5 * screenSize[1] - pos[1]) / zoom
 
     writtenPosition = GetCoordString(x, y)
 
@@ -215,45 +212,45 @@ def WritePosOnGraph(pos, surface, focusTime):
     surface.blit(txtSurface, (renderX, renderY))
 
 
-def DrawAxis(surface):
+def DrawAxis(surface, timeToExec):
     global screenCentre
 
     screenCentre = [screenSize[0] // 2, screenSize[1] // 2]
     surface.fill(colours.PygameColour("white"))
     PreCalculation(surface)
+    drawfunc.UpdateValues(screenSize, screenCentre, zoomedOffset, zoomedOffsetInverse, orgPos, offset, zoom)
+
     DrawGraphLines(surface)
     DrawXY(surface)
     WriteGraphValues(surface)
 
-    DebugStuff(surface)
+    DebugStuff(surface, timeToExec)
 
 
-def DebugStuff(surface):
+def DebugStuff(surface, timeToExec):
+    '''for i, (x, y) in enumerate(bounds.GetTuple()):
+        drawAt = x * zoom - zoomedOffset[0] + screenCentre[0], y * zoom - zoomedOffset[1] + screenCentre[1]
+        pygame.draw.circle(surface, colours.PygameColour("green"), drawAt, 16)
+
+        txt = font.render(f"{round(x, 1)},{round(y, 1)}", True, colours.PygameColour("black"))
+        surface.blit(txt, (drawAt[0] - txt.get_width()/2, drawAt[1] - txt.get_height()/2))'''
+
     textToRender = [
         f"{round(clock.get_fps(), 3)} FPS",
         f"Offset: {Vector2(offset[0], offset[1])}",
         f"Zoom: {SigFig(zoom * 100, 5)}%",
         f"Deltatime: {GetNumString(deltatime.deltaTime)}",
-        f"Res: X:{screenSize[0]}, Y:{screenSize[1]}"
+        f"Res: X:{screenSize[0]}, Y:{screenSize[1]}",
+        f"Execution: {GetNumString(timeToExec / 1000)} ms"
     ]
 
     for i, txt in enumerate(textToRender):
         txtSurface = font.render(txt, True, colours.PygameColour("blue"))
         surface.blit(txtSurface, (2, i * 16))
 
-    for i, txt in enumerate(str(bounds).split("\n")):
+    '''for i, txt in enumerate(str(bounds).split("\n")):
         txtSurface = font.render(txt, True, colours.PygameColour("red"))
-        surface.blit(txtSurface, (2, 100 + i * 16))
-
-
-    for i, (x, y) in enumerate(bounds.GetTuple()):
-        drawAt = x * zoom - zoomedOffset[0] + screenCentre[0], y * zoom - zoomedOffset[1] + screenCentre[1]
-        pygame.draw.circle(surface, colours.PygameColour("green"), drawAt, 16)
-
-        txt = font.render(str(i), True, colours.PygameColour("black"))
-        surface.blit(txt, (drawAt[0] - txt.get_width()/2, drawAt[1] - txt.get_height()/2))
-
-
+        surface.blit(txtSurface, (2, 100 + i * 16))'''
 
 
 def PreCalculation(surface):
