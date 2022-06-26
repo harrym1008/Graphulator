@@ -3,6 +3,7 @@ import math
 import colours
 import pygame
 import drawfunc
+import main
 
 from numstr import *
 from vector2 import *
@@ -218,7 +219,8 @@ def DrawAxis(surface, timeToExec):
     screenCentre = [screenSize[0] // 2, screenSize[1] // 2]
     surface.fill(colours.PygameColour("white"))
     PreCalculation(surface)
-    drawfunc.UpdateValues(screenSize, screenCentre, zoomedOffset, zoomedOffsetInverse, orgPos, offset, zoom)
+    drawfunc.UpdateValues(screenSize, screenCentre, zoomedOffset, zoomedOffsetInverse,
+                          orgPos, offset, zoom, [entry.get() for entry in main.equEntries], bounds)
 
     DrawGraphLines(surface)
     DrawXY(surface)
@@ -241,7 +243,7 @@ def DebugStuff(surface, timeToExec):
         f"Zoom: {SigFig(zoom * 100, 5)}%",
         f"Deltatime: {GetNumString(deltatime.deltaTime)}",
         f"Res: X:{screenSize[0]}, Y:{screenSize[1]}",
-        f"Execution: {GetNumString(timeToExec / 1000)} ms"
+        f"Execution: {GetNumString(timeToExec * 1000)} ms"
     ]
 
     for i, txt in enumerate(textToRender):

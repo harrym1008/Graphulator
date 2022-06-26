@@ -1,14 +1,15 @@
 import time
 import tkinter as tk
 from tkinter import messagebox
+from multiprocessing import Process
 
 import numpy
 import pygame
 import numstr
 import colours
 import deltatime
-import drawfunc
 import graph
+import drawfunc
 
 clock = None
 
@@ -24,11 +25,13 @@ mouseStart = [-1, -1]
 mouseMoved = (0, 0)
 mouseFocusTime = 0
 
-equations = [ "numpy.tan( math.floor( x ** 2 ) )" ]
+equations = ["numpy.tan( math.floor( x ** 2 ) )"]
+equEntries = []
 
 
 def Initiate():
-    global guiScreen, screenSize
+    global guiScreen, screenSize, equEntries
+
     title = tk.Label(guiScreen, text="Graphulator   ")
     title.config(font=("Arial", 20, "bold"))
     title.grid(row=0, column=0, columnspan=3)
@@ -36,10 +39,10 @@ def Initiate():
     author.config(font=("Arial", 8))
     author.grid(row=1, column=0, columnspan=3)
 
-    equEntries = []
-
     EQUATIONS_AMOUNT = 10
     EQUATIONS_OFFSET = 2
+
+    equEntries = []
 
     for row in range(EQUATIONS_AMOUNT):
         txt = tk.Label(guiScreen, text=f"   Equation {row + 1}")
@@ -51,6 +54,10 @@ def Initiate():
         equEntries.append(tk.Entry(master=guiScreen))
         equEntries[row].grid(row=row + EQUATIONS_OFFSET, column=2)
 
+    equEntries[0].insert(0, "sin(x)")
+
+    return equEntries
+
 
 def Kill():
     global running
@@ -60,6 +67,7 @@ def Kill():
 
     running = False
 
+    surfaceUpdateThread.terminate()
     pygame.quit()
     guiScreen.destroy()
     quit()
@@ -73,21 +81,14 @@ def MainLoop():
     timer = 0
     timeToExec = 0
 
-
     while running:
         # main logic
 
         graph.DrawAxis(graphScreen, timeToExec)
-
-        for eq in equations:
-            drawfunc.SineTest(graphScreen, graph.bounds, eq)
-
-
+        drawfunc.DrawAllSurfaces(graphScreen)
         graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen, mouseFocusTime)
 
-
         # updating screens, quitting from pygame, resizing and waiting for 60 FPS
-
         timeToExec = time.perf_counter() - timer
         graph.clock.tick(targetFPS)
         timer = time.perf_counter()
@@ -105,7 +106,8 @@ def MainLoop():
                 if Kill():
                     break
             if e.type == pygame.VIDEORESIZE:
-                graphScreen = pygame.display.set_mode((e.w, e.h), pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                graphScreen = pygame.display.set_mode((e.w, e.h),
+                                                      pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                 screenSize = [e.w, e.h]
 
                 graph.screenSize = screenSize
@@ -135,7 +137,6 @@ def PygameInput(events):
     if keys[pygame.K_r]:
         graph.zoom = 10
         graph.offset = [0, 0]
-
 
     # Panning the graph with the mouse
     mouseClicked = pygame.mouse.get_pressed()
@@ -180,6 +181,8 @@ def PygameInput(events):
 graphScreen = None
 guiScreen = None
 
+surfaceUpdateThread: Process
+
 if __name__ == "__main__":
     guiScreen = tk.Tk()
     guiScreen.title("Graphulator v2")
@@ -195,6 +198,9 @@ if __name__ == "__main__":
     guiScreen.protocol("WM_DELETE_WINDOW", Kill)
 
     # initiation code
-    Initiate()
-    MainLoop()
+    equEntries = Initiate()
 
+    surfaceUpdateThread = Process(target=drawfunc.DrawingThread)
+    surfaceUpdateThread.start()
+
+    MainLoop()
