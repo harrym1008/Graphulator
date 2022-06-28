@@ -1,4 +1,6 @@
 import math
+import time
+
 import numpy as np
 import colours
 import pygame
@@ -8,8 +10,10 @@ import main
 from numstr import *
 from graph import *
 from main import *
+import __main__
 
-INCREMENT_FACTOR = 1.5
+
+INCREMENT_FACTOR = 1
 
 screenSize = [800, 600]
 screenCentre = [400, 300]
@@ -42,28 +46,30 @@ plottedEquList = []
 
 class PlottedEquation:
     def __init__(self, equString, colour):
-        self.surface = pygame.Surface(screenSize)
+        self.surface = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.colour = colour
 
-        self.surfacePosition = bounds.NW
-        self.surfaceSize = tuple(numpy.subtract(bounds.SE, bounds.NW))
+        self.surfacePosition = bounds.NW if bounds is not None else (0, 0)
+        self.surfaceSize = tuple(numpy.subtract(bounds.SE, bounds.NW)) if bounds is not None else (800, 600)
 
-        self.oldString, self.equation = equString
+        self.oldString, self.equation = "cos(x)", "cos(x)" #equString, equString
         self.ReplaceEquationString()
 
     def GetSurface(self):
         return self.surface
 
     def Update(self, equString):
-        self.oldString = equString
+        self.oldString = "cos(x)"
         self.ReplaceEquationString()
 
     def ResetSurface(self):
-        self.surface.fill(pygame.Color(0, 0, 0, 0))
+        self.surface.fill(colours.TRANSPARENT)
 
     def ReplaceEquationString(self):
+        tempString = self.oldString
         for k, v in replacement.items():
-            self.equation = self.oldString.replace(k, v)
+            tempString = tempString.replace(k, v)
+        self.equation = tempString
 
     def RedrawSurface(self):
         self.ResetSurface()
@@ -93,6 +99,9 @@ class PlottedEquation:
 
             lastX, lastY = x, y
 
+    def __str__(self):
+        return f"{self.equation}"
+
 
 def UpdateValues(_screenSize, _screenCentre, _zoomedOffset, _zoomedOffsetInverse,
                  _orgPos, _offset, _zoom, _equations, _bounds):
@@ -107,6 +116,10 @@ def UpdateValues(_screenSize, _screenCentre, _zoomedOffset, _zoomedOffsetInverse
     zoom = _zoom
     offset = _offset
     bounds = _bounds
+
+
+def GetBounds():
+    return bounds
 
 
 def FloatRange(start, stop, step, centre=None):
@@ -157,23 +170,43 @@ def DrawEquation(surface, bounds, equation):
 
 
 def Initiate():
-    global plottedEquList
     for i in range(10):
         plottedEquList.append(PlottedEquation("", colours.PygameColour("red")))
 
 
 def DrawAllSurfaces(surface):
-    for plottedGraph in plottedEquList:
+    global plottedEquList
+
+    t = time.perf_counter()
+    for i, plottedGraph in enumerate(plottedEquList):
+        if plottedGraph.equation == "":
+            continue
+
         surface.blit(plottedGraph.GetSurface(), (0, 0))
+    print((time.perf_counter() - t) * 1000, "ms")
 
 
 def DrawingThread():
-    while main.running:
+    global bounds, plottedEquList, equations
 
-        for i, equ in enumerate(equations):
+    # time.sleep(.1)
+
+    # Start updating as much as possible
+    # while main.running:
+
+    t = time.perf_counter()
+    for i, equ in enumerate(equations):
+        if equ != "" and graph.CheckIfPreCalculationIsNecessary():
             plottedEquList[i].Update(equ)
 
-        for i in plottedEquList:
+    for i in plottedEquList:
+        if graph.CheckIfPreCalculationIsNecessary():
             i.RedrawSurface()
+    print((time.perf_counter() - t) * 1000, "ms")
 
-        print("Refresh")
+
+
+def UpdateEquations(entries):
+    global equations
+    equations = [entry.get() for entry in entries]
+

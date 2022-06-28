@@ -66,8 +66,6 @@ def Kill():
         return False
 
     running = False
-
-    surfaceUpdateThread.terminate()
     pygame.quit()
     guiScreen.destroy()
     quit()
@@ -82,9 +80,12 @@ def MainLoop():
     timeToExec = 0
 
     while running:
+
         # main logic
 
         graph.DrawAxis(graphScreen, timeToExec)
+        drawfunc.UpdateEquations(equEntries)
+        # drawfunc.DrawingThread()
         drawfunc.DrawAllSurfaces(graphScreen)
         graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen, mouseFocusTime)
 
@@ -199,8 +200,9 @@ if __name__ == "__main__":
 
     # initiation code
     equEntries = Initiate()
+    drawfunc.Initiate()
 
-    surfaceUpdateThread = Process(target=drawfunc.DrawingThread)
-    surfaceUpdateThread.start()
+    # surfaceUpdateThread = Process(target=drawfunc.DrawingThread)
+    # surfaceUpdateThread.start()
 
     MainLoop()

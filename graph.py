@@ -210,6 +210,8 @@ def WritePosOnGraph(pos, surface, focusTime):
     if renderY < 0:
         renderY = 0
 
+    pygame.draw.rect(surface, colours.PygameColour("white"),
+                     pygame.Rect(renderX, renderY, txtSurface.get_width(), txtSurface.get_height()))
     surface.blit(txtSurface, (renderX, renderY))
 
 
@@ -219,6 +221,7 @@ def DrawAxis(surface, timeToExec):
     screenCentre = [screenSize[0] // 2, screenSize[1] // 2]
     surface.fill(colours.PygameColour("white"))
     PreCalculation(surface)
+
     drawfunc.UpdateValues(screenSize, screenCentre, zoomedOffset, zoomedOffsetInverse,
                           orgPos, offset, zoom, [entry.get() for entry in main.equEntries], bounds)
 
@@ -276,4 +279,4 @@ def PreCalculation(surface):
 
 def CreateFont():
     global font
-    font = pygame.font.SysFont("Consolas", 16)
+    font = pygame.font.Font("monofonto.otf", 16)

@@ -12,6 +12,8 @@ colours = {
     "yellow": (255, 255, 0)
 }
 
+TRANSPARENT = pygame.Color(0, 0, 0, 0)
+
 
 hexLetters = "0123456789abcdef"
 
