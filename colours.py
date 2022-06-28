@@ -9,10 +9,12 @@ colours = {
     "blue": (0, 0, 255),
     "cyan": (0, 255, 255),
     "magenta": (255, 0, 255),
-    "yellow": (255, 255, 0)
+    "yellow": (255, 255, 0),
+    "darker yellow": (247, 199, 45)
 }
 
 TRANSPARENT = pygame.Color(0, 0, 0, 0)
+WHITE_BOX = pygame.Color(255, 255, 255, 128)
 
 
 hexLetters = "0123456789abcdef"
@@ -32,3 +34,15 @@ def HexColour(key: str) -> str:
         hexStr += hexLetters[val]
 
     return hexStr
+
+
+lineColours = [
+    PygameColour("red"),
+    PygameColour("blue"),
+    PygameColour("green"),
+    PygameColour("magenta"),
+    PygameColour("darker yellow")
+]
+
+
+

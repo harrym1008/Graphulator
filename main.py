@@ -1,8 +1,12 @@
-import time
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 import tkinter as tk
 from tkinter import messagebox
 from multiprocessing import Process
+import threading, queue
 
+import time
 import numpy
 import pygame
 import numstr
@@ -68,51 +72,10 @@ def Kill():
     running = False
     pygame.quit()
     guiScreen.destroy()
+    drawfunc.SetToQuit()
     quit()
 
     return True
-
-
-def MainLoop():
-    global screenSize, running, graphScreen, guiScreen, clock
-
-    timer = 0
-    timeToExec = 0
-
-    while running:
-
-        # main logic
-
-        graph.DrawAxis(graphScreen, timeToExec)
-        drawfunc.UpdateEquations(equEntries)
-        # drawfunc.DrawingThread()
-        drawfunc.DrawAllSurfaces(graphScreen)
-        graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen, mouseFocusTime)
-
-        # updating screens, quitting from pygame, resizing and waiting for 60 FPS
-        timeToExec = time.perf_counter() - timer
-        graph.clock.tick(targetFPS)
-        timer = time.perf_counter()
-        deltatime.Update()
-
-        guiScreen.update()
-        pygame.display.flip()
-
-        events = pygame.event.get()
-        PygameInput(events)
-
-        for e in events:
-
-            if e.type == pygame.QUIT:
-                if Kill():
-                    break
-            if e.type == pygame.VIDEORESIZE:
-                graphScreen = pygame.display.set_mode((e.w, e.h),
-                                                      pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
-                screenSize = [e.w, e.h]
-
-                graph.screenSize = screenSize
-                graph.screenCentre = [e.w // 2, e.h // 2]
 
 
 def PygameInput(events):
@@ -144,7 +107,7 @@ def PygameInput(events):
 
     if mouseClicked[0] and mouseStart == [-1, -1]:
         mouseStart = pygame.mouse.get_pos()
-        print("updating graph mouse start")
+        # print("updating graph mouse start")
         graphMouseStart = [graph.offset[0], graph.offset[1]]
 
     if not mouseClicked[0] and mouseStart != [-1, -1]:
@@ -176,13 +139,59 @@ def PygameInput(events):
     else:
         mouseFocusTime -= deltatime.deltaTime
 
-    graph.zoom = round(graph.zoom, 10)
+    graph.zoom = numstr.SigFig(graph.zoom, 6)
+
+
+def Running():
+    return running
+
+
+
+def MainLoop():
+    global screenSize, running, graphScreen, guiScreen, clock, surfaceUpdateThread
+
+    timer = 0
+    timeToExec = 0
+
+    while running:
+
+        # main logic
+
+        graph.DrawAxis(graphScreen, timeToExec)
+        drawfunc.UpdateEquations(equEntries)
+
+        drawfunc.DrawAllSurfaces(graphScreen)
+        graph.WritePosOnGraph(pygame.mouse.get_pos(), graphScreen, mouseFocusTime)
+
+        # updating screens, quitting from pygame, resizing and waiting for 60 FPS
+        timeToExec = time.perf_counter() - timer
+        graph.clock.tick(targetFPS)
+        timer = time.perf_counter()
+        deltatime.Update()
+
+        guiScreen.update()
+        pygame.display.flip()
+
+        events = pygame.event.get()
+        PygameInput(events)
+
+        for e in events:
+
+            if e.type == pygame.QUIT:
+                if Kill():
+                    break
+            if e.type == pygame.VIDEORESIZE:
+                graphScreen = pygame.display.set_mode((e.w, e.h),
+                                                      pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                screenSize = [e.w, e.h]
+
+                graph.screenSize = screenSize
+                graph.screenCentre = [e.w // 2, e.h // 2]
 
 
 graphScreen = None
 guiScreen = None
 
-surfaceUpdateThread: Process
 
 if __name__ == "__main__":
     guiScreen = tk.Tk()
@@ -202,7 +211,6 @@ if __name__ == "__main__":
     equEntries = Initiate()
     drawfunc.Initiate()
 
-    # surfaceUpdateThread = Process(target=drawfunc.DrawingThread)
-    # surfaceUpdateThread.start()
+    threading.Thread(target=drawfunc.DrawingThread).start()
 
     MainLoop()

@@ -18,7 +18,9 @@ orgPos = [0, 0]
 offset = [0, 0]
 zoom = 10
 
-font = None
+mainFont = smallFont = None
+
+
 clock = pygame.time.Clock()
 
 LOG_2 = math.log(2, 10)
@@ -164,7 +166,7 @@ def WriteGraphValues(surface):
                (-screenSize[1] * 50) // 2, (screenSize[1] * 50) // 2]
 
     for i in range(extents[0], extents[1], 100):
-        txtSurface = font.render(GetNumString(i / zoom, True), True, colours.PygameColour("black"))
+        txtSurface = mainFont.render(GetNumString(i / zoom, True), True, colours.PygameColour("black"))
 
         surface.blit(txtSurface, (pos[0] + i - txtSurface.get_width() / 2, pos[1] + 2))
         pygame.draw.line(surface, colours.PygameColour("black"),
@@ -174,7 +176,7 @@ def WriteGraphValues(surface):
     # draw Y values
 
     for i in range(extents[2], extents[3], 100):
-        txtSurface = font.render(GetNumString(-i / zoom, True), True, colours.PygameColour("black"))
+        txtSurface = mainFont.render(GetNumString(-i / zoom, True), True, colours.PygameColour("black"))
 
         surface.blit(txtSurface, (pos[0] + 2, pos[1] + i - txtSurface.get_height() / 2))
         pygame.draw.line(surface, colours.PygameColour("black"),
@@ -197,10 +199,10 @@ def WritePosOnGraph(pos, surface, focusTime):
 
     writtenPosition = GetCoordString(x, y)
 
-    txtSurface = font.render(writtenPosition, True, colours.PygameColour("blue"))
+    txtSurface = mainFont.render(writtenPosition, True, colours.PygameColour("blue"))
 
     renderX = pos[0] - txtSurface.get_width() / 2 - 4
-    renderY = pos[1] - 18
+    renderY = pos[1] - 32
 
     if renderX < 0:
         renderX = 0
@@ -208,11 +210,35 @@ def WritePosOnGraph(pos, surface, focusTime):
         renderX = screenSize[0] - txtSurface.get_width()  #
 
     if renderY < 0:
-        renderY = 0
+        renderY = pos[1] + 16
 
-    pygame.draw.rect(surface, colours.PygameColour("white"),
+    pygame.draw.rect(surface, colours.WHITE_BOX,
                      pygame.Rect(renderX, renderY, txtSurface.get_width(), txtSurface.get_height()))
     surface.blit(txtSurface, (renderX, renderY))
+
+    '''
+    writtenPosition = [f"x={GetNumString(x, True)}", f"y={GetNumString(y, True)}"]
+
+    txtSurfaceX = smallFont.render(writtenPosition[0], True, colours.PygameColour("blue"))
+    txtSurfaceY = smallFont.render(writtenPosition[1], True, colours.PygameColour("blue"))
+
+    largerWidth = txtSurfaceX.get_width() if txtSurfaceX.get_width() > txtSurfaceY.get_width() else txtSurfaceY.get_width()
+    renderX = pos[0] - 4 - txtSurfaceX.get_width() / 2
+    renderY = pos[1] - 40
+
+    if renderX < 0:
+        renderX = 0
+    elif renderX > screenSize[0] - largerWidth:
+        renderX = screenSize[0] - largerWidth
+
+    if renderY < 0:
+        renderY = pos[1] + 16
+
+    pygame.draw.rect(surface, colours.WHITE_BOX,
+                     pygame.Rect(renderX, renderY, largerWidth, txtSurfaceX.get_height() + txtSurfaceY.get_height()))
+
+    surface.blit(txtSurfaceX, (renderX, renderY))
+    surface.blit(txtSurfaceY, (renderX, renderY + txtSurfaceY.get_height()))'''
 
 
 def DrawAxis(surface, timeToExec):
@@ -237,7 +263,7 @@ def DebugStuff(surface, timeToExec):
         drawAt = x * zoom - zoomedOffset[0] + screenCentre[0], y * zoom - zoomedOffset[1] + screenCentre[1]
         pygame.draw.circle(surface, colours.PygameColour("green"), drawAt, 16)
 
-        txt = font.render(f"{round(x, 1)},{round(y, 1)}", True, colours.PygameColour("black"))
+        txt = mainFont.render(f"{round(x, 1)},{round(y, 1)}", True, colours.PygameColour("black"))
         surface.blit(txt, (drawAt[0] - txt.get_width()/2, drawAt[1] - txt.get_height()/2))'''
 
     textToRender = [
@@ -250,11 +276,11 @@ def DebugStuff(surface, timeToExec):
     ]
 
     for i, txt in enumerate(textToRender):
-        txtSurface = font.render(txt, True, colours.PygameColour("blue"))
+        txtSurface = mainFont.render(txt, True, colours.PygameColour("blue"))
         surface.blit(txtSurface, (2, i * 16))
 
     '''for i, txt in enumerate(str(bounds).split("\n")):
-        txtSurface = font.render(txt, True, colours.PygameColour("red"))
+        txtSurface = mainFont.render(txt, True, colours.PygameColour("red"))
         surface.blit(txtSurface, (2, 100 + i * 16))'''
 
 
@@ -278,5 +304,6 @@ def PreCalculation(surface):
 
 
 def CreateFont():
-    global font
-    font = pygame.font.Font("monofonto.otf", 16)
+    global mainFont, smallFont
+    mainFont = pygame.font.Font("monofonto.otf", 16)
+    smallFont = pygame.font.Font("monofonto.otf", 12)
