@@ -94,24 +94,27 @@ class PlottedEquation:
         start, end = bounds.W, bounds.E
         increment = ((end[0] - start[0]) / screenSize[0]) / INCREMENT_FACTOR
 
+        lastX = 0
         for x in np.arange(start[0], end[0], increment):
             try:
                 points.append((x, - eval(self.equation)))
             except:
                 points.append((x, 0))
 
-        # extremeValues = bounds.N[1] + screenCentre[1], bounds.S[1] + screenCentre[1]
+        extremeLower, extremeUpper = bounds.N[1], bounds.S[1]
 
         lastX, lastY = points[0]
         drawOffset = -zoomedOffset[0] + screenCentre[0], -zoomedOffset[1] + screenCentre[1]
+
 
         for x, y in points:
             plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
-            # if extremeValues[1] > plotStart[1] > extremeValues[0]:
-            #     pass
-            pygame.draw.line(tempSurface, self.colour, plotStart, plotEnd, 3)
+            asymptoteCheck = (y > extremeUpper and lastY < extremeLower) or (lastY > extremeUpper and y < extremeLower)
+
+            if not asymptoteCheck:
+                pygame.draw.line(tempSurface, self.colour, plotStart, plotEnd, 3)
 
             lastX, lastY = x, y
 
@@ -203,7 +206,6 @@ def DrawingThread():
 
         if iteration >= 3:
             wait = GetWaitTime()
-            print(wait, INCREMENT_FACTOR)
 
 
 def GetWaitTime():
@@ -217,7 +219,7 @@ def GetWaitTime():
     if counter == 0:
         counter = 1
 
-    INCREMENT_FACTOR = 1.57 - counter * 0.07
+    INCREMENT_FACTOR = 1.8 - counter * 0.12
 
     return counter * 0.04
 

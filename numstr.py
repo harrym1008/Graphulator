@@ -10,7 +10,7 @@ def GetNumString(n: float, short: bool = False) -> str:
 
     powersOf10 = int(math.log(math.fabs(n), 10))
 
-    if 9 > powersOf10 > -4:
+    if 9 > powersOf10 > -2:
         if n % 1 == 0:
             return str(int(n))
 
@@ -21,7 +21,6 @@ def GetNumString(n: float, short: bool = False) -> str:
 
 def GetCoordString(x: float, y: float):
     return f"x={GetNumString(x, short=True)}, y={GetNumString(y, short=True)}"
-
 
 
 

@@ -16,10 +16,9 @@ zoomedOffsetInverse = [0, 0]
 orgPos = [0, 0]
 
 offset = [0, 0]
-zoom = 10
+zoom = 30
 
-mainFont = smallFont = None
-
+mainFont = smallFont = tinyFont = None
 
 clock = pygame.time.Clock()
 
@@ -160,28 +159,56 @@ def DrawGraphLines(surface):
 
 def WriteGraphValues(surface):
     # draw X values
-    pos = (screenCentre[0] - zoomedOffset[0], screenCentre[1] - zoomedOffset[1])
+    pos = [screenCentre[0] - zoomedOffset[0], screenCentre[1] - zoomedOffset[1]]
 
-    extents = [(-screenSize[0] * 50) // 2, (screenSize[0] * 50) // 2,
-               (-screenSize[1] * 50) // 2, (screenSize[1] * 50) // 2]
+    extents = [(-screenSize[0] * 70) // 2, (screenSize[0] * 70) // 2,
+               (-screenSize[1] * 70) // 2, (screenSize[1] * 70) // 2]
+
+    if pos[0] < 0:
+        pos[0] = 0
+    elif pos[0] > screenSize[0]:
+        pos[0] = screenSize[0]
+
+    if pos[1] < 0:
+        pos[1] = 0
+    elif pos[1] > screenSize[1]:
+        pos[1] = screenSize[1]
 
     for i in range(extents[0], extents[1], 100):
-        txtSurface = mainFont.render(GetNumString(i / zoom, True), True, colours.PygameColour("black"))
+        number = i / zoom
+        if number == 0:
+            continue
+        txtSurface = smallFont.render(GetNumString(number, True), True, colours.PygameColour("black"))
+
+        if pos[1] + 2 + txtSurface.get_height() > screenSize[1]:
+            surface.blit(txtSurface, (pos[0] + i - txtSurface.get_width() / 2, screenSize[1] - txtSurface.get_height()))
+            continue
 
         surface.blit(txtSurface, (pos[0] + i - txtSurface.get_width() / 2, pos[1] + 2))
         pygame.draw.line(surface, colours.PygameColour("black"),
-                         (pos[0] + i, pos[1]),
+                         (pos[0] + i, pos[1] - 1),
                          (pos[0] + i, pos[1] - 4))
 
     # draw Y values
 
     for i in range(extents[2], extents[3], 100):
-        txtSurface = mainFont.render(GetNumString(-i / zoom, True), True, colours.PygameColour("black"))
+        number = -i / zoom
+        if number == 0:
+            continue
+        txtSurface = smallFont.render(GetNumString(number, True), True, colours.PygameColour("black"))
+
+        if pos[0] + 2 + txtSurface.get_width() > screenSize[0]:
+            surface.blit(txtSurface, (screenSize[0] - txtSurface.get_width(), pos[1] + i - txtSurface.get_height() / 2))
+            continue
 
         surface.blit(txtSurface, (pos[0] + 2, pos[1] + i - txtSurface.get_height() / 2))
         pygame.draw.line(surface, colours.PygameColour("black"),
-                         (pos[0], pos[1] + i),
+                         (pos[0] - 1, pos[1] + i),
                          (pos[0] - 4, pos[1] + i))
+
+    txtSurface = smallFont.render("0", True, colours.PygameColour("black"))
+
+    surface.blit(txtSurface, (orgPos[0] - 10, orgPos[1]))
 
 
 # Broken, please fix!
@@ -304,6 +331,7 @@ def PreCalculation(surface):
 
 
 def CreateFont():
-    global mainFont, smallFont
+    global mainFont, smallFont, tinyFont
     mainFont = pygame.font.Font("monofonto.otf", 16)
     smallFont = pygame.font.Font("monofonto.otf", 12)
+    # tinyFont = pygame.font.Font("monofonto.otf", 10)
