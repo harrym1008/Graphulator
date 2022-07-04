@@ -1,16 +1,9 @@
-import math
-import time
-
 import numpy as np
-import colours
-import pygame
-
-import graph
-import main
-from numstr import *
+from enum import IntEnum
 from graph import *
 from main import *
-import __main__
+import graph
+
 
 INCREMENT_FACTOR = 1.5
 
@@ -24,19 +17,25 @@ orgPos = [0, 0]
 offset = [0, 0]
 zoom = 10
 
+drawingSurfaceSize = np.multiply(screenSize, 1.2)
+drawingSurfaceCentre = np.multiply(screenCentre, 1.2)
+
 equations = []
 bounds = None
 
 DEGREES = False
 quitting = False
 
+changingMultiplier = -1
+
+
 replacement = {
     "sin(": "np.sin(",
     "cos(": "np.cos(",
     "tan(": "np.tan(",
-    "sin-1(": "np.arcsin(",
-    "cos-1(": "np.arccos(",
-    "tan-1(": "np.arctan(",
+    "asin(": "np.arcsin(",
+    "acos(": "np.arccos(",
+    "atan(": "np.arctan(",
     "log(": "math.log10(",
     "float(": "math.floor(",
     "ceil(": "math.ceil("
@@ -45,8 +44,19 @@ replacement = {
 plottedEquList = []
 
 
+
+class EquationType(IntEnum):
+    Equals = 0
+    GreaterThanOrEqualTo = 1
+    LessThanOrEqualTo = 2
+    GreaterThan = 3
+    LessThan = 4
+
+
+
+
 class PlottedEquation:
-    def __init__(self, equString, colour, equationNumber):
+    def __init__(self, equString, colour, equationNumber, equationType=EquationType.Equals):
         self.surface = pygame.Surface(screenSize, pygame.SRCALPHA)
         self.colour = colour
         self.equNumber = equationNumber
@@ -56,8 +66,12 @@ class PlottedEquation:
         self.surfaceSE = bounds.SE if bounds is not None else (0, 0)
         self.surfaceZoom = zoom
 
-        self.oldString, self.equation = equString, equString
+        self.oldString = self.equation = equString
         self.ReplaceEquationString()
+
+        self.equationType = equationType
+        self.dottedLine = self.equationType % 2 > 2
+
 
     def GetSurface(self):
         return self.surface
@@ -80,8 +94,8 @@ class PlottedEquation:
         self.equation = tempString
 
     def RedrawSurface(self):
-        if self.equation == "":
-            self.ResetSurface()
+        if self.oldString == "":
+            self.surface = self.ResetSurface(self.surface)
             return
 
         tempSurface = pygame.Surface(screenSize, pygame.SRCALPHA)
@@ -95,26 +109,40 @@ class PlottedEquation:
         increment = ((end[0] - start[0]) / screenSize[0]) / INCREMENT_FACTOR
 
         lastX = 0
+        c = changingMultiplier
+
         for x in np.arange(start[0], end[0], increment):
             try:
                 points.append((x, - eval(self.equation)))
-            except:
-                points.append((x, 0))
+            except Exception as e:
+                points.append((x, np.inf))
+                print(f"{e} ---> Error at x={x}")
 
         extremeLower, extremeUpper = bounds.N[1], bounds.S[1]
 
         lastX, lastY = points[0]
         drawOffset = -zoomedOffset[0] + screenCentre[0], -zoomedOffset[1] + screenCentre[1]
 
+        dottedCheckLine = 10
 
         for x, y in points:
+
+            if y == np.inf:
+                continue
+
             plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
             asymptoteCheck = (y > extremeUpper and lastY < extremeLower) or (lastY > extremeUpper and y < extremeLower)
+            infCheck = y != np.inf
 
-            if not asymptoteCheck:
+            if not asymptoteCheck and dottedCheckLine > 0 and infCheck:
                 pygame.draw.line(tempSurface, self.colour, plotStart, plotEnd, 3)
+
+            if self.dottedLine:
+                dottedCheckLine -= 1
+                if dottedCheckLine < -9:
+                    dottedCheckLine = 10
 
             lastX, lastY = x, y
 
@@ -130,7 +158,7 @@ class PlottedEquation:
 def UpdateValues(_screenSize, _screenCentre, _zoomedOffset, _zoomedOffsetInverse,
                  _orgPos, _offset, _zoom, _equations, _bounds):
     global screenSize, screenCentre, zoomedOffset, zoomedOffsetInverse, orgPos, offset, \
-        zoom, equations, bounds, surfaceMaxSize, surfaceCentre
+        zoom, equations, bounds, surfaceMaxSize, surfaceCentre, drawingSurfaceSize, drawingSurfaceCentre
     screenSize = _screenSize
     screenCentre = _screenCentre
     zoomedOffset = _zoomedOffset
@@ -140,6 +168,9 @@ def UpdateValues(_screenSize, _screenCentre, _zoomedOffset, _zoomedOffsetInverse
     zoom = _zoom
     offset = _offset
     bounds = _bounds
+
+    drawingSurfaceSize = np.multiply(screenSize, 1.2)
+    drawingSurfaceCentre = np.multiply(screenCentre, 1.2)
 
 
 def Initiate():
@@ -181,6 +212,25 @@ def SetToQuit():
     quitting = True
 
 
+
+def ChangeMultiplier():
+    global changingMultiplier
+    speed = 0.01
+    times = int(1/speed)*2
+
+    while True:
+        if quitting:
+            return
+
+        for i in range(times):
+            changingMultiplier += speed
+            time.sleep(speed)
+
+        for i in range(times):
+            changingMultiplier -= speed
+            time.sleep(speed)
+
+
 def DrawingThread():
     global bounds, plottedEquList, equations
 
@@ -188,20 +238,28 @@ def DrawingThread():
     wait = GetWaitTime()
 
     while True:
+        executionStart = time.perf_counter()
+
         if quitting:
             return
 
-        # t = time.perf_counter()
-
         for i, equ in enumerate(equations):
-            if equ != "" and graph.CheckIfPreCalculationIsNecessary():
+            if graph.CheckIfPreCalculationIsNecessary():
                 plottedEquList[i].Update(equ)
 
         for i in plottedEquList:
             if graph.CheckIfPreCalculationIsNecessary():
                 i.RedrawSurface()
 
-        time.sleep(wait)
+        executionLength = time.perf_counter() - executionStart
+
+
+        if wait < executionLength:
+            executionLength = wait
+
+        print(f"ExecutionLength: {executionLength}, Waiting: {wait-executionLength}")
+        time.sleep(wait - executionLength)
+
         iteration += 1
 
         if iteration >= 3:
@@ -221,7 +279,7 @@ def GetWaitTime():
 
     INCREMENT_FACTOR = 1.8 - counter * 0.12
 
-    return counter * 0.04
+    return counter * 0.01 + 0.03
 
 
 def UpdateEquations(entries):

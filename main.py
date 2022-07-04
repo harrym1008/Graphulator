@@ -212,5 +212,6 @@ if __name__ == "__main__":
     drawfunc.Initiate()
 
     threading.Thread(target=drawfunc.DrawingThread).start()
+    threading.Thread(target=drawfunc.ChangeMultiplier).start()
 
     MainLoop()
