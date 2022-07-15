@@ -50,7 +50,7 @@ class CornerValues:
 
         x, y = 0, 1
 
-        # Variables to make the calculations more readable
+        # Variables to make the calculations more readable in the code
         ox = offset[0]
         oy = offset[1]
         z = zoom
@@ -99,6 +99,9 @@ lastFrameData = None
 
 
 def CheckIfPreCalculationIsNecessary():
+    # Checks if any variables have changed, if not it is not necessary to recalculate the data
+    # and stress the system further
+
     global lastFrameData
 
     if lastFrameData is None:
@@ -111,6 +114,7 @@ def CheckIfPreCalculationIsNecessary():
 
 
 def DrawXY(surface):
+    # Draws the thicker main lines from the origin
     global orgPos
     orgPosX, orgPosY = orgPos
 
@@ -122,6 +126,7 @@ def DrawXY(surface):
 
 
 def GetGraphLineIncrement():
+    # Get how much the values increment by on the origin lines
     logarithm = math.log(zoom, 10)
 
     factor = zoom
@@ -142,6 +147,8 @@ def GetGraphLineIncrement():
 
 
 def DrawGraphLines(surface):
+    # Draw the cyan lines across the screen to represent the graph
+
     increment = GetGraphLineIncrement()
     lineOffset = [orgPos[0] % increment, orgPos[1] % increment]
 
@@ -158,6 +165,7 @@ def DrawGraphLines(surface):
 
 
 def WriteGraphValues(surface):
+    # Write X and Y values on the screen at regular intervals
     # draw X values
     pos = [screenCentre[0] - zoomedOffset[0], screenCentre[1] - zoomedOffset[1]]
 
@@ -211,8 +219,9 @@ def WriteGraphValues(surface):
     surface.blit(txtSurface, (orgPos[0] - 10, orgPos[1]))
 
 
-# Broken, please fix!
 def WritePosOnGraph(pos, surface, focusTime):
+    # Writes the position of the mouse cursor on the graph
+
     if focusTime < 0:  # mouse is not focused on the window
         return
 
@@ -269,6 +278,8 @@ def WritePosOnGraph(pos, surface, focusTime):
 
 
 def DrawAxis(surface, timeToExec):
+    # Main function calling all others to draw graph lines, debug data and values
+
     global screenCentre
 
     screenCentre = [screenSize[0] // 2, screenSize[1] // 2]
@@ -286,12 +297,14 @@ def DrawAxis(surface, timeToExec):
 
 
 def DebugStuff(surface, timeToExec):
-    '''for i, (x, y) in enumerate(bounds.GetTuple()):
+    # Stuff required for debugging the code
+
+    for i, (x, y) in enumerate(bounds.GetTuple()):
         drawAt = x * zoom - zoomedOffset[0] + screenCentre[0], y * zoom - zoomedOffset[1] + screenCentre[1]
         pygame.draw.circle(surface, colours.PygameColour("green"), drawAt, 16)
 
         txt = mainFont.render(f"{round(x, 1)},{round(y, 1)}", True, colours.PygameColour("black"))
-        surface.blit(txt, (drawAt[0] - txt.get_width()/2, drawAt[1] - txt.get_height()/2))'''
+        surface.blit(txt, (drawAt[0] - txt.get_width()/2, drawAt[1] - txt.get_height()/2))
 
     textToRender = [
         f"{round(clock.get_fps(), 3)} FPS",
@@ -331,6 +344,10 @@ def PreCalculation(surface):
 
 
 def CreateFont():
+    # Generate the fonts
+    # This is executed at the beginning of the script, this is because creating a font in Pygame
+    # is quite a time-consuming process, so this is done first and then stored in a global variable
+
     global mainFont, smallFont, tinyFont
     mainFont = pygame.font.Font("monofonto.otf", 16)
     smallFont = pygame.font.Font("monofonto.otf", 12)
