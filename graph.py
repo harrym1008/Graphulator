@@ -299,12 +299,12 @@ def DrawAxis(surface, timeToExec):
 def DebugStuff(surface, timeToExec):
     # Stuff required for debugging the code
 
-    for i, (x, y) in enumerate(bounds.GetTuple()):
+    '''for i, (x, y) in enumerate(bounds.GetTuple()):
         drawAt = x * zoom - zoomedOffset[0] + screenCentre[0], y * zoom - zoomedOffset[1] + screenCentre[1]
         pygame.draw.circle(surface, colours.PygameColour("green"), drawAt, 16)
 
         txt = mainFont.render(f"{round(x, 1)},{round(y, 1)}", True, colours.PygameColour("black"))
-        surface.blit(txt, (drawAt[0] - txt.get_width()/2, drawAt[1] - txt.get_height()/2))
+        surface.blit(txt, (drawAt[0] - txt.get_width()/2, drawAt[1] - txt.get_height()/2))'''
 
     textToRender = [
         f"{round(clock.get_fps(), 3)} FPS",

@@ -4,6 +4,9 @@ from graph import *
 from main import *
 import graph
 
+# Constant values
+π = pi = 3.14159265358979323846
+e = 2.7182818284590452353602875
 
 INCREMENT_FACTOR = 1.5
 
@@ -28,8 +31,8 @@ quitting = False
 
 changingMultiplier = -1
 
-
 replacement = {
+    "^": "**",
     "sin(": "np.sin(",
     "cos(": "np.cos(",
     "tan(": "np.tan(",
@@ -38,11 +41,10 @@ replacement = {
     "atan(": "np.arctan(",
     "log(": "math.log10(",
     "float(": "math.floor(",
-    "ceil(": "math.ceil("
+    "ceil(": "math.ceil(",
+    "fact(": "Factorial("
 }
-
 plottedEquList = []
-
 
 
 class EquationType(IntEnum):
@@ -51,8 +53,6 @@ class EquationType(IntEnum):
     LessThanOrEqualTo = 2
     GreaterThan = 3
     LessThan = 4
-
-
 
 
 class PlottedEquation:
@@ -71,7 +71,6 @@ class PlottedEquation:
 
         self.equationType = equationType
         self.dottedLine = self.equationType % 2 > 2
-
 
     def GetSurface(self):
         return self.surface
@@ -173,6 +172,14 @@ def UpdateValues(_screenSize, _screenCentre, _zoomedOffset, _zoomedOffsetInverse
     drawingSurfaceCentre = np.multiply(screenCentre, 1.2)
 
 
+def Factorial(n):
+    x = int(n)
+    val = 1
+    for i in range(2, x + 1):
+        val *= i
+    return val
+
+
 def Initiate():
     for i in range(10):
         plottedEquList.append(PlottedEquation("", colours.lineColours[i % len(colours.lineColours)], i))
@@ -212,11 +219,10 @@ def SetToQuit():
     quitting = True
 
 
-
 def ChangeMultiplier():
     global changingMultiplier
     speed = 0.01
-    times = int(1/speed)*2
+    times = int(1 / speed) * 2
 
     while True:
         if quitting:
@@ -253,11 +259,10 @@ def DrawingThread():
 
         executionLength = time.perf_counter() - executionStart
 
-
         if wait < executionLength:
             executionLength = wait
 
-        print(f"ExecutionLength: {executionLength}, Waiting: {wait-executionLength}")
+        print(f"ExecutionLength: {executionLength}, Waiting: {wait - executionLength}")
         time.sleep(wait - executionLength)
 
         iteration += 1
@@ -279,7 +284,7 @@ def GetWaitTime():
 
     INCREMENT_FACTOR = 1.8 - counter * 0.12
 
-    return counter * 0.01 + 0.03
+    return counter * 0.03 + 0.03
 
 
 def UpdateEquations(entries):
