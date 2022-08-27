@@ -211,7 +211,6 @@ if __name__ == "__main__":
     equEntries = Initiate()
     drawfunc.Initiate()
 
-    threading.Thread(target=drawfunc.DrawingThread).start()
-    threading.Thread(target=drawfunc.ChangeMultiplier).start()
+    threading.Thread(target=drawfunc.UpdateProcesses).start()
 
     MainLoop()

@@ -2,6 +2,7 @@ import numpy as np
 from enum import IntEnum
 from graph import *
 from main import *
+from multiprocessing import Process, Queue
 import graph
 
 # Constant values
@@ -154,6 +155,63 @@ class PlottedEquation:
         return f"{self.equation}"
 
 
+
+def CreateNewSurface(q, equ, bounds, colour, dottedLine):
+    tempSurface = pygame.Surface(screenSize, pygame.SRCALPHA)
+    # self.surface.fill(colours.PygameColour("yellow"))
+
+    # print(self.surfaceZoom, self.surfacePosition)
+
+    points = []
+    start, end = bounds.W, bounds.E
+    increment = ((end[0] - start[0]) / screenSize[0]) / INCREMENT_FACTOR
+
+    lastX = 0
+    c = changingMultiplier
+
+    for x in np.arange(start[0], end[0], increment):
+        try:
+            points.append((x, - eval(equ)))
+        except Exception as e:
+            points.append((x, np.inf))
+            print(f"{e} ---> Error at x={x}")
+
+    extremeLower, extremeUpper = bounds.N[1], bounds.S[1]
+
+    lastX, lastY = points[0]
+    drawOffset = -zoomedOffset[0] + screenCentre[0], -zoomedOffset[1] + screenCentre[1]
+
+    dottedCheckLine = 10
+
+    for x, y in points:
+
+        if y == np.inf:
+            continue
+
+        plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
+        plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
+
+        asymptoteCheck = (y > extremeUpper and lastY < extremeLower) or (lastY > extremeUpper and y < extremeLower)
+        infCheck = y != np.inf
+
+        if not asymptoteCheck and dottedCheckLine > 0 and infCheck:
+            pygame.draw.line(tempSurface, colour, plotStart, plotEnd, 3)
+
+        if dottedLine:
+            dottedCheckLine -= 1
+            if dottedCheckLine < -9:
+                dottedCheckLine = 10
+
+        lastX, lastY = x, y
+
+    surfaceNW = bounds.NW if bounds is not None else (0, 0)
+    surfaceSE = bounds.SE if bounds is not None else (0, 0)
+
+    dataTuple = (surfaceNW, surfaceSE, tempSurface, zoom)
+    q.put(dataTuple)
+
+
+
 def UpdateValues(_screenSize, _screenCentre, _zoomedOffset, _zoomedOffsetInverse,
                  _orgPos, _offset, _zoom, _equations, _bounds):
     global screenSize, screenCentre, zoomedOffset, zoomedOffsetInverse, orgPos, offset, \
@@ -219,25 +277,42 @@ def SetToQuit():
     quitting = True
 
 
-def ChangeMultiplier():
-    global changingMultiplier
-    speed = 0.01
-    times = int(1 / speed) * 2
+
+currentProcesses = []
+returnQueues = []
+
+
+def DrawingProcessesThread():
+    global bounds, plottedEquList, equations
 
     while True:
-        if quitting:
-            return
-
-        for i in range(times):
-            changingMultiplier += speed
-            time.sleep(speed)
-
-        for i in range(times):
-            changingMultiplier -= speed
-            time.sleep(speed)
 
 
-def DrawingThread():
+        time.sleep(0.1)
+
+
+
+def UpdateProcesses():
+    global bounds, plottedEquList, equations
+
+    for i in range(len(currentProcesses)):
+        currentProcesses[i].terminate()
+
+    currentProcesses.clear()
+    returnQueues.clear()
+
+
+    for i, equ in enumerate(equations):
+        graphObject =
+        newProcess = Process()
+        currentProcesses.append()
+
+
+
+
+
+
+'''def DrawingThread():
     global bounds, plottedEquList, equations
 
     iteration = 0
@@ -268,23 +343,8 @@ def DrawingThread():
         iteration += 1
 
         if iteration >= 3:
-            wait = GetWaitTime()
+            wait = GetWaitTime()'''
 
-
-def GetWaitTime():
-    global INCREMENT_FACTOR
-
-    counter = 0
-    for i in equations:
-        if i != "":
-            counter += 1
-
-    if counter == 0:
-        counter = 1
-
-    INCREMENT_FACTOR = 1.8 - counter * 0.12
-
-    return counter * 0.03 + 0.03
 
 
 def UpdateEquations(entries):
