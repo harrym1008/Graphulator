@@ -1,4 +1,5 @@
 import os
+
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 import tkinter as tk
@@ -12,6 +13,7 @@ from graph import *
 from ui import *
 from colours import *
 from numstr import *
+from drawfunc import *
 
 
 screenSize = (800, 600)
@@ -27,6 +29,8 @@ mouseFocusTime = 0
 
 
 def Kill():
+    global running
+
     running = False
     return not running
 
@@ -54,6 +58,9 @@ def PygameInput(events, graph):
     if keys[pygame.K_r]:
         graph.zoom = 10
         graph.offset = [0, 0]
+
+    if keys[pygame.K_ESCAPE]:
+        Kill()
 
     # Panning the graph with the mouse
     mouseClicked = pygame.mouse.get_pressed()
@@ -110,21 +117,27 @@ if __name__ == "__main__":
     # init code
     AssignFonts()
     graph = Graph(screenSize)
+    functionHolder = FunctionHolder()
+    functionHolder.AppendEquation(graph, "x", colours["red"].colour)
 
 
     # Start main loop
     while running:
-        graph.DrawBaseGraphSurface()
-        
+        graph.DrawBaseGraphSurface()        
 
         graphScreen.fill(colours["white"].colour)
         graphScreen.blit(graph.baseSurface, (0, 0))
 
-        clock.tick(targetFPS)
-        deltatime.Update()
+        # blit all surfaces to the screen
+
+        functionHolder.UpdateEquations(graph)
 
         guiScreen.update()
         pygame.display.flip()
+        
+        # Wait for 60 FPS
+        # clock.tick(targetFPS)
+        deltatime.Update()
 
         events = pygame.event.get()
         PygameInput(events, graph)

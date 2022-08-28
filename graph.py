@@ -45,6 +45,7 @@ class Graph:
         self.lastFrameData = newObject
         return necessary
 
+
     def PerformPrecalculation(self):
         if not self.IsPrecalcNecessary():
             return
