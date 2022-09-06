@@ -49,9 +49,9 @@ def PygameInput(events, graph):
         graph.offset[1] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
     if keys[pygame.K_DOWN]:
         graph.offset[1] += panSpeed * deltatime.GetMultiplier() / graph.zoom
-    if keys[pygame.K_KP_PLUS]:
+    if keys[pygame.K_KP_PLUS] or keys[pygame.K_EQUALS]:
         graph.zoom *= 1 + zoomSpeed
-    if keys[pygame.K_KP_MINUS]:
+    if keys[pygame.K_KP_MINUS] or keys[pygame.K_MINUS]:
         graph.zoom /= 1 + zoomSpeed
 
     # Reset offset and panning
