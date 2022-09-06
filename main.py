@@ -130,13 +130,13 @@ if __name__ == "__main__":
 
         # blit all surfaces to the screen
 
-        functionHolder.UpdateEquations(graph)
+        # functionHolder.UpdateEquations(graph)
 
         guiScreen.update()
         pygame.display.flip()
         
         # Wait for 60 FPS
-        # clock.tick(targetFPS)
+        clock.tick(targetFPS)
         deltatime.Update()
 
         events = pygame.event.get()
@@ -150,6 +150,8 @@ if __name__ == "__main__":
                 graphScreen = pygame.display.set_mode((e.w, e.h),
                                                       pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                 screenSize = (e.w, e.h)
+                graph.ScreenHasBeenResized(screenSize)
+                panSpeed = sorted([e.w, e.h])[1] * 0.00125 + 1
 
                 
 

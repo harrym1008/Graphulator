@@ -36,6 +36,12 @@ class Graph:
         self.baseSurface = pygame.Surface(screenSize)
 
 
+    def ScreenHasBeenResized(self, newSize):
+        self.screenSize = newSize
+        self.screenCentre = (newSize[0] // 2, newSize[1] // 2)
+        self.baseSurface = pygame.Surface(newSize)
+
+
     def IsPrecalcNecessary(self):
         if self.lastFrameData is None:
             return True
