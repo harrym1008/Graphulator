@@ -117,16 +117,19 @@ if __name__ == "__main__":
     # init code
     AssignFonts()
     graph = Graph(screenSize)
+    ui = UserInterface(screenSize)
     functionHolder = FunctionHolder()
     functionHolder.AppendEquation(graph, "x", colours["red"].colour)
 
 
     # Start main loop
     while running:
-        graph.DrawBaseGraphSurface()        
+        graph.DrawBaseGraphSurface() 
+        ui.UpdateUISurface(graph.GetMainFont(), graph, clock) 
 
         graphScreen.fill(colours["white"].colour)
         graphScreen.blit(graph.baseSurface, (0, 0))
+        graphScreen.blit(ui.GetUISurface(), (0, 0))
 
         # blit all surfaces to the screen
 
@@ -151,6 +154,7 @@ if __name__ == "__main__":
                                                       pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                 screenSize = (e.w, e.h)
                 graph.ScreenHasBeenResized(screenSize)
+                ui.UpdateScreenSize(screenSize)
                 panSpeed = sorted([e.w, e.h])[1] * 0.00125 + 1
 
                 

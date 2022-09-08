@@ -19,7 +19,6 @@ def AssignFonts():
 class Graph:
     writtenValueGap = 70
 
-
     def __init__(self, screenSize):
         self.screenSize = screenSize
         self.screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
@@ -174,12 +173,13 @@ class Graph:
         self.DrawGraphLines()
         self.DrawLinesFromOrigin()
         self.WriteGraphValues()
-        ui.DrawDebugDataOnGraphScreen(self, fonts[0])
 
 
     def UpdateScreenSize(self, newSize):
         self.screenSize = newSize
 
+    def GetMainFont(self):
+        return fonts[0]
 
         
 
