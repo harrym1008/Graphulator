@@ -124,8 +124,10 @@ if __name__ == "__main__":
 
     # Start main loop
     while running:
-        graph.DrawBaseGraphSurface() 
-        ui.UpdateUISurface(graph.GetMainFont(), graph, clock) 
+        graph.DrawBaseGraphSurface()
+
+        mousePos = pygame.mouse.get_pos() if mouseFocusTime > 0 else None
+        ui.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos)
 
         graphScreen.fill(colours["white"].colour)
         graphScreen.blit(graph.baseSurface, (0, 0))
