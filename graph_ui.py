@@ -1,5 +1,5 @@
 import pygame
-import graph as _graph
+import graph
 from colours import *
 from numstr import *
 
