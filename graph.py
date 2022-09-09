@@ -1,7 +1,7 @@
 from colours import *
 import pygame
 import math
-import ui
+import graph_ui
      
 
 LOG_2 = math.log(2, 10)
