@@ -19,10 +19,31 @@ colours = {
     "red": Colour(255, 0, 0),
     "green": Colour(0, 255, 0),
     "blue": Colour(0, 0, 255),
+    "light blue": Colour(0, 157, 255),
     "cyan": Colour(0, 255, 255),
     "magenta": Colour(255, 0, 255),
     "yellow": Colour(255, 255, 0),
     "darker yellow": Colour(247, 199, 45),
+    "orange": Colour(255, 145, 0),
 
     "transparent": Colour(0, 0, 0, 0)
 }
+
+
+
+graphColours = [
+    "red",
+    "blue",
+    "green",
+    "magenta",
+    "darker yellow",
+    "light blue",
+    "orange"
+]
+
+
+
+
+def GetColourForPlotIndex(index):
+    index = index % len(graphColours)
+    return colours[graphColours[index]]

@@ -1,7 +1,9 @@
+import multiprocessing
 from re import I
 import sympy
 import numpy as np
 import pygame
+from graph import CornerValues
 
 from vector2 import *
 from colours import *
@@ -24,40 +26,13 @@ class EquationType(IntEnum):
 
 
 
-class FunctionHolder:
-    def __init__(self):
-        self.plottedEquations = []
-        self.processes = []
-        self.returnQueues = []
-
-        self.drawnFunctions = []
-
-
-    def AppendEquation(self, graph, equation, colour):
-        index = len(self.plottedEquations)
-
-        self.drawnFunctions.append(None)
-        self.plottedEquations.append( PlottedFunction(graph, equation, colour, 0) )
-        self.returnQueues.append(Queue())
-        self.processes.append( Process(target=self.plottedEquations[index].RedrawMySurface, 
-                                       args=(graph, self.returnQueues[index])) )
-        # self.processes[index].start()
-
-
-
-    def UpdateEquations(self, graph):
-        for i, plottedEquation in enumerate(self.plottedEquations):
-            if not self.processes[i].is_alive():
-                data = self.returnQueues[i].get()
-
-                if data is not None:
-                    self.drawnFunctions[i] = data
-                self.processes[i] = Process(target=self.plottedEquations[i].RedrawMySurface, 
-                                       args=(graph, self.returnQueues[i]))
-                self.processes[i].start()
-
-
-                
+strToGraphType = {
+    ">=": EquationType.GreaterThanOrEqualTo,
+    "<=": EquationType.LessThanOrEqualTo,
+    "=": EquationType.Equals,
+    "<": EquationType.LessThan,
+    ">": EquationType.GreaterThan
+}
 
 
 
@@ -65,74 +40,115 @@ class FunctionHolder:
 
 
 
+class EquationType(IntEnum):
+    Equals = 0
+    GreaterThanOrEqualTo = 1
+    LessThanOrEqualTo = 2
+    GreaterThan = 3
+    LessThan = 4
 
 
 
-
-
-class PlottedFunction:
-    def __init__(self, graph, equString, colour, equNumber, equationType=EquationType.Equals):
-        self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-        self.colour = colour
-        self.equNumber = equNumber
-
-        bounds = graph.bounds
-        self.surfaceNW = bounds.NW if bounds is not None else (0, 0)
-        self.surfaceCentre = bounds.CENTRE if bounds is not None else (0, 0)
-        self.surfaceSE = bounds.SE if bounds is not None else (0, 0)
-        self.surfaceZoom = graph.zoom
+class SurfaceWithBounds:
+    def __init__(self, surface, bounds):
+        self.surface = surface
         self.bounds = bounds
 
-        self.ReplaceEquationString(equString)
-
-        self.equationType = equationType
-        self.isDottedLine = self.equationType % 2 > 2
-
-        self.currentProcess = self.returnQueue = None
 
 
-    def ReplaceEquationString(self, string):
-        self.equationString = self.equation = string
+
+class PlottedEquation:
+    def __init__(self, equation, index):
+        self.active = False
+        self.equation = self.ConvertEquation()
+        self.index = index
+        self.colour = GetColourForPlotIndex(index)
+        self.UpdateEquationType()
+
+        self.myThread: multiprocessing.Process = None
+        self.boundsAtBeginning: CornerValues = None
 
 
-    def ResetSurface(self):
-        self.surface.fill(colours["transparent"].colour)
 
 
-    def RedrawMySurface(self, graph, queue):
+    def RedrawSurface(self, screenSize, graph, queue=None):
+        surface = pygame.Surface(screenSize, pygame.SRCALPHA)
+        surface.fill(colours["transparent"].colour)
+
         if self.equation == "":
+            data = SurfaceWithBounds(surface, graph.bounds)
+            queue.put(data)
             return
+
+
+
+        bounds = graph.bounds
+        zoom = bounds.zoom
+
+        points = []
+        start, end = bounds.W, bounds.E
+        increment = (end[0] - start[0]) / (screenSize[0] * INCREMENT_FACTOR)
+
+        extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
+        lastX, lastY = 0, 0
+        drawOffset = graph.screenCentre[0] - graph.zoomedOffset[0], graph.screenCentre[1] - graph.zoomedOffset[1]
+
+        for x in np.arange(start[0], end[0], increment):
+            try:
+                points.append((x, -eval(self.equation)))
+            except Exception as e:
+                points.append((x, np.inf))
+                print(f"{e} -----> Error at x={x}")
+
+
+        for x, y in points:
+            if y == np.inf:
+                continue
+
+            plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
+            plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
+
+            asymptoteCheck = (y > extremeUpper and lastY < extremeLower) or (lastY > extremeUpper and y < extremeLower)
+            infCheck = y == np.inf
+
+            if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
+                    pygame.draw.line(surface, self.colour, plotStart, plotEnd, 3)
+
+            if self.isDottedLine:
+                dottedCheckLine -= 1
+                if dottedCheckLine < -9:
+                    dottedCheckLine = 10
+
+            lastX, lastY = x, y
+
+        data = SurfaceWithBounds(surface, bounds)
+
+        if queue is not None:
+            queue.put(data)
+        else
+            return data
+
+
+
+
         
-        self.ResetSurface()
-
-        self.returnQueue = Queue()
-        self.currentProcess = Process(target=self.CreateFunctionOnSurface, 
-                                      args=(self.equation, self.colour, self.isDottedLine, graph, self.returnQueue))
-
-        while self.currentProcess.is_alive():
-            pass        # just wait
-
-        queue.put(self.returnQueue.get())   # place into primary queue
 
 
 
-    def __str__(self) -> str:
-        return f"{self.equation}"
+
+    def ConvertEquation(self):
+        return self.equation
 
 
+    def UpdateEquationType(self):
+        self.type = strToGraphType["="]
+        for string in strToGraphType.keys():
+            if string in self.equation:
+                self.type = strToGraphType[string]
+        self.isDottedLine = self.equationType % 2 > 2
 
 
     def CreateFunctionOnSurface(equation, colour, isDottedLine, graph, queue):
-        surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-        surface.fill(colours["transparent"].colour)
-
-        print("Started")
-
-        if equation == "":
-            queue.put(FinishedFunctionData(surface, graph.bounds, graph.zoom))
-            return
-
-
 
         points = []
         start, end = graph.bounds.W, graph.bounds.E

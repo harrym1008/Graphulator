@@ -228,6 +228,7 @@ class CornerValues:
         self.SW = W, S
         self.W = W, CENTRE_Y
         self.NW = W, N
+        self.zoom = z
 
     def GetTuple(self):
         return self.N, self.NE, self.E, self.SE, self.S, self.SW, self.W, self.NW, self.CENTRE
