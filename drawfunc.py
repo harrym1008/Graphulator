@@ -3,6 +3,8 @@ from re import I
 import sympy
 import numpy as np
 import pygame
+
+import graph
 from graph import CornerValues
 
 from vector2 import *
@@ -51,8 +53,8 @@ class EquationType(IntEnum):
 
 class SurfaceWithBounds:
     def __init__(self, surface, bounds):
-        self.surface = surface
-        self.bounds = bounds
+        self.surface: pygame.Surface = surface
+        self.bounds: graph.CornerValues = bounds
 
 
 
@@ -63,6 +65,9 @@ class PlottedEquation:
         self.equation = self.ConvertEquation()
         self.index = index
         self.colour = GetColourForPlotIndex(index)
+
+        self.type = EquationType.Equals
+        self.isDottedLine = False
         self.UpdateEquationType()
 
         self.myThread: multiprocessing.Process = None
@@ -125,13 +130,8 @@ class PlottedEquation:
 
         if queue is not None:
             queue.put(data)
-        else
+        else:
             return data
-
-
-
-
-        
 
 
 
@@ -146,52 +146,6 @@ class PlottedEquation:
             if string in self.equation:
                 self.type = strToGraphType[string]
         self.isDottedLine = self.equationType % 2 > 2
-
-
-    def CreateFunctionOnSurface(equation, colour, isDottedLine, graph, queue):
-
-        points = []
-        start, end = graph.bounds.W, graph.bounds.E
-        increment = (end[0] - start[0]) / (graph.screenSize[0] * INCREMENT_FACTOR)
-        
-        extremeLower, extremeUpper = graph.bounds.N[1], graph.bounds.S[1]
-        lastX, lastY = points[0]
-        drawOffset = graph.screenCentre[0] - graph.zoomedOffset[0], graph.screenCentre[1] - graph.zoomedOffset[1]
-        dottedCheckLine = 10
-        zoom = graph.zoom
-        bounds = graph.bounds
-
-            
-        for x in np.arange(start[0], end[0], increment):
-            try:
-                points.append((x, -eval(equation)))
-            except Exception as e:
-                points.append((x, np.inf))
-                print(f"{e} -----> Error at x={x}")
-
-        for x, y in points:
-            if y == np.inf:
-                continue
-
-            plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
-            plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
-
-            asymptoteCheck = (y > extremeUpper and lastY < extremeLower) or (lastY > extremeUpper and y < extremeLower)
-            infCheck = y == np.inf
-
-            if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                    pygame.draw.line(surface, colour, plotStart, plotEnd, 3)
-
-            if isDottedLine:
-                dottedCheckLine -= 1
-                if dottedCheckLine < -9:
-                    dottedCheckLine = 10
-
-            lastX, lastY = x, y
-
-        finishedData = FinishedFunctionData(surface, bounds, zoom)
-        queue.put(finishedData)
-        print("Done")
 
 
 
