@@ -27,7 +27,7 @@ class Graph:
         self.orgPos = (0, 0)
 
         self.offset = [0, 0]
-        self.zoom = 30
+        self.zoom = 50
 
         self.bounds = CornerValues(self)
         self.lastFrameData = None

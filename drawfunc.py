@@ -14,6 +14,7 @@ from multiprocessing import Process, Queue
 
 π = pi = 3.14159265358979323846
 e = 2.7182818284590452353602875
+Φ = φ = phi = goldenRatio = 1.618033988749894
 
 INCREMENT_FACTOR = 1.5
 
@@ -61,8 +62,8 @@ class SurfaceWithBounds:
 
 class PlottedEquation:
     def __init__(self, equation, index):
-        self.active = False
-        self.equation = self.ConvertEquation()
+        self.active = True
+        self.equation = equation
         self.index = index
         self.colour = GetColourForPlotIndex(index)
 
@@ -70,19 +71,24 @@ class PlottedEquation:
         self.isDottedLine = False
         self.UpdateEquationType()
 
-        self.myThread: multiprocessing.Process = None
+        # Create a thread and a return queue
+        # The thread is a dummy that will not actually be started, a new one will be instantiated
+        # It is only instantiated here so that its variable is_alive returns false
+        self.myThread: multiprocessing.Process = Process(target=self.RedrawSurface, args=())
+        self.myReturnQueue: multiprocessing.Queue = Queue()
+
         self.boundsAtBeginning: CornerValues = None
 
 
 
 
-    def RedrawSurface(self, screenSize, graph, queue=None):
-        surface = pygame.Surface(screenSize, pygame.SRCALPHA)
+    def RedrawSurface(self, graph):
+        surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
         surface.fill(colours["transparent"].colour)
 
         if self.equation == "":
             data = SurfaceWithBounds(surface, graph.bounds)
-            queue.put(data)
+            self.myReturnQueue.put(data)
             return
 
 
@@ -92,7 +98,7 @@ class PlottedEquation:
 
         points = []
         start, end = bounds.W, bounds.E
-        increment = (end[0] - start[0]) / (screenSize[0] * INCREMENT_FACTOR)
+        increment = (end[0] - start[0]) / (graph.screenSize[0] * INCREMENT_FACTOR)
 
         extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
         lastX, lastY = 0, 0
@@ -127,11 +133,7 @@ class PlottedEquation:
             lastX, lastY = x, y
 
         data = SurfaceWithBounds(surface, bounds)
-
-        if queue is not None:
-            queue.put(data)
-        else:
-            return data
+        self.myReturnQueue.put(data)
 
 
 
@@ -145,7 +147,7 @@ class PlottedEquation:
         for string in strToGraphType.keys():
             if string in self.equation:
                 self.type = strToGraphType[string]
-        self.isDottedLine = self.equationType % 2 > 2
+        self.isDottedLine = self.type % 2 > 2
 
 
 

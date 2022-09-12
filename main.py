@@ -1,5 +1,7 @@
 import os
 
+from funcmgr import FunctionManager
+
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 import tkinter as tk
@@ -119,17 +121,19 @@ if __name__ == "__main__":
     AssignFonts()       # Assigning fonts at the start - this takes lots of processing time, so it is done at the beginning
     graph = Graph(screenSize)     # Create and initialise an instance of the graph class
     graphUI = GraphUserInterface(screenSize)    # Create and initialise an instance of the graph UI class
-    functionHolder = FunctionHolder()      # Create and initialise an instance of the function holder class
-    functionHolder.AppendEquation(graph, "math.sin(x)", colours["red"].colour)
+    functionManager = FunctionManager(graph)
+
+    functionManager.AddAnotherEquation("math.sin(x)")
 
 
     # Start main loop
     while running:
-        # Create surface for the graph
-        graph.DrawBaseGraphSurface() 
-
-        # Check if mouse is on the graph
+        # Frame update code
         mousePos = pygame.mouse.get_pos() if mouseFocusTime > 0 else None
+
+        functionManager.UpdateThreads(graph)
+        functionManager.BlitCurrentSurfaces(graph)
+        graph.DrawBaseGraphSurface() 
         graphUI.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos) 
 
         # redraw the screen for that frame
@@ -138,8 +142,7 @@ if __name__ == "__main__":
         graphScreen.blit(graphUI.surface, (0, 0))
 
         # blit all surfaces to the screen
-        # functionHolder.UpdateEquations(graph)
-        
+        graphScreen.blit(functionManager.surface, (0, 0))        
 
         # update tkinter and pygame displays
         guiScreen.update()

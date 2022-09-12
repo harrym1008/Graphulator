@@ -15,6 +15,7 @@ class GraphUserInterface:
         self.surface.fill(colours["transparent"].colour)
 
     def UpdateScreenSize(self, newSize):
+        self.surface = pygame.Surface(newSize, pygame.SRCALPHA, 32)
         self.screenSize = newSize
 
     def UpdateUISurface(self, font, graph, clock, mousePos):
