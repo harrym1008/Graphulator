@@ -20,23 +20,15 @@ INCREMENT_FACTOR = 1.5
 
 
 
-class EquationType(IntEnum):
-    Equals = 0
-    GreaterThanOrEqualTo = 1
-    LessThanOrEqualTo = 2
-    GreaterThan = 3
-    LessThan = 4
-
-
-
 strToGraphType = {
-    ">=": EquationType.GreaterThanOrEqualTo,
-    "<=": EquationType.LessThanOrEqualTo,
-    "=": EquationType.Equals,
-    "<": EquationType.LessThan,
-    ">": EquationType.GreaterThan
+    ">=": 4,
+    "<=": 3,
+    "=": 0,
+    "<": 1, 
+    ">": 2
 }
 
+fullLines = [0, 3, 4]
 
 
 
@@ -67,7 +59,7 @@ class PlottedEquation:
         self.index = index
         self.colour = GetColourForPlotIndex(index)
 
-        self.type = EquationType.Equals
+        self.type = 0
         self.isDottedLine = False
         self.UpdateEquationType()
 
@@ -77,17 +69,19 @@ class PlottedEquation:
         self.myThread: multiprocessing.Process = Process(target=self.RedrawSurface, args=())
         self.myReturnQueue: multiprocessing.Queue = Queue()
 
+        self.surface: pygame.Surface = None
         self.boundsAtBeginning: CornerValues = None
 
 
 
 
     def RedrawSurface(self, graph):
-        surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-        surface.fill(colours["transparent"].colour)
+        print("I have started")
+        self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+        self.surface.fill(colours["transparent"].colour)
 
         if self.equation == "":
-            data = SurfaceWithBounds(surface, graph.bounds)
+            data = SurfaceWithBounds(self.surface, graph.bounds)
             self.myReturnQueue.put(data)
             return
 
@@ -123,7 +117,7 @@ class PlottedEquation:
             infCheck = y == np.inf
 
             if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                    pygame.draw.line(surface, self.colour, plotStart, plotEnd, 3)
+                    pygame.draw.line(self.surface, self.colour, plotStart, plotEnd, 3)
 
             if self.isDottedLine:
                 dottedCheckLine -= 1
@@ -132,8 +126,17 @@ class PlottedEquation:
 
             lastX, lastY = x, y
 
-        data = SurfaceWithBounds(surface, bounds)
+        print("Created a sine wave surface")
+
+        data = SurfaceWithBounds(self.surface, bounds)
         self.myReturnQueue.put(data)
+
+
+    @classmethod
+    def ProduceSurfaceFromList(cls, graph, data):
+        surface = pygame.Surface()
+
+    
 
 
 
@@ -147,7 +150,9 @@ class PlottedEquation:
         for string in strToGraphType.keys():
             if string in self.equation:
                 self.type = strToGraphType[string]
-        self.isDottedLine = self.type % 2 > 2
+                print(self.typetype)
+                break
+        self.isDottedLine = self.type in fullLines
 
 
 

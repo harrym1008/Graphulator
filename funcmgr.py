@@ -33,14 +33,14 @@ class FunctionManager:
             # the class has just been instantiated)
             if equ.active and not equ.myThread.is_alive():
                 if equ.myReturnQueue.qsize() == 0:
-                    equ.myThread = Process(target=equ.UpdateEquationType, args=(graph,))
+                    equ.myThread = Process(target=equ.RedrawSurface, args=(graph,))
                     equ.myThread.start()
                     continue
 
                 try:
                     data: drawfunc.FinishedFunctionData = equ.myReturnQueue.get()         # get data from return queue
                     self.surfaceBoundsData[i] = data                                      # set data in data array
-                    equ.myThread = Process(target=equ.UpdateEquationType, args=(graph,))  # create new process
+                    equ.myThread = Process(target=equ.RedrawSurface, args=(graph,))  # create new process
                     equ.myThread.start()                                                  # start the process  
 
                 except:
@@ -69,3 +69,6 @@ class FunctionManager:
                 tempSurface = data.surface
 
             self.surface.blit(tempSurface, newPosition)
+
+
+
