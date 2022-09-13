@@ -1,5 +1,4 @@
 import multiprocessing
-from re import I
 import sympy
 import numpy as np
 import pygame
@@ -44,14 +43,6 @@ class EquationType(IntEnum):
 
 
 
-class SurfaceWithBounds:
-    def __init__(self, surface, bounds):
-        self.surface: pygame.Surface = surface
-        self.bounds: graph.CornerValues = bounds
-
-
-
-
 class PlottedEquation:
     def __init__(self, equation, index):
         self.active = True
@@ -64,27 +55,25 @@ class PlottedEquation:
         self.UpdateEquationType()
 
         # Create a thread and a return queue
-        # The thread is a dummy that will not actually be started, a new one will be instantiated
+        # The thread is a dummy that will be started after completing the dummy method, 
+        # which is nothing, a new one will be instantiated
         # It is only instantiated here so that its variable is_alive returns false
-        self.myThread: multiprocessing.Process = Process(target=self.RecalculatePoints, args=())
+        self.myThread: multiprocessing.Process = None
         self.myReturnQueue: multiprocessing.Queue = Queue()
 
         self.boundsAtBeginning: CornerValues = None
-
-
 
 
     def RecalculatePoints(self, graph):
         print("I have started")
 
         if self.equation == "":
-            data = SurfaceWithBounds([], graph.bounds)
+            data = FinishedFunctionData([], graph.bounds)
             self.myReturnQueue.put(data)
             return
 
 
         bounds = graph.bounds
-        zoom = bounds.zoom
 
         points = []
         start, end = bounds.W, bounds.E
@@ -101,8 +90,10 @@ class PlottedEquation:
         print("Created a sine wave surface")
         print(points)
 
-        data = SurfaceWithBounds(points, bounds)
+        data = FinishedFunctionData(points, bounds)
         self.myReturnQueue.put(data)
+
+        print("Okay I am done")
 
 
 
@@ -144,12 +135,6 @@ class PlottedEquation:
 
 
 
-
-    
-
-
-
-
     def ConvertEquation(self):
         return self.equation
 
@@ -164,17 +149,21 @@ class PlottedEquation:
         self.isDottedLine = self.type in fullLines
 
 
+    def Dummy(self):
+        pass
+
+
 
 class FinishedFunctionData:
-    def __init__(self, array, bounds, zoom):
+    def __init__(self, array, bounds):
         self.numberArray = array
         self.bounds = bounds
-        self.zoom = zoom
+        self.zoom = bounds.zoom
+
+
 
     def __str__(self) -> str:
         return f'''Numbers: {self.numberArray}
 Bounds: {self.bounds}
 Zoom: {self.zoom}'''
-
-
 

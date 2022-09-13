@@ -104,7 +104,7 @@ def PygameInput(events, graph):
 if __name__ == "__main__":
     # Create tkinter window
     guiScreen = tk.Tk()
-    guiScreen.title("Graphulator v3")
+    guiScreen.title("Graphulator v4")
     guiScreen.protocol("WM_DELETE_WINDOW", Kill)   
     # This makes it run the Kill method when the X button is pressed in the top right of the window
 
@@ -113,6 +113,7 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
     graphScreen.fill(colours["white"].colour)
+    pygame.display.set_caption("Graphulator v4 - Screen View")
 
     AssignFonts()       # Assigning fonts at the start - this takes lots of processing time, so it is done at the beginning
     graph = Graph(screenSize)     # Create and initialise an instance of the graph class
@@ -157,8 +158,8 @@ if __name__ == "__main__":
                 if Kill():
                     break
             if e.type == pygame.VIDEORESIZE:
-                screenSize = (max(screenSize[0], minScreenSize[0]),
-                              max(screenSize[1], minScreenSize[1]))
+                screenSize = (max(e.w, minScreenSize[0]),
+                              max(e.h, minScreenSize[1]))
 
                 graphScreen = pygame.display.set_mode(screenSize,
                             pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
@@ -166,7 +167,6 @@ if __name__ == "__main__":
                 graphUI.UpdateScreenSize(screenSize)
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
-
 
     # run this code on exit
     for equ in functionManager.currentEquations:

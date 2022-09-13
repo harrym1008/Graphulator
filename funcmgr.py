@@ -25,14 +25,14 @@ class FunctionManager:
     def UpdateThreads(self, graph):
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
-            if not equ.active and equ.equation == "":
+            if not equ.active or equ.equation == "":
                 equ.myThread.terminate()
                 continue
 
             # if a thread should be running but is not (because it has just finished or 
             # the class has just been instantiated)
-            if equ.active and not equ.myThread.is_alive():
-                if equ.myReturnQueue.qsize() == 0:
+            if equ.active and not equ.myReturnQueue.qsize(): #equ.myThread.is_alive():
+                if equ.myThread is None:
                     equ.myThread = Process(target=equ.RecalculatePoints, args=(graph,))
                     equ.myThread.start()
                     continue
@@ -40,7 +40,9 @@ class FunctionManager:
                 data: drawfunc.FinishedFunctionData = equ.myReturnQueue.get()         # get data from return queue
                 print(data)
                 self.surfaceBoundsData[i] = data                                      # set data in data array
-                equ.myThread = Process(target=equ.RecalculatePoints, args=(graph,))  # create new process
+                print("OMGGGGGGGGGGGGGGGG")
+                print(f"{self.surfaceBoundsData}")
+                equ.myThread = Process(target=equ.RecalculatePoints, args=(graph,))   # create new process
                 equ.myThread.start()  
 
 
@@ -48,7 +50,6 @@ class FunctionManager:
         self.surface.fill(colours["transparent"].colour)
 
         for i, data in enumerate(self.surfaceBoundsData):
-            print(data)
             if self.currentEquations[i].equation == "" or data is None:
                 continue
 
