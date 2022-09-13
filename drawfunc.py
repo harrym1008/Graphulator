@@ -66,7 +66,7 @@ class PlottedEquation:
         # Create a thread and a return queue
         # The thread is a dummy that will not actually be started, a new one will be instantiated
         # It is only instantiated here so that its variable is_alive returns false
-        self.myThread: multiprocessing.Process = Process(target=self.RedrawSurface, args=())
+        self.myThread: multiprocessing.Process = Process(target=self.RecalculatePoints, args=())
         self.myReturnQueue: multiprocessing.Queue = Queue()
 
         self.boundsAtBeginning: CornerValues = None
@@ -74,7 +74,7 @@ class PlottedEquation:
 
 
 
-    def RedrawSurface(self, graph):
+    def RecalculatePoints(self, graph):
         print("I have started")
 
         if self.equation == "":
@@ -99,6 +99,7 @@ class PlottedEquation:
         
 
         print("Created a sine wave surface")
+        print(points)
 
         data = SurfaceWithBounds(points, bounds)
         self.myReturnQueue.put(data)
@@ -169,6 +170,11 @@ class FinishedFunctionData:
         self.numberArray = array
         self.bounds = bounds
         self.zoom = zoom
+
+    def __str__(self) -> str:
+        return f'''Numbers: {self.numberArray}
+Bounds: {self.bounds}
+Zoom: {self.zoom}'''
 
 
 

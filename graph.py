@@ -1,7 +1,7 @@
 from colours import *
 import pygame
 import math
-import graph_ui
+import graphui
      
 
 LOG_2 = math.log(2, 10)
@@ -32,13 +32,12 @@ class Graph:
         self.bounds = CornerValues(self)
         self.lastFrameData = None
 
-        self.baseSurface = pygame.Surface(screenSize)
 
 
-    def ScreenHasBeenResized(self, newSize):
+    def ScreenHasBeenResized(self, newSize, renderer):
         self.screenSize = newSize
         self.screenCentre = (newSize[0] // 2, newSize[1] // 2)
-        self.baseSurface = pygame.Surface(newSize)
+        renderer.surface = pygame.Surface(newSize)
 
 
     def IsPrecalcNecessary(self):
@@ -88,7 +87,7 @@ class Graph:
 
 
 
-    def DrawGraphLines(self):
+    def DrawGraphLines(self, renderer):
         # Draw the cyan lines that stretch across the graph
 
         increment = self.GetGraphLineIncrement()
@@ -100,79 +99,29 @@ class Graph:
             startX, endX = (n + lineOffset[0], -lineOffset[1]), (n + lineOffset[0], self.screenSize[1] + lineOffset[1])
             startY, endY = (-lineOffset[0], n + lineOffset[1]), (self.screenSize[0] + lineOffset[0], n + lineOffset[1])
 
-            pygame.draw.line(self.baseSurface, colours["cyan"].colour, startX, endX)
-            pygame.draw.line(self.baseSurface, colours["cyan"].colour, startY, endY)
+            pygame.draw.line(renderer.surface, colours["cyan"].colour, startX, endX)
+            pygame.draw.line(renderer.surface, colours["cyan"].colour, startY, endY)
 
             n += increment
 
 
-    def WriteGraphValues(self):
-        # Write X and Y values on the screen at regular intervals
-        # Draw X values
-        
-        pos = [self.screenCentre[0] - self.zoomedOffset[0], self.screenCentre[1] - self.zoomedOffset[1]]
-        extents = [(-self.screenSize[0] * Graph.writtenValueGap) // 2, (self.screenSize[0] * Graph.writtenValueGap) // 2,
-                   (-self.screenSize[1] * Graph.writtenValueGap) // 2, (self.screenSize[1] * Graph.writtenValueGap) // 2]
 
-        pos[0] = sorted((0, pos[0], self.screenSize[0]))[1]     # Code snippet to clamp pos[0] to a certain range
-        pos[1] = sorted((0, pos[1], self.screenSize[1]))[1]     # Code snippet to clamp pos[1] to a certain range
-
-        '''for i in range(extents[0], extents[1], 100):
-            number = i / zoom
-            if number == 0:
-                continue
-            txtSurface = smallFont.render(GetNumString(number, True), True, colours.PygameColour("black"))
-
-            if pos[1] + 2 + txtSurface.get_height() > screenSize[1]:
-                surface.blit(txtSurface, (pos[0] + i - txtSurface.get_width() / 2, screenSize[1] - txtSurface.get_height()))
-                continue
-
-            surface.blit(txtSurface, (pos[0] + i - txtSurface.get_width() / 2, pos[1] + 2))
-            pygame.draw.line(surface, colours.PygameColour("black"),
-                            (pos[0] + i, pos[1] - 1),
-                            (pos[0] + i, pos[1] - 4))
-
-        # draw Y values
-
-        for i in range(extents[2], extents[3], 100):
-            number = -i / zoom
-            if number == 0:
-                continue
-            txtSurface = smallFont.render(GetNumString(number, True), True, colours.PygameColour("black"))
-
-            if pos[0] + 2 + txtSurface.get_width() > screenSize[0]:
-                surface.blit(txtSurface, (screenSize[0] - txtSurface.get_width(), pos[1] + i - txtSurface.get_height() / 2))
-                continue
-
-            surface.blit(txtSurface, (pos[0] + 2, pos[1] + i - txtSurface.get_height() / 2))
-            pygame.draw.line(surface, colours.PygameColour("black"),
-                            (pos[0] - 1, pos[1] + i),
-                            (pos[0] - 4, pos[1] + i))
-
-        txtSurface = smallFont.render("0", True, colours.PygameColour("black"))
-
-        surface.blit(txtSurface, (orgPos[0] - 10, orgPos[1]))'''
-
-
-    def DrawLinesFromOrigin(self):
+    def DrawLinesFromOrigin(self, renderer):
         orgPos = orgPosX, orgPosY = self.orgPos
 
         lines = [(orgPos, (0, orgPosY)), (orgPos, (self.screenSize[0], orgPosY)),
                  (orgPos, (orgPosX, 0)), (orgPos, (orgPosX, self.screenSize[1]))]
 
         for line in lines:
-            pygame.draw.line(self.baseSurface, colours["black"].colour, line[0], line[1], 2)
+            pygame.draw.line(renderer.surface, colours["black"].colour, line[0], line[1], 2)
 
 
 
-    def DrawBaseGraphSurface(self):
+    def DrawBaseGraphSurface(self, renderer):
         self.screenCentre = [self.screenSize[0] // 2, self.screenSize[1] // 2]
-        self.baseSurface.fill(colours["white"].colour)
-
         self.PerformPrecalculation()
-        self.DrawGraphLines()
-        self.DrawLinesFromOrigin()
-        self.WriteGraphValues()
+        self.DrawGraphLines(renderer)
+        self.DrawLinesFromOrigin(renderer)
 
 
     def UpdateScreenSize(self, newSize):

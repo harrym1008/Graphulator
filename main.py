@@ -1,23 +1,20 @@
-import os
-
-from funcmgr import FunctionManager
-
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-
 import tkinter as tk
-
 import pygame
 import numpy
 
 import deltatime
 from graph import *
-from graph_ui import *
 from colours import *
 from numstr import *
-from drawfunc import *
+from graphui import GraphUserInterface
+from drawfunc import PlottedEquation
+from graphrenderer import GraphRenderer
+from funcmgr import FunctionManager
 
 # Screen starts at this resolution by default
-screenSize = (800, 600)
+screenSize = (400, 300)
+minScreenSize = (256, 256)
+
 running = True
 targetFPS = 60
 
@@ -104,7 +101,6 @@ def PygameInput(events, graph):
 
 
 
-
 if __name__ == "__main__":
     # Create tkinter window
     guiScreen = tk.Tk()
@@ -121,9 +117,10 @@ if __name__ == "__main__":
     AssignFonts()       # Assigning fonts at the start - this takes lots of processing time, so it is done at the beginning
     graph = Graph(screenSize)     # Create and initialise an instance of the graph class
     graphUI = GraphUserInterface(screenSize)    # Create and initialise an instance of the graph UI class
+    graphRenderer = GraphRenderer(graph)
     functionManager = FunctionManager(graph)
 
-    functionManager.AddAnotherEquation("math.sin(x)")
+    functionManager.AddAnotherEquation("np.sin(x)")
 
 
     # Start main loop
@@ -131,17 +128,16 @@ if __name__ == "__main__":
         # Frame update code
         mousePos = pygame.mouse.get_pos() if mouseFocusTime > 0 else None
 
+        graphRenderer.NewFrame()
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
-        graph.DrawBaseGraphSurface() 
+        graph.DrawBaseGraphSurface(graphRenderer) 
         graphUI.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos) 
 
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
-        graphScreen.blit(graph.baseSurface, (0, 0))
+        graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(graphUI.surface, (0, 0))
-
-        # blit all surfaces to the screen
         graphScreen.blit(functionManager.surface, (0, 0))        
 
         # update tkinter and pygame displays
@@ -161,13 +157,21 @@ if __name__ == "__main__":
                 if Kill():
                     break
             if e.type == pygame.VIDEORESIZE:
-                graphScreen = pygame.display.set_mode((e.w, e.h),
-                                                      pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
-                screenSize = (e.w, e.h)
-                graph.ScreenHasBeenResized(screenSize)
+                screenSize = (max(screenSize[0], minScreenSize[0]),
+                              max(screenSize[1], minScreenSize[1]))
+
+                graphScreen = pygame.display.set_mode(screenSize,
+                            pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+                graph.ScreenHasBeenResized(screenSize, graphRenderer)
                 graphUI.UpdateScreenSize(screenSize)
-                panSpeed = sorted([e.w, e.h])[1] * 0.00125 + 1
+                panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
 
-                
+
+    # run this code on exit
+    for equ in functionManager.currentEquations:
+        if equ.myThread is not None:
+            continue
+        else:
+            equ.myThread.terminate()
 

@@ -33,26 +33,23 @@ class FunctionManager:
             # the class has just been instantiated)
             if equ.active and not equ.myThread.is_alive():
                 if equ.myReturnQueue.qsize() == 0:
-                    equ.myThread = Process(target=equ.RedrawSurface, args=(graph,))
+                    equ.myThread = Process(target=equ.RecalculatePoints, args=(graph,))
                     equ.myThread.start()
                     continue
 
-                try:
-                    data: drawfunc.FinishedFunctionData = equ.myReturnQueue.get()         # get data from return queue
-                    self.surfaceBoundsData[i] = data                                      # set data in data array
-                    equ.myThread = Process(target=equ.RedrawSurface, args=(graph,))  # create new process
-                    equ.myThread.start()                                                  # start the process  
-
-                except:
-                    continue
+                data: drawfunc.FinishedFunctionData = equ.myReturnQueue.get()         # get data from return queue
+                print(data)
+                self.surfaceBoundsData[i] = data                                      # set data in data array
+                equ.myThread = Process(target=equ.RecalculatePoints, args=(graph,))  # create new process
+                equ.myThread.start()  
 
 
     def BlitCurrentSurfaces(self, graph):
         self.surface.fill(colours["transparent"].colour)
 
         for i, data in enumerate(self.surfaceBoundsData):
+            print(data)
             if self.currentEquations[i].equation == "" or data is None:
-                print("Uh oh! Data was none")
                 continue
 
             dataSurface = drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, 

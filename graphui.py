@@ -14,14 +14,20 @@ class GraphUserInterface:
     def ClearUISurface(self):
         self.surface.fill(colours["transparent"].colour)
 
+
     def UpdateScreenSize(self, newSize):
         self.surface = pygame.Surface(newSize, pygame.SRCALPHA, 32)
         self.screenSize = newSize
+
 
     def UpdateUISurface(self, font, graph, clock, mousePos):
         self.ClearUISurface()
         self.TopRightDebugData(font, graph, clock)
         self.WriteMousePosition(font, mousePos, graph)
+
+    
+    def ScreenHasBeenResized(self, newSize):
+        self.surface = pygame.Surface(newSize)
 
 
     def WriteMousePosition(self, font, mousePos, graph):
