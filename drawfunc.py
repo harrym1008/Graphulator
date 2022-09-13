@@ -69,7 +69,6 @@ class PlottedEquation:
         self.myThread: multiprocessing.Process = Process(target=self.RedrawSurface, args=())
         self.myReturnQueue: multiprocessing.Queue = Queue()
 
-        self.surface: pygame.Surface = None
         self.boundsAtBeginning: CornerValues = None
 
 
@@ -77,14 +76,11 @@ class PlottedEquation:
 
     def RedrawSurface(self, graph):
         print("I have started")
-        self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-        self.surface.fill(colours["transparent"].colour)
 
         if self.equation == "":
-            data = SurfaceWithBounds(self.surface, graph.bounds)
+            data = SurfaceWithBounds([], graph.bounds)
             self.myReturnQueue.put(data)
             return
-
 
 
         bounds = graph.bounds
@@ -94,19 +90,35 @@ class PlottedEquation:
         start, end = bounds.W, bounds.E
         increment = (end[0] - start[0]) / (graph.screenSize[0] * INCREMENT_FACTOR)
 
-        extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
-        lastX, lastY = 0, 0
-        drawOffset = graph.screenCentre[0] - graph.zoomedOffset[0], graph.screenCentre[1] - graph.zoomedOffset[1]
-
         for x in np.arange(start[0], end[0], increment):
             try:
                 points.append((x, -eval(self.equation)))
             except Exception as e:
                 points.append((x, np.inf))
                 print(f"{e} -----> Error at x={x}")
+        
+
+        print("Created a sine wave surface")
+
+        data = SurfaceWithBounds(points, bounds)
+        self.myReturnQueue.put(data)
 
 
-        for x, y in points:
+
+    @classmethod
+    def ProduceSurfaceFromList(cls, graph, array, equInstance) -> pygame.Surface:
+        surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+        surface.fill(colours["transparent"].colour)
+
+        bounds = graph.bounds
+        zoom = graph.zoom
+
+        extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
+        lastX, lastY = 0, 0
+        drawOffset = graph.screenCentre[0] - graph.zoomedOffset[0], graph.screenCentre[1] - graph.zoomedOffset[1]
+
+
+        for x, y in array:
             if y == np.inf:
                 continue
 
@@ -117,24 +129,20 @@ class PlottedEquation:
             infCheck = y == np.inf
 
             if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                    pygame.draw.line(self.surface, self.colour, plotStart, plotEnd, 3)
+                    pygame.draw.line(surface, equInstance.colour, plotStart, plotEnd, 3)
 
-            if self.isDottedLine:
+            if equInstance.isDottedLine:
                 dottedCheckLine -= 1
                 if dottedCheckLine < -9:
                     dottedCheckLine = 10
 
             lastX, lastY = x, y
 
-        print("Created a sine wave surface")
-
-        data = SurfaceWithBounds(self.surface, bounds)
-        self.myReturnQueue.put(data)
+        return surface
 
 
-    @classmethod
-    def ProduceSurfaceFromList(cls, graph, data):
-        surface = pygame.Surface()
+
+
 
     
 
@@ -150,15 +158,15 @@ class PlottedEquation:
         for string in strToGraphType.keys():
             if string in self.equation:
                 self.type = strToGraphType[string]
-                print(self.typetype)
+                print(self.type)
                 break
         self.isDottedLine = self.type in fullLines
 
 
 
 class FinishedFunctionData:
-    def __init__(self, surface, bounds, zoom):
-        self.surface = surface
+    def __init__(self, array, bounds, zoom):
+        self.numberArray = array
         self.bounds = bounds
         self.zoom = zoom
 

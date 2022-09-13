@@ -55,6 +55,9 @@ class FunctionManager:
                 print("Uh oh! Data was none")
                 continue
 
+            dataSurface = drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, 
+                          self.currentEquations[i])
+
             newPosition = (0, 0)
             tempSurface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
 
@@ -64,9 +67,9 @@ class FunctionManager:
 
                 zoomScalar = graph.zoom / data.bounds.zoom
                 newScale = tuple([zoomScalar * x for x in graph.screenSize])
-                tempSurface = pygame.transform.scale(data.surface, newScale)
+                tempSurface = pygame.transform.scale(dataSurface, newScale)
             else:
-                tempSurface = data.surface
+                tempSurface = dataSurface
 
             self.surface.blit(tempSurface, newPosition)
 
