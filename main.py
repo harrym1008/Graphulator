@@ -24,6 +24,7 @@ graphMouseStart = [-1, -1]
 mouseStart = [-1, -1]
 mouseMoved = (0, 0)
 mouseFocusTime = 0
+mouseButtonDown = False
 
 
 def Kill():
@@ -35,7 +36,7 @@ def Kill():
 
 
 def PygameInput(events, graph):
-    global mouseStart, mouseMoved, graphMouseStart, mouseFocusTime
+    global mouseStart, mouseMoved, graphMouseStart, mouseFocusTime, mouseButtonDown
 
     keys = pygame.key.get_pressed()
 
@@ -66,6 +67,7 @@ def PygameInput(events, graph):
 
     # Panning the graph while mouse is pressed
     mouseClicked = pygame.mouse.get_pressed()
+    mouseButtonDown = mouseClicked[0]
 
     if mouseClicked[0] and mouseStart == [-1, -1]:
         mouseStart = pygame.mouse.get_pos()
@@ -127,7 +129,7 @@ if __name__ == "__main__":
     # Start main loop
     while running:
         # Frame update code
-        mousePos = pygame.mouse.get_pos() if mouseFocusTime > 0 else None
+        mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0 and not mouseButtonDown) else None
 
         graphRenderer.NewFrame()
         functionManager.UpdateThreads(graph)
@@ -169,9 +171,6 @@ if __name__ == "__main__":
                 # the sorted()[1] expression finds the smallest of either the width or the height
 
     # run this code on exit
-    for equ in functionManager.currentEquations:
-        if equ.myThread is not None:
-            continue
-        else:
-            equ.myThread.terminate()
+    for equ in functionManager.myThreads:
+        equ.terminate()
 

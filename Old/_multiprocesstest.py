@@ -6,7 +6,7 @@ import random
 currentProcesses = []
 returnQueues = []
 
-threadAmount = 100
+threadAmount = 8
 
 
 def MyTask(secs, q):

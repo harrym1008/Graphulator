@@ -2,6 +2,7 @@ import multiprocessing
 import sympy
 import numpy as np
 import pygame
+import time
 
 import graph
 from graph import CornerValues
@@ -54,22 +55,23 @@ class PlottedEquation:
         self.isDottedLine = False
         self.UpdateEquationType()
 
-        # Create a thread and a return queue
+        '''# Create a thread and a return queue
         # The thread is a dummy that will be started after completing the dummy method, 
         # which is nothing, a new one will be instantiated
         # It is only instantiated here so that its variable is_alive returns false
         self.myThread: multiprocessing.Process = None
-        self.myReturnQueue: multiprocessing.Queue = Queue()
+        self.myReturnQueue: multiprocessing.Queue = Queue()'''
 
         self.boundsAtBeginning: CornerValues = None
 
 
-    def RecalculatePoints(self, graph):
+    def RecalculatePoints(self, graph, queue):
         print("I have started")
+        startTime = time.perf_counter()
 
         if self.equation == "":
             data = FinishedFunctionData([], graph.bounds)
-            self.myReturnQueue.put(data)
+            queue.put(data)
             return
 
 
@@ -91,9 +93,9 @@ class PlottedEquation:
         print(points)
 
         data = FinishedFunctionData(points, bounds)
-        self.myReturnQueue.put(data)
+        queue.put(data)
 
-        print("Okay I am done")
+        print(f"Okay I am done. Completed in {time.perf_counter() - startTime} seconds")
 
 
 
@@ -104,6 +106,7 @@ class PlottedEquation:
 
         bounds = graph.bounds
         zoom = graph.zoom
+        dottedCheckLine = 10
 
         extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
         lastX, lastY = 0, 0
@@ -121,7 +124,8 @@ class PlottedEquation:
             infCheck = y == np.inf
 
             if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                    pygame.draw.line(surface, equInstance.colour, plotStart, plotEnd, 3)
+                print("Adding a line")
+                pygame.draw.line(surface, equInstance.colour, plotStart, plotEnd, 3)
 
             if equInstance.isDottedLine:
                 dottedCheckLine -= 1
