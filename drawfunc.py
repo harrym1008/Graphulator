@@ -61,6 +61,7 @@ class PlottedEquation:
 
     def RecalculatePoints(self, graph, queue):
         print("I have started")
+        print(f"{graph.bounds.NW}, {graph.zoom}")
         startTime = time.perf_counter()
 
         if self.equation == "":
@@ -90,6 +91,7 @@ class PlottedEquation:
         queue.put(data)
 
         print(f"Okay I am done. Completed in {time.perf_counter() - startTime} seconds")
+        print(f"{graph.bounds.NW}, {graph.zoom}")
 
 
 
@@ -145,9 +147,6 @@ class PlottedEquation:
         self.isDottedLine = self.type not in fullLines
 
 
-    def Dummy(self):
-        pass
-
 
 
 class FinishedFunctionData:
@@ -156,10 +155,21 @@ class FinishedFunctionData:
         self.bounds = bounds
         self.zoom = bounds.zoom
 
-
-
     def __str__(self) -> str:
         return f'''Numbers: {self.numberArray}
 Bounds: {self.bounds}
 Zoom: {self.zoom}'''
 
+
+
+
+class SurfaceAndBounds:
+    def __init__(self, surface, bounds) -> None:
+        self.surface = surface
+        self.bounds = bounds
+        self.zoom = bounds.zoom        
+
+    def __str__(self) -> str:
+        return f'''Surface: {self.surface}
+Bounds: {self.bounds}
+Zoom: {self.zoom}'''

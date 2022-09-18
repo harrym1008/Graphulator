@@ -11,11 +11,13 @@ import drawfunc
 class FunctionManager:
     def __init__(self, graph):
         self.currentEquations: List[drawfunc.PlottedEquation] = []
-        self.surfaceBoundsData: List[drawfunc.SurfaceWithBounds] = []
-        self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-
+        self.numbersBoundsData: List[drawfunc.FinishedFunctionData] = []
+        self.surfaceBoundsData: List[drawfunc.SurfaceAndBounds] = []
         self.myThreads = []
         self.myReturnQueues = []
+        
+        self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+
 
 
     def ScreenHasBeenResized(self, newSize):
@@ -28,6 +30,7 @@ class FunctionManager:
         newEquation = drawfunc.PlottedEquation(equation, index)
         self.currentEquations.append(newEquation)
 
+        self.numbersBoundsData.append(None)
         self.surfaceBoundsData.append(None)
         self.myThreads.append(None)
         self.myReturnQueues.append(Queue())
@@ -57,13 +60,12 @@ class FunctionManager:
                     continue
 
                 data: drawfunc.FinishedFunctionData = self.myReturnQueues[i].get()         # get data from return queue
-                print(data)
-                self.surfaceBoundsData[i] = data                                      # set data in data array
-                print("OMGGGGGGGGGGGGGGGG")
-                print(f"{self.surfaceBoundsData.__str__()}")
+                print(f"{self.numbersBoundsData.__str__()}")
                 self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(graph, self.myReturnQueues[i]))   # create new process
                 self.myThreads[i].start()
-                print(self.surfaceBoundsData[i] is not None)
+                self.numbersBoundsData[i] = data                                      # set data in data array
+                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, equ), data.bounds)
+                # save the drawn surface to the array, so it does not have to be redrawn every frame
 
 
     def BlitCurrentSurfaces(self, graph):
@@ -73,30 +75,27 @@ class FunctionManager:
             if self.currentEquations[i].equation == "" or data is None:
                 continue
 
-            dataSurface = drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, 
-                          self.currentEquations[i])
+            dataSurface = data.surface
 
             newPosition = (0, 0)
             newScale = graph.screenSize
 
             tempSurface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
 
-            # print(data.bounds)
-
             if data.bounds.NW != graph.bounds.NW or data.bounds.zoom != graph.zoom:
-                if data.bounds.NW != data.bounds.NW:
-                    newPosition = np.subtract(tuple([graph.zoom * x for x in graph.bounds.NW]), graph.zoomedOffset)
+                if data.bounds.NW != graph.bounds.NW:
+                    newPosition = np.subtract(tuple([data.zoom * x for x in data.bounds.NW]), graph.zoomedOffset)
+                    # newPosition = np.add(newPosition, graph.screenCentre)
 
                 zoomScalar = graph.zoom / data.bounds.zoom
+                newPosition = np.add(newPosition, np.multiply(1/zoomScalar, graph.screenCentre))
                 newScale = tuple([zoomScalar * x for x in graph.screenSize])
-                newScale = graph.screenSize
-                print(graph.screenSize)
 
+                print(f"{newPosition} - {newScale}")
                 tempSurface = pygame.transform.scale(dataSurface, newScale)
             else:
                 tempSurface = dataSurface
 
-            print(f"Blitting data at {newPosition} at {newScale} scale")
             self.surface.blit(tempSurface, newPosition)
 
 

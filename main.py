@@ -1,3 +1,6 @@
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import tkinter as tk
 import pygame
 import numpy
@@ -124,11 +127,11 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)
 
     functionManager.AddAnotherEquation("np.sin(x)")
-    functionManager.AddAnotherEquation("np.tan(x)")
+    '''functionManager.AddAnotherEquation("np.tan(x)")
     functionManager.AddAnotherEquation("np.cos(x)")
     functionManager.AddAnotherEquation("x")
     functionManager.AddAnotherEquation("x**2")
-    functionManager.AddAnotherEquation("1/x")
+    functionManager.AddAnotherEquation("1/x")'''
 
 
     # Start main loop
