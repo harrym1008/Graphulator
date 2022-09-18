@@ -15,7 +15,7 @@ class GraphUserInterface:
         self.surface.fill(colours["transparent"].colour)
 
 
-    def UpdateScreenSize(self, newSize):
+    def ScreenHasBeenResized(self, newSize):
         self.surface = pygame.Surface(newSize, pygame.SRCALPHA, 32)
         self.screenSize = newSize
 
@@ -26,10 +26,6 @@ class GraphUserInterface:
         self.WriteMousePosition(font, mousePos, graph)
 
     
-    def ScreenHasBeenResized(self, newSize):
-        self.surface = pygame.Surface(newSize)
-
-
     def WriteMousePosition(self, font, mousePos, graph):
         if mousePos is None:  # mouse is not focused on the window
             return

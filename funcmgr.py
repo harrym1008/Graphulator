@@ -18,6 +18,10 @@ class FunctionManager:
         self.myReturnQueues = []
 
 
+    def ScreenHasBeenResized(self, newSize):
+        self.surface = pygame.Surface(newSize, pygame.SRCALPHA)
+
+
 
     def AddAnotherEquation(self, equation):
         index = len(self.currentEquations)
@@ -73,7 +77,7 @@ class FunctionManager:
                           self.currentEquations[i])
 
             newPosition = (0, 0)
-            newScale = (0, 0)
+            newScale = graph.screenSize
 
             tempSurface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
 

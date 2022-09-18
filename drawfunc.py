@@ -1,4 +1,5 @@
 import multiprocessing
+from turtle import dot
 import sympy
 import numpy as np
 import pygame
@@ -55,13 +56,6 @@ class PlottedEquation:
         self.isDottedLine = False
         self.UpdateEquationType()
 
-        '''# Create a thread and a return queue
-        # The thread is a dummy that will be started after completing the dummy method, 
-        # which is nothing, a new one will be instantiated
-        # It is only instantiated here so that its variable is_alive returns false
-        self.myThread: multiprocessing.Process = None
-        self.myReturnQueue: multiprocessing.Queue = Queue()'''
-
         self.boundsAtBeginning: CornerValues = None
 
 
@@ -90,7 +84,7 @@ class PlottedEquation:
         
 
         print("Created a sine wave surface")
-        print(points)
+        # print(points)
 
         data = FinishedFunctionData(points, bounds)
         queue.put(data)
@@ -109,9 +103,8 @@ class PlottedEquation:
         dottedCheckLine = 10
 
         extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
-        lastX, lastY = 0, 0
+        lastX, lastY = array[0]
         drawOffset = graph.screenCentre[0] - graph.zoomedOffset[0], graph.screenCentre[1] - graph.zoomedOffset[1]
-
 
         for x, y in array:
             if y == np.inf:
@@ -120,12 +113,11 @@ class PlottedEquation:
             plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
-            asymptoteCheck = (y > extremeUpper and lastY < extremeLower) or (lastY > extremeUpper and y < extremeLower)
+            asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
             infCheck = y == np.inf
 
             if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                print("Adding a line")
-                pygame.draw.line(surface, equInstance.colour, plotStart, plotEnd, 3)
+                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
 
             if equInstance.isDottedLine:
                 dottedCheckLine -= 1
@@ -150,7 +142,7 @@ class PlottedEquation:
                 self.type = strToGraphType[string]
                 print(self.type)
                 break
-        self.isDottedLine = self.type in fullLines
+        self.isDottedLine = self.type not in fullLines
 
 
     def Dummy(self):

@@ -124,6 +124,11 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)
 
     functionManager.AddAnotherEquation("np.sin(x)")
+    functionManager.AddAnotherEquation("np.tan(x)")
+    functionManager.AddAnotherEquation("np.cos(x)")
+    functionManager.AddAnotherEquation("x")
+    functionManager.AddAnotherEquation("x**2")
+    functionManager.AddAnotherEquation("1/x")
 
 
     # Start main loop
@@ -140,8 +145,8 @@ if __name__ == "__main__":
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
         graphScreen.blit(graphRenderer.surface, (0, 0))
-        graphScreen.blit(graphUI.surface, (0, 0))
-        graphScreen.blit(functionManager.surface, (0, 0))        
+        graphScreen.blit(functionManager.surface, (0, 0))  
+        graphScreen.blit(graphUI.surface, (0, 0))      
 
         # update tkinter and pygame displays
         guiScreen.update()
@@ -166,7 +171,8 @@ if __name__ == "__main__":
                 graphScreen = pygame.display.set_mode(screenSize,
                             pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                 graph.ScreenHasBeenResized(screenSize, graphRenderer)
-                graphUI.UpdateScreenSize(screenSize)
+                graphUI.ScreenHasBeenResized(screenSize)
+                functionManager.ScreenHasBeenResized(screenSize)
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
 
