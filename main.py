@@ -126,12 +126,8 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)
     functionManager = FunctionManager(graph)
 
-    functionManager.AddAnotherEquation("np.sin(x)")
-    '''functionManager.AddAnotherEquation("np.tan(x)")
-    functionManager.AddAnotherEquation("np.cos(x)")
-    functionManager.AddAnotherEquation("x")
-    functionManager.AddAnotherEquation("x**2")
-    functionManager.AddAnotherEquation("1/x")'''
+    functionManager.AddAnotherEquation("(3*x+7)*(x-5)")
+    functionManager.AddAnotherEquation("x**3-4*x**2-35*x+20")
 
 
     # Start main loop
