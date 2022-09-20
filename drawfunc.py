@@ -59,8 +59,8 @@ class PlottedEquation:
         self.boundsAtBeginning: CornerValues = None
 
 
-    def RecalculatePoints(self, graph, queue):
-        print("I have started")
+    def RecalculatePoints(self, graph, queue, startTime):
+        print(f"I have started, after a delay of {time.perf_counter() - startTime} seconds")
         print(f"{graph.bounds.NW}, {graph.zoom}")
         startTime = time.perf_counter()
 
@@ -90,7 +90,7 @@ class PlottedEquation:
         data = FinishedFunctionData(points, bounds)
         queue.put(data)
 
-        print(f"Okay I am done. Completed in {time.perf_counter() - startTime} seconds")
+        print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
         print(f"{graph.bounds.NW}, {graph.zoom}")
 
 

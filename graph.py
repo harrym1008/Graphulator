@@ -1,7 +1,7 @@
 from colours import *
 import pygame
 import math
-import graphui
+import time
      
 
 LOG_2 = math.log(2, 10)
@@ -12,8 +12,10 @@ fonts = []
 
 
 def AssignFonts():
+    print(time.perf_counter())
     global fonts
     fonts = [pygame.font.Font("monofonto.otf", 16), pygame.font.Font("monofonto.otf", 12)]
+    print(time.perf_counter())
 
 
 class Graph:

@@ -3,6 +3,7 @@ import threading
 from typing import List
 from colours import *
 
+import time
 import pygame
 import numpy as np
 import drawfunc
@@ -55,13 +56,13 @@ class FunctionManager:
             if equ.active and threadHasFinished if threadIsNotNone else True:
                 if self.myThreads[i] is None:
                     print("Created the new thread")
-                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(graph, self.myReturnQueues[i]))
+                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(graph, self.myReturnQueues[i], time.perf_counter()))
                     self.myThreads[i].start()
                     continue
 
                 data: drawfunc.FinishedFunctionData = self.myReturnQueues[i].get()         # get data from return queue
                 print(f"{self.numbersBoundsData.__str__()}")
-                self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(graph, self.myReturnQueues[i]))   # create new process
+                self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(graph, self.myReturnQueues[i], time.perf_counter()))   # create new process
                 self.myThreads[i].start()
                 self.numbersBoundsData[i] = data                                      # set data in data array
                 self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, equ), data.bounds)
@@ -78,23 +79,21 @@ class FunctionManager:
             dataSurface = data.surface
 
             newPosition = (0, 0)
-            newScale = graph.screenSize
+            zoomScalar = graph.zoom / data.bounds.zoom  
+            newScale = tuple([zoomScalar * x for x in graph.screenSize])
 
-            tempSurface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+            if data.bounds.CENTRE != graph.bounds.CENTRE or data.bounds.zoom != graph.zoom:
+                newPosition = np.subtract(tuple([data.zoom * x for x in data.bounds.NW]), graph.zoomedOffset)
+                newPosition = np.add(newPosition, np.divide( np.divide(graph.screenCentre,2), 1/zoomScalar))
+            
 
-            if data.bounds.NW != graph.bounds.NW or data.bounds.zoom != graph.zoom:
-                if data.bounds.NW != graph.bounds.NW:
-                    newPosition = np.subtract(tuple([data.zoom * x for x in data.bounds.NW]), graph.zoomedOffset)
-                    # newPosition = np.add(newPosition, graph.screenCentre)
+            print(f"{newPosition} - {newScale} : done? {newScale != graph.screenSize}")
 
-                zoomScalar = graph.zoom / data.bounds.zoom
-                newPosition = np.add(newPosition, np.multiply(1/zoomScalar, graph.screenCentre))
-                newScale = tuple([zoomScalar * x for x in graph.screenSize])
-
-                print(f"{newPosition} - {newScale}")
+            if newScale != graph.screenSize:
                 tempSurface = pygame.transform.scale(dataSurface, newScale)
             else:
-                tempSurface = dataSurface
+                tempSurface = data.surface
+
 
             self.surface.blit(tempSurface, newPosition)
 
