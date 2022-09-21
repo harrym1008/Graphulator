@@ -15,7 +15,7 @@ from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
 
 # Screen starts at this resolution by default
-screenSize = (400, 300)
+screenSize = (720, 480)
 minScreenSize = (256, 256)
 
 running = True
@@ -126,8 +126,7 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)
     functionManager = FunctionManager(graph)
 
-    functionManager.AddAnotherEquation("(3*x+7)*(x-5)")
-    functionManager.AddAnotherEquation("x**3-4*x**2-35*x+20")
+    functionManager.AddAnotherEquation("np.sin(x)")
 
 
     # Start main loop

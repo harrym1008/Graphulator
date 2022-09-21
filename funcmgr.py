@@ -84,7 +84,7 @@ class FunctionManager:
 
             if data.bounds.CENTRE != graph.bounds.CENTRE or data.bounds.zoom != graph.zoom:
                 newPosition = np.subtract(tuple([data.zoom * x for x in data.bounds.NW]), graph.zoomedOffset)
-                newPosition = np.add(newPosition, np.divide( np.divide(graph.screenCentre,2), 1/zoomScalar))
+                # newPosition = np.add(newPosition, np.divide( np.divide(graph.screenCentre,2), 1-zoomScalar))
             
 
             print(f"{newPosition} - {newScale} : done? {newScale != graph.screenSize}")
