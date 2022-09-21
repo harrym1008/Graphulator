@@ -2,6 +2,7 @@ import multiprocessing
 from turtle import dot
 import sympy
 import numpy as np
+import math
 import pygame
 import time
 

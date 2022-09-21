@@ -78,16 +78,23 @@ class FunctionManager:
 
             dataSurface = data.surface
 
-            newPosition = (0, 0)
-            zoomScalar = graph.zoom / data.bounds.zoom  
-            newScale = tuple([zoomScalar * x for x in graph.screenSize])
+            # equation for X: p = -oz + 0.5s + xz
+            # equation for Y: p = -oz + 0.5s - yz
 
-            if data.bounds.CENTRE != graph.bounds.CENTRE or data.bounds.zoom != graph.zoom:
-                newPosition = np.subtract(tuple([data.zoom * x for x in data.bounds.NW]), graph.zoomedOffset)
-                # newPosition = np.add(newPosition, np.divide( np.divide(graph.screenCentre,2), 1-zoomScalar))
-            
+            surfaceCorners = [(
+                -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.NW[0] * graph.zoom, 
+                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.NW[1] * graph.zoom
+                ),(
+                -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.SE[0] * graph.zoom, 
+                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.SE[1] * graph.zoom
+                )]
 
-            print(f"{newPosition} - {newScale} : done? {newScale != graph.screenSize}")
+            newScale = (surfaceCorners[1][0] - surfaceCorners[0][0], 
+                        surfaceCorners[0][1] - surfaceCorners[1][1])
+
+            newPosition = (surfaceCorners[0][0], surfaceCorners[1][1])
+
+            print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
 
             if newScale != graph.screenSize:
                 tempSurface = pygame.transform.scale(dataSurface, newScale)

@@ -1,0 +1,15 @@
+720x480
+
+1 zoom 		= offset (0, 0)
+2 zoom 		= offset (-360, -240)
+0.5 zoom 	= offset (180, 120)
+0.01 zoom	= offset ()
+
+720 x 0.5 x zoom = 
+
+
+
+x = (oz-0.5 * s+p)/z
+xz = oz- 0.5s + p
+xz + 0.5s = oz-p
+p = -oz + 0.5s + xz

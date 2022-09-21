@@ -10,7 +10,6 @@ from graph import *
 from colours import *
 from numstr import *
 from graphui import GraphUserInterface
-from drawfunc import PlottedEquation
 from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
 
@@ -126,7 +125,7 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)
     functionManager = FunctionManager(graph)
 
-    functionManager.AddAnotherEquation("np.sin(x)")
+    functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
 
 
     # Start main loop
