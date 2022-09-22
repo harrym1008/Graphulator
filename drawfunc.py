@@ -60,22 +60,30 @@ class PlottedEquation:
         self.boundsAtBeginning: CornerValues = None
 
 
-    def RecalculatePoints(self, graph, queue, startTime):
+    def RecalculatePoints(self, graphData, outQueue, startTime):
+
+        '''while True:
+
+            # wait for the in queue to have a value of 
+            while inQueue.qsize() < 1:
+                time.sleep(0.01)'''
+
+
         print(f"I have started, after a delay of {time.perf_counter() - startTime} seconds")
-        print(f"{graph.bounds.NW}, {graph.zoom}")
+        print(f"{graphData.bounds.NW}, {graphData.zoom}")
         startTime = time.perf_counter()
 
         if self.equation == "":
-            data = FinishedFunctionData([], graph.bounds)
-            queue.put(data)
+            data = FinishedFunctionData([], graphData.bounds)
+            outQueue.put(data)
             return
 
 
-        bounds = graph.bounds
+        bounds = graphData.bounds
 
         points = []
         start, end = bounds.W, bounds.E
-        increment = (end[0] - start[0]) / (graph.screenSize[0] * INCREMENT_FACTOR)
+        increment = (end[0] - start[0]) / (graphData.screenSize[0] * INCREMENT_FACTOR)
 
         for x in np.arange(start[0], end[0], increment):
             try:
@@ -85,14 +93,11 @@ class PlottedEquation:
                 print(f"{e} -----> Error at x={x}")
         
 
-        print("Created a sine wave surface")
-        # print(points)
-
         data = FinishedFunctionData(points, bounds)
-        queue.put(data)
+        outQueue.put(data)
 
         print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
-        print(f"{graph.bounds.NW}, {graph.zoom}")
+        print(f"{graphData.bounds.NW}, {graphData.zoom}")
 
 
 
@@ -161,6 +166,13 @@ class FinishedFunctionData:
 Bounds: {self.bounds}
 Zoom: {self.zoom}'''
 
+
+
+class ThreadInputData:
+    def __init__(self, zoom, bounds, screenSize):
+        self.zoom = zoom
+        self.bounds = bounds
+        self.screenSize = screenSize
 
 
 

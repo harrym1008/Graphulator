@@ -54,15 +54,17 @@ class FunctionManager:
             # print(self.myReturnQueues[i].qsize())
 
             if equ.active and threadHasFinished if threadIsNotNone else True:
+                threadData = drawfunc.ThreadInputData(graph.zoom, graph.bounds, graph.screenSize)
+
                 if self.myThreads[i] is None:
                     print("Created the new thread")
-                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(graph, self.myReturnQueues[i], time.perf_counter()))
+                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myReturnQueues[i], time.perf_counter()))
                     self.myThreads[i].start()
                     continue
 
                 data: drawfunc.FinishedFunctionData = self.myReturnQueues[i].get()         # get data from return queue
-                print(f"{self.numbersBoundsData.__str__()}")
-                self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(graph, self.myReturnQueues[i], time.perf_counter()))   # create new process
+                print("Creating new thread")
+                self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myReturnQueues[i], time.perf_counter()))   # create new process
                 self.myThreads[i].start()
                 self.numbersBoundsData[i] = data                                      # set data in data array
                 self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, equ), data.bounds)
@@ -94,7 +96,7 @@ class FunctionManager:
 
             newPosition = (surfaceCorners[0][0], surfaceCorners[1][1])
 
-            print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
+            # print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
 
             if newScale != graph.screenSize:
                 tempSurface = pygame.transform.scale(dataSurface, newScale)
