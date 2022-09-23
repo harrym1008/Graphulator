@@ -1,18 +1,13 @@
-import multiprocessing
-from turtle import dot
 import sympy
 import numpy as np
 import math
 import pygame
 import time
 
-import graph
 from graph import CornerValues
-
 from vector2 import *
 from colours import *
 from enum import IntEnum
-from multiprocessing import Process, Queue
 
 π = pi = 3.14159265358979323846
 e = 2.7182818284590452353602875
@@ -60,44 +55,49 @@ class PlottedEquation:
         self.boundsAtBeginning: CornerValues = None
 
 
-    def RecalculatePoints(self, graphData, outQueue, startTime):
+    def RecalculatePoints(self, graphData, inQueue, outQueue):
+        firstPass = True
+        while True:
 
-        '''while True:
-
-            # wait for the in queue to have a value of 
+            # wait for the in queue to have a length of 1 (this means data is present)
             while inQueue.qsize() < 1:
-                time.sleep(0.01)'''
+                time.sleep(0.01)
+
+            if not firstPass:
+                graphData = inQueue.get()
+            else:
+                firstPass = False
+            print(graphData)
 
 
-        print(f"I have started, after a delay of {time.perf_counter() - startTime} seconds")
-        print(f"{graphData.bounds.NW}, {graphData.zoom}")
-        startTime = time.perf_counter()
+            print(f"{graphData.bounds.NW}, {graphData.zoom}")
+            startTime = time.perf_counter()
 
-        if self.equation == "":
-            data = FinishedFunctionData([], graphData.bounds)
+            if self.equation == "":
+                data = FinishedFunctionData([], graphData.bounds)
+                outQueue.put(data)
+                return
+
+
+            bounds = graphData.bounds
+
+            points = []
+            start, end = bounds.W, bounds.E
+            increment = (end[0] - start[0]) / (graphData.screenSize[0] * INCREMENT_FACTOR)
+
+            for x in np.arange(start[0], end[0], increment):
+                try:
+                    points.append((x, -eval(self.equation)))
+                except Exception as e:
+                    points.append((x, np.inf))
+                    print(f"{e} -----> Error at x={x}")
+            
+
+            data = FinishedFunctionData(points, bounds)
             outQueue.put(data)
-            return
 
-
-        bounds = graphData.bounds
-
-        points = []
-        start, end = bounds.W, bounds.E
-        increment = (end[0] - start[0]) / (graphData.screenSize[0] * INCREMENT_FACTOR)
-
-        for x in np.arange(start[0], end[0], increment):
-            try:
-                points.append((x, -eval(self.equation)))
-            except Exception as e:
-                points.append((x, np.inf))
-                print(f"{e} -----> Error at x={x}")
-        
-
-        data = FinishedFunctionData(points, bounds)
-        outQueue.put(data)
-
-        print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
-        print(f"{graphData.bounds.NW}, {graphData.zoom}")
+            print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
+            print(f"{graphData.bounds.NW}, {graphData.zoom}")
 
 
 
@@ -173,6 +173,9 @@ class ThreadInputData:
         self.zoom = zoom
         self.bounds = bounds
         self.screenSize = screenSize
+    
+    def __str__(self) -> str:
+        return f'''Zoom: {self.zoom}, ScreenSize: {self.screenSize}, Bounds: {self.bounds.ShortString()}\n'''
 
 
 

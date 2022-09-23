@@ -15,7 +15,8 @@ class FunctionManager:
         self.numbersBoundsData: List[drawfunc.FinishedFunctionData] = []
         self.surfaceBoundsData: List[drawfunc.SurfaceAndBounds] = []
         self.myThreads = []
-        self.myReturnQueues = []
+        self.myInQueues = []
+        self.myOutQueues = []
         
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
 
@@ -34,7 +35,8 @@ class FunctionManager:
         self.numbersBoundsData.append(None)
         self.surfaceBoundsData.append(None)
         self.myThreads.append(None)
-        self.myReturnQueues.append(Queue())
+        self.myInQueues.append(Queue())
+        self.myOutQueues.append(Queue())
 
 
 
@@ -49,26 +51,34 @@ class FunctionManager:
             # the class has just been instantiated)
 
             threadIsNotNone = self.myThreads[i] is not None
-            threadHasFinished = self.myReturnQueues[i].qsize() > 0
+            newDataIsAvailable = self.myInQueues[i].qsize() > 0
 
-            # print(self.myReturnQueues[i].qsize())
+            # print(self.myInQueues[i].qsize())
 
-            if equ.active and threadHasFinished if threadIsNotNone else True:
+            if equ.active and newDataIsAvailable if threadIsNotNone else True:
                 threadData = drawfunc.ThreadInputData(graph.zoom, graph.bounds, graph.screenSize)
+                print(threadData)
 
                 if self.myThreads[i] is None:
                     print("Created the new thread")
-                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myReturnQueues[i], time.perf_counter()))
+                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myOutQueues[i], self.myInQueues[i]))
                     self.myThreads[i].start()
+                    self.myOutQueues[i].put(threadData)
                     continue
 
-                data: drawfunc.FinishedFunctionData = self.myReturnQueues[i].get()         # get data from return queue
-                print("Creating new thread")
-                self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myReturnQueues[i], time.perf_counter()))   # create new process
-                self.myThreads[i].start()
+                data: drawfunc.FinishedFunctionData = self.myInQueues[i].get()         # get data from return queue
+                
+                '''print("Creating new thread")
+                self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myInQueues[i], time.perf_counter()))   # create new process
+                self.myThreads[i].start()'''
                 self.numbersBoundsData[i] = data                                      # set data in data array
                 self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, equ), data.bounds)
+                self.myOutQueues[i].put(threadData)
+                
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
+
+
+
 
 
     def BlitCurrentSurfaces(self, graph):

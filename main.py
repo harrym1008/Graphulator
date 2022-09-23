@@ -126,6 +126,7 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)
 
     functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
+    functionManager.AddAnotherEquation("np.sin(2*np.sin(2*np.sin(2*np.sin(x))))")
 
 
     # Start main loop

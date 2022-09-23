@@ -195,3 +195,6 @@ class CornerValues:
 8) CNTR: {self.CENTRE}
 9) Zoom: {self.zoom}
 '''
+
+    def ShortString(self):
+        return f"{self.NW}, {self.SE}, {self.CENTRE}, {self.zoom}"
