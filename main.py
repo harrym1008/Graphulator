@@ -125,8 +125,10 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)
     functionManager = FunctionManager(graph)
 
-    functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
+    '''functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
     functionManager.AddAnotherEquation("np.sin(2*np.sin(2*np.sin(2*np.sin(x))))")
+    functionManager.AddAnotherEquation("np.sin(x)")'''
+    functionManager.AddAnotherEquation("np.tan(np.sin(np.cos(x)))")
 
 
     # Start main loop
@@ -148,7 +150,7 @@ if __name__ == "__main__":
 
         # update tkinter and pygame displays
         guiScreen.update()
-        pygame.display.flip()
+        pygame.display.update()
         
         # Wait for 60 FPS
         clock.tick(targetFPS)

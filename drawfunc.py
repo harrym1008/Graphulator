@@ -58,6 +58,7 @@ class PlottedEquation:
     def RecalculatePoints(self, graphData, inQueue, outQueue):
         firstPass = True
         while True:
+            startTime = time.perf_counter()
 
             # wait for the in queue to have a length of 1 (this means data is present)
             while inQueue.qsize() < 1:
@@ -87,7 +88,7 @@ class PlottedEquation:
 
             for x in np.arange(start[0], end[0], increment):
                 try:
-                    points.append((x, -eval(self.equation)))
+                    points.append((x, eval(self.equation)))
                 except Exception as e:
                     points.append((x, np.inf))
                     print(f"{e} -----> Error at x={x}")
@@ -134,6 +135,7 @@ class PlottedEquation:
 
             lastX, lastY = x, y
 
+        surface = pygame.transform.flip(surface, False, True)
         return surface
 
 

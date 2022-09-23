@@ -1,11 +1,8 @@
 from multiprocessing import Process, Queue
-import threading
 from typing import List
 from colours import *
 
-import time
 import pygame
-import numpy as np
 import drawfunc
 
 
