@@ -18,7 +18,7 @@ screenSize = (720, 480)
 minScreenSize = (256, 256)
 
 running = True
-targetFPS = 60
+targetFPS = 30
 
 panSpeed = 2
 zoomSpeed = 0.05
@@ -128,7 +128,10 @@ if __name__ == "__main__":
     '''functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
     functionManager.AddAnotherEquation("np.sin(2*np.sin(2*np.sin(2*np.sin(x))))")
     functionManager.AddAnotherEquation("np.sin(x)")'''
-    functionManager.AddAnotherEquation("np.tan(np.sin(np.cos(x)))")
+
+
+    for i in range(-12, 12):
+        functionManager.AddAnotherEquation(f"np.tan(x+{i})")
 
 
     # Start main loop

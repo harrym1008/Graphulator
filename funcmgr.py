@@ -54,7 +54,7 @@ class FunctionManager:
 
             if equ.active and newDataIsAvailable if threadIsNotNone else True:
                 threadData = drawfunc.ThreadInputData(graph.zoom, graph.bounds, graph.screenSize)
-                print(threadData)
+                # print(threadData)
 
                 if self.myThreads[i] is None:
                     print("Created the new thread")

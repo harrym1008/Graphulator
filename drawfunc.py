@@ -68,11 +68,10 @@ class PlottedEquation:
                 graphData = inQueue.get()
             else:
                 firstPass = False
-            print(graphData)
+            # print(graphData)
 
 
-            print(f"{graphData.bounds.NW}, {graphData.zoom}")
-            startTime = time.perf_counter()
+            # print(f"{graphData.bounds.NW}, {graphData.zoom}")
 
             if self.equation == "":
                 data = FinishedFunctionData([], graphData.bounds)
@@ -97,8 +96,8 @@ class PlottedEquation:
             data = FinishedFunctionData(points, bounds)
             outQueue.put(data)
 
-            print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
-            print(f"{graphData.bounds.NW}, {graphData.zoom}")
+            # print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
+            # print(f"{graphData.bounds.NW}, {graphData.zoom}")
 
 
 
