@@ -79,7 +79,8 @@ class PlottedEquation:
             if self.equation == "":
                 data = FinishedFunctionData([], graphData.bounds, graphData.zoomedOffset)
                 outQueue.put(data)
-                return
+                time.sleep(0.2)
+                continue
 
 
             bounds = graphData.bounds
