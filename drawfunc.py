@@ -3,8 +3,9 @@ import numpy as np
 import math
 import pygame
 import time
+import random
 
-from graph import CornerValues
+from graph import CornerValues, Graph
 from vector2 import *
 from colours import *
 from enum import IntEnum
@@ -57,6 +58,8 @@ class PlottedEquation:
 
     def RecalculatePoints(self, graphData, inQueue, outQueue):
         firstPass = True
+
+        time.sleep(random.uniform(0, 0.2))
         while True:
             startTime = time.perf_counter()
 
@@ -74,7 +77,7 @@ class PlottedEquation:
             # print(f"{graphData.bounds.NW}, {graphData.zoom}")
 
             if self.equation == "":
-                data = FinishedFunctionData([], graphData.bounds)
+                data = FinishedFunctionData([], graphData.bounds, graphData.zoomedOffset)
                 outQueue.put(data)
                 return
 
@@ -92,8 +95,9 @@ class PlottedEquation:
                     points.append((x, np.inf))
                     print(f"{e} -----> Error at x={x}")
             
+            # time.sleep(0.1)
 
-            data = FinishedFunctionData(points, bounds)
+            data = FinishedFunctionData(points, bounds, graphData.zoomedOffset)
             outQueue.put(data)
 
             # print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
@@ -103,6 +107,7 @@ class PlottedEquation:
 
     @classmethod
     def ProduceSurfaceFromList(cls, graph, array, equInstance) -> pygame.Surface:
+        startTime = time.perf_counter()
         surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
         surface.fill(colours["transparent"].colour)
 
@@ -135,6 +140,7 @@ class PlottedEquation:
             lastX, lastY = x, y
 
         surface = pygame.transform.flip(surface, False, True)
+        # print(time.perf_counter() - startTime)
         return surface
 
 
@@ -157,10 +163,11 @@ class PlottedEquation:
 
 
 class FinishedFunctionData:
-    def __init__(self, array, bounds):
+    def __init__(self, array, bounds, zoomedOffset):
         self.numberArray = array
         self.bounds = bounds
         self.zoom = bounds.zoom
+        self.zoomedOffset = zoomedOffset
 
     def __str__(self) -> str:
         return f'''Numbers: {self.numberArray}
@@ -169,11 +176,22 @@ Zoom: {self.zoom}'''
 
 
 
+class NumberArrayToSurfaceData:
+    def __init__(self, ss, b, z, zo, sc):
+        self.screenSize = ss
+        self.bounds = b
+        self.zoom = z
+        self.zoomedOffset = zo
+        self.screenCentre = sc
+
+
+
 class ThreadInputData:
-    def __init__(self, zoom, bounds, screenSize):
+    def __init__(self, zoom, bounds, screenSize, zoomedOffset):
         self.zoom = zoom
         self.bounds = bounds
         self.screenSize = screenSize
+        self.zoomedOffset = zoomedOffset
     
     def __str__(self) -> str:
         return f'''Zoom: {self.zoom}, ScreenSize: {self.screenSize}, Bounds: {self.bounds.ShortString()}\n'''

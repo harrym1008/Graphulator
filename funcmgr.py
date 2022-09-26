@@ -1,9 +1,12 @@
+from msilib import datasizemask
 from multiprocessing import Process, Queue
 from typing import List
 from colours import *
 
 import pygame
 import drawfunc
+import deltatime
+import time
 
 
 class FunctionManager:
@@ -38,6 +41,7 @@ class FunctionManager:
 
 
     def UpdateThreads(self, graph):
+        startTime = time.perf_counter()
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
             if not equ.active or equ.equation == "":
@@ -53,7 +57,7 @@ class FunctionManager:
             # print(self.myInQueues[i].qsize())
 
             if equ.active and newDataIsAvailable if threadIsNotNone else True:
-                threadData = drawfunc.ThreadInputData(graph.zoom, graph.bounds, graph.screenSize)
+                threadData = drawfunc.ThreadInputData(graph.zoom, graph.bounds, graph.screenSize, graph.zoomedOffset)
                 # print(threadData)
 
                 if self.myThreads[i] is None:
@@ -69,16 +73,22 @@ class FunctionManager:
                 self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myInQueues[i], time.perf_counter()))   # create new process
                 self.myThreads[i].start()'''
                 self.numbersBoundsData[i] = data                                      # set data in data array
-                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(drawfunc.PlottedEquation.ProduceSurfaceFromList(graph, data.numberArray, equ), data.bounds)
+                graphData = drawfunc.NumberArrayToSurfaceData(graph.screenSize, data.bounds, data.zoom, data.zoomedOffset, graph.screenCentre)
+                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(
+                    drawfunc.PlottedEquation.ProduceSurfaceFromList(graphData, data.numberArray, equ)
+                    , data.bounds)
+
                 self.myOutQueues[i].put(threadData)
                 
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
+        print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100, end=" ")
 
 
 
 
 
     def BlitCurrentSurfaces(self, graph):
+        startTime = time.perf_counter()
         self.surface.fill(colours["transparent"].colour)
 
         for i, data in enumerate(self.surfaceBoundsData):
@@ -92,26 +102,32 @@ class FunctionManager:
 
             surfaceCorners = [(
                 -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.NW[0] * graph.zoom, 
-                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.NW[1] * graph.zoom
+                graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.NW[1] * graph.zoom
                 ),(
                 -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.SE[0] * graph.zoom, 
-                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.SE[1] * graph.zoom
+                graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
-            newScale = (surfaceCorners[1][0] - surfaceCorners[0][0], 
-                        surfaceCorners[0][1] - surfaceCorners[1][1])
+            newScale = (int(surfaceCorners[1][0] - surfaceCorners[0][0]), 
+                        int(surfaceCorners[0][1] - surfaceCorners[1][1]))
 
-            newPosition = (surfaceCorners[0][0], surfaceCorners[1][1])
+            newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[1][1]))
 
             # print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
 
             if newScale != graph.screenSize:
-                tempSurface = pygame.transform.scale(dataSurface, newScale)
+                try:
+                    tempSurface = pygame.transform.scale(dataSurface, newScale)
+                except pygame.error as e:
+                    tempSurface = pygame.transform.scale(dataSurface, (256, 256))
+                    print(e)
             else:
                 tempSurface = data.surface
 
 
             self.surface.blit(tempSurface, newPosition)
+        
+        # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100)
 
 
 

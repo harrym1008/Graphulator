@@ -18,7 +18,7 @@ screenSize = (720, 480)
 minScreenSize = (256, 256)
 
 running = True
-targetFPS = 30
+targetFPS = 60
 
 panSpeed = 2
 zoomSpeed = 0.05
@@ -125,13 +125,7 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)
     functionManager = FunctionManager(graph)
 
-    '''functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
-    functionManager.AddAnotherEquation("np.sin(2*np.sin(2*np.sin(2*np.sin(x))))")
-    functionManager.AddAnotherEquation("np.sin(x)")'''
-
-
-    for i in range(-12, 12):
-        functionManager.AddAnotherEquation(f"np.tan(x+{i})")
+    functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
 
 
     # Start main loop
@@ -158,6 +152,7 @@ if __name__ == "__main__":
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
+        print(f"Processing time = {deltatime.deltaTime}")
 
         # Get pygame events, execute input code and check for quitting / resizing
         events = pygame.event.get()
