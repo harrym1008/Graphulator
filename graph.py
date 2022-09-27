@@ -118,12 +118,37 @@ class Graph:
             pygame.draw.line(renderer.surface, colours["black"].colour, line[0], line[1], 2)
 
 
+    def DrawZeroAtOrigin(self, renderer):
+        txtSurface = fonts[0].render("0", True, colours["black"].colour)
+        renderPos = list(self.orgPos)   # Convert to list so individual values can be changed
+        renderPos[0] -= txtSurface.get_width() + 2
+
+        renderer.surface.blit(txtSurface, tuple(renderPos))  # Convert back to tuple
+
+
+    def DrawXAndYWords(self, renderer):
+        txtSurfaceX = fonts[0].render("x", True, colours["black"].colour)
+        txtSurfaceY = fonts[0].render("y", True, colours["black"].colour)
+
+        orgPos = list(self.orgPos)
+        renderPosX = (self.screenSize[0] - txtSurfaceX.get_width() - 2, orgPos[1])
+        renderPosY = (orgPos[0] + 4, -4)
+        
+        renderer.surface.blit(txtSurfaceX, renderPosX)  
+        renderer.surface.blit(txtSurfaceY, renderPosY)  
+
+
+        
+
+
 
     def DrawBaseGraphSurface(self, renderer):
         self.screenCentre = [self.screenSize[0] // 2, self.screenSize[1] // 2]
         self.PerformPrecalculation()
         self.DrawGraphLines(renderer)
         self.DrawLinesFromOrigin(renderer)
+        self.DrawZeroAtOrigin(renderer)
+        self.DrawXAndYWords(renderer)
 
 
     def UpdateScreenSize(self, newSize):

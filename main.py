@@ -6,9 +6,9 @@ import pygame
 import numpy
 
 import deltatime
-from graph import *
 from colours import *
 from numstr import *
+from graph import Graph, AssignFonts
 from graphui import GraphUserInterface
 from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
@@ -60,7 +60,7 @@ def PygameInput(events, graph):
 
     # Reset offset and panning
     if keys[pygame.K_r]:
-        graph.zoom = 10
+        graph.zoom = 30
         graph.offset = [0, 0]
 
     # Kill the program if escape is pressed
@@ -125,7 +125,8 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)
     functionManager = FunctionManager(graph)
 
-    functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
+    # functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
+    functionManager.AddAnotherEquation("np.sin(x)")
 
 
     # Start main loop
@@ -152,7 +153,7 @@ if __name__ == "__main__":
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
-        print(f"Processing time = {deltatime.deltaTime}")
+        # print(f"Processing time = {deltatime.deltaTime}")
 
         # Get pygame events, execute input code and check for quitting / resizing
         events = pygame.event.get()

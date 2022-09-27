@@ -81,7 +81,7 @@ class FunctionManager:
                 self.myOutQueues[i].put(threadData)
                 
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
-        print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100, end=" ")
+        # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100, end=" ")
 
 
 
@@ -113,7 +113,7 @@ class FunctionManager:
 
             newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[1][1]))
 
-            # print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
+            print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
 
             if newScale != graph.screenSize:
                 try:
