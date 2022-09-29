@@ -127,6 +127,7 @@ if __name__ == "__main__":
 
     # functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
     functionManager.AddAnotherEquation("np.sin(x)")
+    functionManager.AddAnotherEquation("1/(np.sin(x))")
 
 
     # Start main loop
