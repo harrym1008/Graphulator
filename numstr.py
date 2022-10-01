@@ -20,7 +20,7 @@ def GetNumString(n: float, short: bool = False) -> str:
 
 
 def GetCoordString(x: float, y: float):
-    return f"x={GetNumString(x, short=True)}, y={GetNumString(y, short=True)}"
+    return f"({GetNumString(x, short=True)}, {GetNumString(y, short=True)})"
 
 
 

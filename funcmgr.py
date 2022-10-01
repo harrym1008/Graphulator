@@ -102,10 +102,10 @@ class FunctionManager:
 
             surfaceCorners = [(
                 -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.NW[0] * graph.zoom, 
-                graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.NW[1] * graph.zoom
+                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.NW[1] * graph.zoom
                 ),(
                 -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.SE[0] * graph.zoom, 
-                graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.SE[1] * graph.zoom
+                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
             newScale = (int(surfaceCorners[1][0] - surfaceCorners[0][0]), 
@@ -113,7 +113,7 @@ class FunctionManager:
 
             newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[1][1]))
 
-            # print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
+            print(f"{data.bounds.NW}, {data.bounds.SE}")
 
             if newScale != graph.screenSize:
                 try:

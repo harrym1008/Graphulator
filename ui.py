@@ -1,7 +1,7 @@
-from cgitb import text
 from tkinter import *
-from tkinter import font
+from tkinter import messagebox
 from tkinter.font import Font
+from PIL import Image, ImageTk
 
 from colours import *
 
@@ -16,6 +16,7 @@ class UserInterface:
         # This makes it run the Kill method when the X button is pressed in the top right of the window
 
         self.CreateFonts()
+        self.CreateImages()
         self.CreateWindow()
 
         self.helpOpen = False
@@ -28,19 +29,23 @@ class UserInterface:
         self.CreateNewLabel("", 1).grid(row=2, column=0, columnspan=4)
 
         self.entries = [StringVar(self.root) for i in range(10)]
+        self.errorImages = []
 
         for i in range(10):
             self.CreateNewLabel(f" [{i+1}] ", 2).grid(row=3+i, column=0)
 
             entry = Entry(self.root, textvariable=self.entries[i])
             entry.config(font=self.fonts[3])
-            entry.grid(row=3+i, column=2)
+            entry.grid(row=3+i, column=1)
+
+            image = Label(self.root, image=self.tkImages[0])
+            image.grid(row=3+i, column=2)
+            self.errorImages.append(image)
 
 
         button = Button(self.root, text="Help", command=self.HelpWindow)
         button.config(font=self.fonts[1])
         button.grid(row=16, column=0)
-
 
 
 
@@ -54,6 +59,15 @@ class UserInterface:
         top.protocol("WM_DELETE_WINDOW", lambda: self.DeactivateHelpWindow(top))  
 
         # Draw the help window
+        messagebox.showinfo("Hello", '''
+The graphs:
+    5x
+    2x+1
+
+intersect at the points:
+    (0, 0)
+    (10, 20)
+''')
 
         
 
@@ -71,6 +85,15 @@ class UserInterface:
             Font(family="monofonto", size=12),
             Font(family="monofonto", size=11),
         ]
+
+
+    def CreateImages(self):
+        self.files = [
+            "Images/blank.png",
+            "Images/no.png"
+        ]
+
+        self.tkImages = [ImageTk.PhotoImage(Image.open(f).resize((16, 16), Image.ANTIALIAS)) for f in self.files]
 
 
 

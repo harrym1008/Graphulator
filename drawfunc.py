@@ -74,8 +74,6 @@ class PlottedEquation:
             # print(graphData)
 
 
-            # print(f"{graphData.bounds.NW}, {graphData.zoom}")
-
             if self.equation == "":
                 data = FinishedFunctionData([], graphData.bounds, graphData.zoomedOffset)
                 outQueue.put(data)
@@ -84,6 +82,7 @@ class PlottedEquation:
 
 
             bounds = graphData.bounds
+            # bounds.NW = (bounds.NW[0], -bounds.NW[1])
 
             points = []
             start, end = bounds.W, bounds.E
