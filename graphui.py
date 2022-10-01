@@ -1,5 +1,7 @@
+from socket import getnameinfo
 import pygame
-import graph
+import numpy as np
+
 from colours import *
 from numstr import *
 
@@ -20,15 +22,18 @@ class GraphUserInterface:
         self.screenSize = newSize
 
 
-    def UpdateUISurface(self, font, graph, clock, mousePos):
+    def UpdateUISurface(self, font, graph, clock, mousePos, equation):
         self.ClearUISurface()
         self.TopRightDebugData(font, graph, clock)
-        self.WriteMousePosition(font, mousePos, graph)
+        x = self.WriteMousePosition(font, mousePos, graph)
+        self.DrawCurrentEquationXY(font, equation, x)
+        
+
 
     
     def WriteMousePosition(self, font, mousePos, graph):
         if mousePos is None:  # mouse is not focused on the window
-            return
+            return np.inf
 
         # Calculate co-ordinates of the mouse position
         # x = (pos[0] / screenSize[0] - 0.5) * screenSize[0] / zoom + offset[0]
@@ -57,6 +62,8 @@ class GraphUserInterface:
                          pygame.Rect(renderX, renderY, txtSurface.get_width(), txtSurface.get_height()))
         self.surface.blit(txtSurface, (renderX, renderY))
 
+        return x
+
 
 
     def TopRightDebugData(self, font, graph, clock):
@@ -77,3 +84,19 @@ class GraphUserInterface:
             rendered = font.render(txt, True, colours["blue"].colour)
             self.surface.blit(rendered, (2, i*16))
             # create surface of the text and blit it onto the surface
+
+
+
+
+
+    def DrawCurrentEquationXY(self, font, equation, x):
+        equationText = font.render(f"{equation.equation}", True, equation.colour.colour)
+        self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * 2))
+
+        if (x != np.inf):
+            xText = font.render(f"x={GetNumString(x)}", True, colours["black"].colour)
+            self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height()))
+
+            yText = font.render(f"y={GetNumString(eval(equation.equation))}", True, colours["black"].colour)
+            yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128 
+            self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))

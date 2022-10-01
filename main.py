@@ -126,8 +126,12 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)
 
     # functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
-    functionManager.AddAnotherEquation("np.sin(x)")
-    functionManager.AddAnotherEquation("1/(np.sin(x))")
+    functionManager.AddAnotherEquation("np.tan(x)")
+    '''functionManager.AddAnotherEquation("1/(np.sin(x))")
+    functionManager.AddAnotherEquation("np.cos(x)")
+    functionManager.AddAnotherEquation("1/(np.cos(x))")
+    functionManager.AddAnotherEquation("np.tan(x)")
+    functionManager.AddAnotherEquation("1/(np.tan(x))")'''
 
 
     # Start main loop
@@ -139,7 +143,7 @@ if __name__ == "__main__":
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
         graph.DrawBaseGraphSurface(graphRenderer) 
-        graphUI.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos) 
+        graphUI.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos, functionManager.currentEquations[0]) 
 
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
