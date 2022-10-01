@@ -113,7 +113,7 @@ class FunctionManager:
 
             newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[1][1]))
 
-            print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
+            # print(f"{surfaceCorners}   ----> {newPosition} - {newScale} : done? {newScale != graph.screenSize}")
 
             if newScale != graph.screenSize:
                 try:

@@ -12,6 +12,7 @@ from graph import Graph, AssignFonts
 from graphui import GraphUserInterface
 from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
+from ui import UserInterface
 
 # Screen starts at this resolution by default
 screenSize = (720, 480)
@@ -105,33 +106,28 @@ def PygameInput(events, graph):
 
 
 
-if __name__ == "__main__":
-    # Create tkinter window
-    guiScreen = tk.Tk()
-    guiScreen.title("Graphulator v4")
-    guiScreen.protocol("WM_DELETE_WINDOW", Kill)   
-    # This makes it run the Kill method when the X button is pressed in the top right of the window
 
+
+
+if __name__ == "__main__":
     # Create pygame window and run the required initiation script
     pygame.init()
     clock = pygame.time.Clock()
     graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
     graphScreen.fill(colours["white"].colour)
     pygame.display.set_caption("Graphulator v4 - Screen View")
-
+    
     AssignFonts()       # Assigning fonts at the start - this takes lots of processing time, so it is done at the beginning
-    graph = Graph(screenSize)     # Create and initialise an instance of the graph class
-    graphUI = GraphUserInterface(screenSize)    # Create and initialise an instance of the graph UI class
-    graphRenderer = GraphRenderer(graph)
-    functionManager = FunctionManager(graph)
 
-    # functionManager.AddAnotherEquation("np.tan(math.floor(x**2))")
-    functionManager.AddAnotherEquation("np.tan(x)")
-    '''functionManager.AddAnotherEquation("1/(np.sin(x))")
-    functionManager.AddAnotherEquation("np.cos(x)")
-    functionManager.AddAnotherEquation("1/(np.cos(x))")
-    functionManager.AddAnotherEquation("np.tan(x)")
-    functionManager.AddAnotherEquation("1/(np.tan(x))")'''
+    #  ***** Instantiation of classes *****
+    guiWindow = UserInterface(Kill)             # Create and initialise an instance of the UI class
+    graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
+    graphUI = GraphUserInterface(screenSize)    # Create and initialise an instance of the graph UI class
+    graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
+    functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
+
+
+    functionManager.AddAnotherEquation("0.4*x**3-1.5*x**2")
 
 
     # Start main loop
@@ -152,7 +148,7 @@ if __name__ == "__main__":
         graphScreen.blit(graphUI.surface, (0, 0))      
 
         # update tkinter and pygame displays
-        guiScreen.update()
+        guiWindow.root.update()
         pygame.display.update()
         
         # Wait for 60 FPS

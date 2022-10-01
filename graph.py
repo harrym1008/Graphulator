@@ -12,10 +12,8 @@ fonts = []
 
 
 def AssignFonts():
-    print(time.perf_counter())
     global fonts
     fonts = [pygame.font.Font("monofonto.otf", 16), pygame.font.Font("monofonto.otf", 12)]
-    print(time.perf_counter())
 
 
 class Graph:
