@@ -1,9 +1,9 @@
-from socket import getnameinfo
 import pygame
 import numpy as np
 
 from colours import *
 from numstr import *
+from graph import pi, phi, e
 
 
 class GraphUserInterface:
@@ -97,6 +97,10 @@ class GraphUserInterface:
             xText = font.render(f"x={GetNumString(x)}", True, colours["black"].colour)
             self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height()))
 
-            yText = font.render(f"y={GetNumString(eval(equation.equation))}", True, colours["black"].colour)
+            try:
+                yText = font.render(f"y={GetNumString(eval(equation.equation))}", True, colours["black"].colour)
+            except:
+                yText = font.render(f"y=ERROR", True, colours["black"].colour)
+                
             yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128 
             self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))

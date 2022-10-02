@@ -1,4 +1,3 @@
-from msilib import datasizemask
 from multiprocessing import Process, Queue
 from typing import List
 from colours import *
@@ -101,11 +100,11 @@ class FunctionManager:
             # equation for Y: p = -oz + 0.5s - yz
 
             surfaceCorners = [(
-                -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.NW[0] * graph.zoom, 
-                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.NW[1] * graph.zoom
+                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.NW[0] * graph.zoom, 
+                -graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.NW[1] * graph.zoom
                 ),(
-                -graph.offset[0] * graph.zoom + 0.5 * graph.screenSize[0] + data.bounds.SE[0] * graph.zoom, 
-                -graph.offset[1] * graph.zoom + 0.5 * graph.screenSize[1] - data.bounds.SE[1] * graph.zoom
+                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.SE[0] * graph.zoom, 
+                -graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
             newScale = (int(surfaceCorners[1][0] - surfaceCorners[0][0]), 
@@ -113,7 +112,7 @@ class FunctionManager:
 
             newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[1][1]))
 
-            print(f"{data.bounds.NW}, {data.bounds.SE}")
+            # print(f"{data.bounds.NW}, {data.bounds.SE}")
 
             if newScale != graph.screenSize:
                 try:

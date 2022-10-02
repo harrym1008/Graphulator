@@ -10,7 +10,7 @@ def GetNumString(n: float, short: bool = False) -> str:
 
     powersOf10 = int(math.log(math.fabs(n), 10))
 
-    if 9 > powersOf10 > -2:
+    if 9 > powersOf10 > -4:
         if n % 1 == 0:
             return str(int(n))
 

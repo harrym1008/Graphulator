@@ -1,12 +1,18 @@
 from colours import *
+from numstr import *
+
 import pygame
 import math
 import time
+import numpy as np
      
 
 LOG_2 = math.log(2, 10)
 LOG_4 = math.log(4, 10)
 
+π = pi = 3.14159265358979323846
+e = 2.7182818284590452353602875
+Φ = φ = phi = goldenRatio = 1.618033988749894
 
 fonts = []
 
@@ -69,28 +75,36 @@ class Graph:
         # Get how much the values increment by on the origin lines
         logarithm = math.log(self.zoom, 10)
 
-        factor = self.zoom
-        while not 1 <= factor < 10:
-            if factor >= 10:
-                factor /= 10
+        lineGap: float
+        factorMultiplier: float
+
+        zoomFactor = self.zoom
+        while not 1 <= zoomFactor < 10:
+            if zoomFactor >= 10:
+                zoomFactor /= 10
             else:
-                factor *= 10
+                zoomFactor *= 10
 
         fractionalValue = math.fabs(logarithm + 100 - math.trunc(logarithm + 100))
-
+        
         if fractionalValue >= LOG_4:
-            return 5 * factor
+            factorMultiplier = 5
         elif fractionalValue >= LOG_2:
-            return 10 * factor
+            factorMultiplier = 10
         else:
-            return 20 * factor
+            factorMultiplier = 20
+            
+        lineGap = factorMultiplier * zoomFactor
+        realGap = 10 ** math.trunc(-logarithm) * (lineGap / zoomFactor)
+
+        return lineGap, realGap
 
 
 
     def DrawGraphLines(self, renderer):
         # Draw the cyan lines that stretch across the graph
 
-        increment = self.GetGraphLineIncrement()
+        increment, realGap = self.GetGraphLineIncrement()
         lineOffset = [self.orgPos[0] % increment, self.orgPos[1] % increment]
 
         n = -increment
@@ -103,6 +117,30 @@ class Graph:
             pygame.draw.line(renderer.surface, colours["cyan"].colour, startY, endY)
 
             n += increment
+
+        self.DrawCommonXYWordsOnAxis(renderer, realGap)
+
+
+
+    def DrawCommonXYWordsOnAxis(self, renderer, realGap):
+
+        # Draw the X values
+        xValue = self.bounds.W[0] // realGap
+        skipThisOne = False
+        counter = 0
+
+        while xValue <= self.bounds.E[0]:
+            xValue += realGap
+            skipThisOne = not skipThisOne
+
+            if skipThisOne:
+                continue
+
+            txtSurface = fonts[1].render(f"{GetNumString(xValue, True)}", True, colours["black"].colour)
+            renderer.surface.blit(txtSurface, (xValue * self.zoom + self.screenCentre[0], self.orgPos[1]))
+            counter += 1
+
+
 
 
 
@@ -133,20 +171,30 @@ class Graph:
         renderPosY = (orgPos[0] + 4, -4)
         
         renderer.surface.blit(txtSurfaceX, renderPosX)  
-        renderer.surface.blit(txtSurfaceY, renderPosY)  
+        renderer.surface.blit(txtSurfaceY, renderPosY)
 
 
-        
+    def DrawDottedLineOnGraph(self, renderer, equation, mousePos):
+        if mousePos is None:
+            return
+
+        x = (self.zoomedOffset[0] - self.screenCentre[0] + mousePos[0]) / self.zoom
+        y = eval(equation.equation)
+        yOnGraph = -self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
+
+        pygame.draw.circle(renderer.surface, equation.colour.colour, (mousePos[0], yOnGraph), 4)     
 
 
 
-    def DrawBaseGraphSurface(self, renderer):
+
+    def DrawBaseGraphSurface(self, renderer, currentEquation, mousePos):
         self.screenCentre = [self.screenSize[0] // 2, self.screenSize[1] // 2]
         self.PerformPrecalculation()
         self.DrawGraphLines(renderer)
         self.DrawLinesFromOrigin(renderer)
         self.DrawZeroAtOrigin(renderer)
         self.DrawXAndYWords(renderer)
+        self.DrawDottedLineOnGraph(renderer, currentEquation, mousePos)
 
 
     def UpdateScreenSize(self, newSize):

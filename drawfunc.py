@@ -5,16 +5,16 @@ import pygame
 import time
 import random
 
-from graph import CornerValues, Graph
+from graph import CornerValues
 from vector2 import *
 from colours import *
 from enum import IntEnum
 
+
+INCREMENT_FACTOR = 2
 π = pi = 3.14159265358979323846
 e = 2.7182818284590452353602875
 Φ = φ = phi = goldenRatio = 1.618033988749894
-
-INCREMENT_FACTOR = 1.5
 
 
 
@@ -71,9 +71,8 @@ class PlottedEquation:
                 graphData = inQueue.get()
             else:
                 firstPass = False
-            # print(graphData)
 
-
+                
             if self.equation == "":
                 data = FinishedFunctionData([], graphData.bounds, graphData.zoomedOffset)
                 outQueue.put(data)
@@ -83,6 +82,7 @@ class PlottedEquation:
 
             bounds = graphData.bounds
             # bounds.NW = (bounds.NW[0], -bounds.NW[1])
+            # bounds.SE = (bounds.SE[0], -bounds.SE[1])
 
             points = []
             start, end = bounds.W, bounds.E
@@ -95,7 +95,8 @@ class PlottedEquation:
                     points.append((x, np.inf))
                     print(f"{e} -----> Error at x={x}")
             
-            # time.sleep(0.1)
+            # time.sleep(0.5)
+            # print(points, bounds, graphData.zoomedOffset)
 
             data = FinishedFunctionData(points, bounds, graphData.zoomedOffset)
             outQueue.put(data)

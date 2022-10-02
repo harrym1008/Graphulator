@@ -16,7 +16,7 @@ from ui import UserInterface
 
 # Screen starts at this resolution by default
 screenSize = (720, 480)
-minScreenSize = (256, 256)
+minScreenSize = (128, 128)
 
 running = True
 targetFPS = 60
@@ -127,19 +127,22 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
 
-    functionManager.AddAnotherEquation("0.4*x**3-1.5*x**2")
+    # functionManager.AddAnotherEquation(" math.fabs(np.sin(x**x)/2**(((x**x)-pi/2)/pi)) ")
+    functionManager.AddAnotherEquation(" np.sin(x) ")
 
 
     # Start main loop
     while running:
         # Frame update code
-        mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0 and not mouseButtonDown) else None
+        mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
+
+        currentEquation = functionManager.currentEquations[0]
 
         graphRenderer.NewFrame()
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
-        graph.DrawBaseGraphSurface(graphRenderer) 
-        graphUI.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos, functionManager.currentEquations[0]) 
+        graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
+        graphUI.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos, currentEquation) 
 
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
