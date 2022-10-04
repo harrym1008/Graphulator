@@ -8,7 +8,7 @@ import numpy
 import deltatime
 from colours import *
 from numstr import *
-from graph import Graph, AssignFonts
+from graph import Graph
 from graphui import GraphUserInterface
 from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
@@ -117,8 +117,6 @@ if __name__ == "__main__":
     graphScreen.fill(colours["white"].colour)
     pygame.display.set_caption("Graphulator v4 - Screen View")
     
-    AssignFonts()       # Assigning fonts at the start - this takes lots of processing time, so it is done at the beginning
-
     #  ***** Instantiation of classes *****
     guiWindow = UserInterface(Kill)             # Create and initialise an instance of the UI class
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
@@ -126,6 +124,9 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
+    graph.AssignFonts()
+    # Assigning fonts at the start - this takes lots of processing time, 
+    # so it is done at the beginning
 
     # functionManager.AddAnotherEquation(" math.fabs(np.sin(x**x)/2**(((x**x)-pi/2)/pi)) ")
     functionManager.AddAnotherEquation(" np.sin(x) ")
@@ -142,7 +143,7 @@ if __name__ == "__main__":
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
-        graphUI.UpdateUISurface(graph.GetMainFont(), graph, clock, mousePos, currentEquation) 
+        graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
 
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)

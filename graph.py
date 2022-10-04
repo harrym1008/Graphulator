@@ -14,12 +14,6 @@ LOG_4 = math.log(4, 10)
 e = 2.7182818284590452353602875
 Φ = φ = phi = goldenRatio = 1.618033988749894
 
-fonts = []
-
-
-def AssignFonts():
-    global fonts
-    fonts = [pygame.font.Font("monofonto.otf", 16), pygame.font.Font("monofonto.otf", 12)]
 
 
 class Graph:
@@ -37,6 +31,14 @@ class Graph:
 
         self.bounds = CornerValues(self)
         self.lastFrameData = None
+
+        self.fonts = []
+
+
+
+    def AssignFonts(self):
+        self.fonts.append(pygame.font.Font("monofonto.otf", 16))
+        self.fonts.append(pygame.font.Font("monofonto.otf", 12))
 
 
 
@@ -97,6 +99,9 @@ class Graph:
         lineGap = factorMultiplier * zoomFactor
         realGap = 10 ** math.trunc(-logarithm) * (lineGap / zoomFactor)
 
+        if realGap <= 0:
+            realGap = 10 ** math.trunc(-logarithm)
+
         return lineGap, realGap
 
 
@@ -118,14 +123,14 @@ class Graph:
 
             n += increment
 
-        self.DrawCommonXYWordsOnAxis(renderer, realGap)
+        return round(realGap, 1)
 
 
 
     def DrawCommonXYWordsOnAxis(self, renderer, realGap):
 
         # Draw the X values
-        xValue = self.bounds.W[0] // realGap
+        '''xValue = self.bounds.W[0] // realGap
         skipThisOne = False
         counter = 0
 
@@ -136,9 +141,13 @@ class Graph:
             if skipThisOne:
                 continue
 
-            txtSurface = fonts[1].render(f"{GetNumString(xValue, True)}", True, colours["black"].colour)
+            txtSurface = self.fonts[1].render(f"{GetNumString(xValue, True)}", True, colours["black"].colour)
             renderer.surface.blit(txtSurface, (xValue * self.zoom + self.screenCentre[0], self.orgPos[1]))
-            counter += 1
+            counter += 1'''
+
+        print(Graph.FindNearestMultiple(self.bounds.W[0], realGap),
+              Graph.FindNearestMultiple(self.bounds.E[0], realGap),
+              realGap)
 
 
 
@@ -155,7 +164,7 @@ class Graph:
 
 
     def DrawZeroAtOrigin(self, renderer):
-        txtSurface = fonts[0].render("0", True, colours["black"].colour)
+        txtSurface = self.fonts[0].render("0", True, colours["black"].colour)
         renderPos = list(self.orgPos)   # Convert to list so individual values can be changed
         renderPos[0] -= txtSurface.get_width() + 2
 
@@ -163,8 +172,8 @@ class Graph:
 
 
     def DrawXAndYWords(self, renderer):
-        txtSurfaceX = fonts[0].render("x", True, colours["black"].colour)
-        txtSurfaceY = fonts[0].render("y", True, colours["black"].colour)
+        txtSurfaceX = self.fonts[0].render("x", True, colours["black"].colour)
+        txtSurfaceY = self.fonts[0].render("y", True, colours["black"].colour)
 
         orgPos = list(self.orgPos)
         renderPosX = (self.screenSize[0] - txtSurfaceX.get_width() - 2, orgPos[1])
@@ -190,18 +199,19 @@ class Graph:
     def DrawBaseGraphSurface(self, renderer, currentEquation, mousePos):
         self.screenCentre = [self.screenSize[0] // 2, self.screenSize[1] // 2]
         self.PerformPrecalculation()
-        self.DrawGraphLines(renderer)
+        realGap = self.DrawGraphLines(renderer)
+        self.DrawCommonXYWordsOnAxis(renderer, realGap)
         self.DrawLinesFromOrigin(renderer)
         self.DrawZeroAtOrigin(renderer)
         self.DrawXAndYWords(renderer)
         self.DrawDottedLineOnGraph(renderer, currentEquation, mousePos)
 
 
-    def UpdateScreenSize(self, newSize):
-        self.screenSize = newSize
 
-    def GetMainFont(self):
-        return fonts[0]
+        
+    @staticmethod
+    def FindNearestMultiple(number, multiple):
+        return multiple * round(number / multiple)
 
         
 

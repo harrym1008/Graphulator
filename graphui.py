@@ -22,11 +22,11 @@ class GraphUserInterface:
         self.screenSize = newSize
 
 
-    def UpdateUISurface(self, font, graph, clock, mousePos, equation):
+    def UpdateUISurface(self, fonts, graph, clock, mousePos, equation):
         self.ClearUISurface()
-        self.TopRightDebugData(font, graph, clock)
-        x = self.WriteMousePosition(font, mousePos, graph)
-        self.DrawCurrentEquationXY(font, equation, x)
+        self.TopRightDebugData(fonts[0], graph, clock)
+        x = self.WriteMousePosition(fonts[1], mousePos, graph)
+        self.DrawCurrentEquationXY(fonts[0], equation, x)
         
 
 
@@ -104,3 +104,5 @@ class GraphUserInterface:
                 
             yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128 
             self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))
+
+
