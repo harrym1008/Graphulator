@@ -33,9 +33,7 @@ mouseButtonDown = False
 def Kill():
     # Sets global variable running to false, resulting in the closure of the program
     global running
-
     running = False
-    return not running
 
 
 def PygameInput(events, graph):
@@ -129,7 +127,7 @@ if __name__ == "__main__":
     # so it is done at the beginning
 
     # functionManager.AddAnotherEquation(" math.fabs(np.sin(x**x)/2**(((x**x)-pi/2)/pi)) ")
-    functionManager.AddAnotherEquation(" np.sin(x) ")
+    functionManager.AddAnotherEquation("np.sin(x)")
 
 
     # Start main loop
@@ -166,8 +164,8 @@ if __name__ == "__main__":
 
         for e in events:
             if e.type == pygame.QUIT:
-                if Kill():
-                    break
+                Kill()
+                break
             if e.type == pygame.VIDEORESIZE:
                 screenSize = (max(e.w, minScreenSize[0]),
                               max(e.h, minScreenSize[1]))
@@ -180,6 +178,7 @@ if __name__ == "__main__":
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
 
+        
     # run this code on exit
     for equ in functionManager.myThreads:
         equ.terminate()
