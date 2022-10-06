@@ -14,7 +14,8 @@ class Colour:
 
 colours = {
     "black": Colour(0, 0, 0),
-    "white": Colour(250, 255, 255),
+    "white": Colour(255, 255, 255),
+    "grey": Colour(128, 128, 128),
 
     "red": Colour(255, 0, 0),
     "green": Colour(0, 255, 0),

@@ -39,6 +39,7 @@ class Graph:
     def AssignFonts(self):
         self.fonts.append(pygame.font.Font("monofonto.otf", 16))
         self.fonts.append(pygame.font.Font("monofonto.otf", 12))
+        self.fonts.append(pygame.font.Font("monofonto.otf", 10))
 
 
 
@@ -61,6 +62,12 @@ class Graph:
     def PerformPrecalculation(self):
         if not self.IsPrecalcNecessary():
             return
+
+        # Cap the zoom between 1,000,000% and 0.001%
+        if self.zoom > 10000:
+            self.zoom = 10000
+        elif self.zoom < 0.00001:
+            self.zoom = 0.00001
 
         self.zoomedOffset = self.offset[0] * self.zoom, self.offset[1] * self.zoom
         self.zoomedOffsetInverse = self.offset[0] / self.zoom, self.offset[1] / self.zoom
@@ -128,26 +135,44 @@ class Graph:
 
 
     def DrawCommonXYWordsOnAxis(self, renderer, realGap):
+        realGap *= 2
 
         # Draw the X values
-        '''xValue = self.bounds.W[0] // realGap
-        skipThisOne = False
-        counter = 0
-
-        while xValue <= self.bounds.E[0]:
-            xValue += realGap
-            skipThisOne = not skipThisOne
-
-            if skipThisOne:
+        xStart = Graph.FindNearestMultiple(self.bounds.W[0], realGap)
+        xEnd = Graph.FindNearestMultiple(self.bounds.E[0], realGap) 
+        
+        for x in np.append(np.arange(xStart, xEnd, realGap), xEnd):
+            if x == 0:
                 continue
 
-            txtSurface = self.fonts[1].render(f"{GetNumString(xValue, True)}", True, colours["black"].colour)
-            renderer.surface.blit(txtSurface, (xValue * self.zoom + self.screenCentre[0], self.orgPos[1]))
-            counter += 1'''
+            posX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
+            posY = -self.zoomedOffset[1] + self.screenCentre[1]     # y is always 0 at the origin
 
-        print(Graph.FindNearestMultiple(self.bounds.W[0], realGap),
-              Graph.FindNearestMultiple(self.bounds.E[0], realGap),
-              realGap)
+            txtSurface = self.fonts[2].render(f"{GetNumString(x, True)}", True, colours["black"].colour)
+            posX -= txtSurface.get_width() / 2
+            posY += 2
+
+            renderer.surface.blit(txtSurface, (posX, posY))
+
+
+        # Draw the Y values
+        yStart = Graph.FindNearestMultiple(self.bounds.N[1], realGap)
+        yEnd = Graph.FindNearestMultiple(self.bounds.S[1], realGap)   
+        
+        for y in np.append(np.arange(yStart, yEnd, realGap), yEnd):
+            if y == 0:
+                continue
+
+            posX = -self.zoomedOffset[0] + self.screenCentre[0]   # x is always 0 at the origin
+            posY = -self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom    
+
+            txtSurface = self.fonts[2].render(f"{GetNumString(y, True)}", True, colours["black"].colour)
+            posX += 3
+            posY -= txtSurface.get_height() / 2
+
+            renderer.surface.blit(txtSurface, (posX, posY))
+
+        print((xStart, xEnd), (yStart, yEnd), realGap)   
 
 
 
@@ -155,12 +180,16 @@ class Graph:
 
     def DrawLinesFromOrigin(self, renderer):
         orgPos = orgPosX, orgPosY = self.orgPos
-
         lines = [(orgPos, (0, orgPosY)), (orgPos, (self.screenSize[0], orgPosY)),
                  (orgPos, (orgPosX, 0)), (orgPos, (orgPosX, self.screenSize[1]))]
 
-        for line in lines:
-            pygame.draw.line(renderer.surface, colours["black"].colour, line[0], line[1], 2)
+        orgPos = orgPosX, orgPosY  = orgPosX + 1, orgPosY + 1
+        greyLines = [(orgPos, (0, orgPosY)), (orgPos, (self.screenSize[0], orgPosY)),
+                     (orgPos, (orgPosX, 0)), (orgPos, (orgPosX, self.screenSize[1]))]
+
+        for i, line in enumerate(lines):
+            pygame.draw.line(renderer.surface, colours["black"].colour, line[0], line[1], 1)
+            pygame.draw.line(renderer.surface, colours["grey"].colour, greyLines[i][0], greyLines[i][1], 1)
 
 
     def DrawZeroAtOrigin(self, renderer):

@@ -183,3 +183,4 @@ if __name__ == "__main__":
     for equ in functionManager.myThreads:
         equ.terminate()
 
+    print("Quitted")
