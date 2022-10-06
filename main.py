@@ -59,7 +59,7 @@ def PygameInput(events, graph):
 
     # Reset offset and panning
     if keys[pygame.K_r]:
-        graph.zoom = 30
+        graph.zoom = 50
         graph.offset = [0, 0]
 
     # Kill the program if escape is pressed
