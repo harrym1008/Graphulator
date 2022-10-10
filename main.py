@@ -3,9 +3,11 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 import tkinter as tk
 import pygame
-import numpy
+import numpy as np
+import sympy as sp
 
 import deltatime
+import evaluate
 from colours import *
 from numstr import *
 from graph import Graph
@@ -75,12 +77,12 @@ def PygameInput(events, graph):
         graphMouseStart = [graph.offset[0], graph.offset[1]]
 
     if not mouseClicked[0] and mouseStart != [-1, -1]:
-        mouseMoved = tuple(numpy.subtract(pygame.mouse.get_pos(), mouseStart))
+        mouseMoved = tuple(np.subtract(pygame.mouse.get_pos(), mouseStart))
         mouseStart = [-1, -1]
         graphMouseStart = [-1, -1]
 
     elif mouseClicked[0]:
-        mouseMoved = tuple(numpy.subtract(pygame.mouse.get_pos(), mouseStart))
+        mouseMoved = tuple(np.subtract(pygame.mouse.get_pos(), mouseStart))
 
     if mouseStart != [-1, -1]:
         graph.offset[0] = graphMouseStart[0] - mouseMoved[0] / graph.zoom
@@ -127,7 +129,7 @@ if __name__ == "__main__":
     # so it is done at the beginning
 
     # functionManager.AddAnotherEquation(" math.fabs(np.sin(x**x)/2**(((x**x)-pi/2)/pi)) ")
-    functionManager.AddAnotherEquation("np.sin(x)")
+    functionManager.AddAnotherEquation("sin(2*x)")
 
 
     # Start main loop
@@ -136,6 +138,7 @@ if __name__ == "__main__":
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
 
         currentEquation = functionManager.currentEquations[0]
+        print(evaluate.StringToExpression(currentEquation.equation))
 
         graphRenderer.NewFrame()
         functionManager.UpdateThreads(graph)
