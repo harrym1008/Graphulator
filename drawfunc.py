@@ -1,3 +1,4 @@
+from socket import INADDR_ALLHOSTS_GROUP
 import sympy
 import numpy as np
 import math
@@ -5,13 +6,14 @@ import pygame
 import time
 import random
 
+from numpy import sin
 from graph import CornerValues
 from vector2 import *
 from colours import *
 from enum import IntEnum
 
 
-INCREMENT_FACTOR = 2
+INCREMENT_FACTOR = 10
 π = pi = 3.14159265358979323846
 e = 2.7182818284590452353602875
 Φ = φ = phi = goldenRatio = 1.618033988749894
@@ -56,53 +58,87 @@ class PlottedEquation:
         self.boundsAtBeginning: CornerValues = None
 
 
-    def RecalculatePoints(self, graphData, inQueue, outQueue):
+    def RecalculatePoints(self, inData, inQueue, outQueue):
         firstPass = True
 
-        time.sleep(random.uniform(0, 0.2))
+        # time.sleep(random.uniform(0, 0.2))
         while True:
-            startTime = time.perf_counter()
-
             # wait for the in queue to have a length of 1 (this means data is present)
             while inQueue.qsize() < 1:
                 time.sleep(0.01)
 
             if not firstPass:
-                graphData = inQueue.get()
+                inData = inQueue.get()
             else:
                 firstPass = False
 
                 
-            if self.equation == "":
-                data = FinishedFunctionData([], graphData.bounds, graphData.zoomedOffset)
-                outQueue.put(data)
-                time.sleep(0.2)
-                continue
-
-
-            bounds = graphData.bounds
-            # bounds.NW = (bounds.NW[0], -bounds.NW[1])
-            # bounds.SE = (bounds.SE[0], -bounds.SE[1])
+            skip = self.equation == ""
+            bounds = inData.bounds
 
             points = []
             start, end = bounds.W, bounds.E
-            increment = (end[0] - start[0]) / (graphData.screenSize[0] * INCREMENT_FACTOR)
+            increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
-            for x in np.arange(start[0], end[0], increment):
-                try:
-                    points.append((x, eval(self.equation)))
-                except Exception as e:
-                    points.append((x, np.inf))
-                    print(f"{e} -----> Error at x={x}")
+
+            if not skip:
+                for x in np.arange(start[0], end[0], increment):
+                    try:
+                        points.append((x, eval(self.equation)))
+                    except Exception as e:
+                        points.append((x, np.inf))
+                        print(f"{e} -----> Error at x={x}")
+            else:
+                time.sleep(0.2)
+                continue
             
-            # time.sleep(0.5)
-            # print(points, bounds, graphData.zoomedOffset)
+            surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
+            outData = ThreadOutput(surface, bounds, inData.zoomedOffset)
 
-            data = FinishedFunctionData(points, bounds, graphData.zoomedOffset)
-            outQueue.put(data)
+            print(outData.serialisedSurface.GetSurface())
+            np. set_printoptions(threshold=np.inf)
+            print(outData.serialisedSurface.npArray)
 
-            # print(f"Okay I am done. Calculated in {time.perf_counter() - startTime} seconds")
-            # print(f"{graphData.bounds.NW}, {graphData.zoom}")
+            outQueue.put(outData)
+
+
+
+    @classmethod
+    def ListToSurfaceInThread(cls, array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
+        surface = pygame.Surface(screenSize, pygame.SRCALPHA)
+        surface.fill(colours["transparent"].colour)
+
+        zoom = bounds.zoom
+        screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
+        dottedCheckLine = 10
+
+        extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
+        lastX, lastY = array[0]
+        drawOffset = screenCentre[0] - zoomedOffset[0], screenCentre[1] - zoomedOffset[1]
+
+        for x, y in array:
+            if y == np.inf:
+                continue
+
+            plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
+            plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
+
+            asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
+            infCheck = y == np.inf
+
+            if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
+                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
+
+            if equInstance.isDottedLine:
+                dottedCheckLine -= 1
+                if dottedCheckLine < -9:
+                    dottedCheckLine = 10
+
+            lastX, lastY = x, y
+
+        surface = pygame.transform.flip(surface, False, True)
+        return surface
+
 
 
 
@@ -163,17 +199,38 @@ class PlottedEquation:
 
 
 
-class FinishedFunctionData:
-    def __init__(self, array, bounds, zoomedOffset):
-        self.numberArray = array
+# Cluster of data inputted into the thread
+class ThreadInput:
+    def __init__(self, bounds, screenSize, zoomedOffset, equation):
+        self.bounds = bounds
+        self.screenSize = screenSize
+        self.zoomedOffset = zoomedOffset
+        self.equation = equation
+
+
+# Cluster of data outputted from the thread
+class ThreadOutput:
+    def __init__(self, surface, bounds, zoomedOffset):
         self.bounds = bounds
         self.zoom = bounds.zoom
         self.zoomedOffset = zoomedOffset
+        self.serialisedSurface = SerialisedSurface(surface)
 
-    def __str__(self) -> str:
-        return f'''Numbers: {self.numberArray}
-Bounds: {self.bounds}
-Zoom: {self.zoom}'''
+
+
+
+
+# This is a class that converts a pygame Surface into a serialisable
+# Numpy array that can be transferred in queues
+
+class SerialisedSurface:
+    def __init__(self, surface):
+        self.npArray = pygame.surfarray.array3d(surface)
+        # self.alphaChannel = 
+
+    def GetSurface(self):
+        return pygame.surfarray.make_surface(self.npArray)
+
 
 
 
@@ -184,18 +241,6 @@ class NumberArrayToSurfaceData:
         self.zoom = z
         self.zoomedOffset = zo
         self.screenCentre = sc
-
-
-
-class ThreadInputData:
-    def __init__(self, zoom, bounds, screenSize, zoomedOffset):
-        self.zoom = zoom
-        self.bounds = bounds
-        self.screenSize = screenSize
-        self.zoomedOffset = zoomedOffset
-    
-    def __str__(self) -> str:
-        return f'''Zoom: {self.zoom}, ScreenSize: {self.screenSize}, Bounds: {self.bounds.ShortString()}\n'''
 
 
 

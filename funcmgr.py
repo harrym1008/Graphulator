@@ -11,11 +11,10 @@ import time
 class FunctionManager:
     def __init__(self, graph):
         self.currentEquations: List[drawfunc.PlottedEquation] = []
-        self.numbersBoundsData: List[drawfunc.FinishedFunctionData] = []
         self.surfaceBoundsData: List[drawfunc.SurfaceAndBounds] = []
         self.myThreads = []
-        self.myInQueues = []
         self.myOutQueues = []
+        self.myInQueues = []
         
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
 
@@ -31,11 +30,10 @@ class FunctionManager:
         newEquation = drawfunc.PlottedEquation(equation, index)
         self.currentEquations.append(newEquation)
 
-        self.numbersBoundsData.append(None)
         self.surfaceBoundsData.append(None)
         self.myThreads.append(None)
-        self.myInQueues.append(Queue())
         self.myOutQueues.append(Queue())
+        self.myInQueues.append(Queue())
 
 
 
@@ -51,33 +49,24 @@ class FunctionManager:
             # the class has just been instantiated)
 
             threadIsNotNone = self.myThreads[i] is not None
-            newDataIsAvailable = self.myInQueues[i].qsize() > 0
+            newDataIsAvailable = self.myOutQueues[i].qsize() > 0
 
-            # print(self.myInQueues[i].qsize())
+            # print(self.myOutQueues[i].qsize())
 
             if equ.active and newDataIsAvailable if threadIsNotNone else True:
-                threadData = drawfunc.ThreadInputData(graph.zoom, graph.bounds, graph.screenSize, graph.zoomedOffset)
-                # print(threadData)
+                threadData = drawfunc.ThreadInput(graph.bounds, graph.screenSize, graph.zoomedOffset, equ)
 
                 if self.myThreads[i] is None:
                     print("Created the new thread")
-                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myOutQueues[i], self.myInQueues[i]))
+                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myInQueues[i], self.myOutQueues[i]))
                     self.myThreads[i].start()
-                    self.myOutQueues[i].put(threadData)
+                    self.myInQueues[i].put(threadData)
                     continue
 
-                data: drawfunc.FinishedFunctionData = self.myInQueues[i].get()         # get data from return queue
-                
-                '''print("Creating new thread")
-                self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myInQueues[i], time.perf_counter()))   # create new process
-                self.myThreads[i].start()'''
-                self.numbersBoundsData[i] = data                                      # set data in data array
-                graphData = drawfunc.NumberArrayToSurfaceData(graph.screenSize, data.bounds, data.zoom, data.zoomedOffset, graph.screenCentre)
-                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(
-                    drawfunc.PlottedEquation.ProduceSurfaceFromList(graphData, data.numberArray, equ)
-                    , data.bounds)
+                data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
+                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
 
-                self.myOutQueues[i].put(threadData)
+                self.myInQueues[i].put(threadData)
                 
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
         # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100, end=" ")
@@ -117,9 +106,8 @@ class FunctionManager:
             if newScale != graph.screenSize:
                 try:
                     tempSurface = pygame.transform.scale(dataSurface, newScale)
-                except pygame.error as e:
-                    tempSurface = pygame.transform.scale(dataSurface, (256, 256))
-                    print(e)
+                except:
+                    tempSurface = pygame.Surface((1, 1))
             else:
                 tempSurface = data.surface
 

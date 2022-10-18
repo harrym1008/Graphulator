@@ -1,5 +1,6 @@
 from colours import *
 from numstr import *
+from numpy import sin
 
 import pygame
 import math
@@ -172,7 +173,7 @@ class Graph:
 
             renderer.surface.blit(txtSurface, (posX, posY))
 
-        print((xStart, xEnd), (yStart, yEnd), realGap)   
+        # print((xStart, xEnd), (yStart, yEnd), realGap)   
 
 
 

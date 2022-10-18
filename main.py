@@ -107,8 +107,6 @@ def PygameInput(events, graph):
 
 
 
-
-
 if __name__ == "__main__":
     # Create pygame window and run the required initiation script
     pygame.init()
@@ -138,7 +136,6 @@ if __name__ == "__main__":
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
 
         currentEquation = functionManager.currentEquations[0]
-        print(evaluate.StringToExpression(currentEquation.equation))
 
         graphRenderer.NewFrame()
         functionManager.UpdateThreads(graph)
@@ -150,7 +147,7 @@ if __name__ == "__main__":
         graphScreen.fill(colours["white"].colour)
         graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(functionManager.surface, (0, 0))  
-        graphScreen.blit(graphUI.surface, (0, 0))      
+        graphScreen.blit(graphUI.surface, (0, 0)) 
 
         # update tkinter and pygame displays
         guiWindow.root.update()
