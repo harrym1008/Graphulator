@@ -42,7 +42,7 @@ class FunctionManager:
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
             if not equ.active or equ.equation == "":
-                equ.myThread.terminate()
+                self.myThreads[i].terminate()
                 continue
 
             # if a thread should be running but is not (because it has just finished or 

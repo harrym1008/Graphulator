@@ -49,13 +49,13 @@ def PygameInput(events, graph):
     print(graph.offset)
 
     # Pan the screen with the keyboard arrow keys
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
         graph.offset[0] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         graph.offset[0] += panSpeed * deltatime.GetMultiplier() / graph.zoom
-    if keys[pygame.K_UP]:
+    if keys[pygame.K_UP] or keys[pygame.K_w]:
         graph.offset[1] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
-    if keys[pygame.K_DOWN]:
+    if keys[pygame.K_DOWN] or keys[pygame.K_s]:
         graph.offset[1] += panSpeed * deltatime.GetMultiplier() / graph.zoom
 
     # Zoom the screen with + or - keys

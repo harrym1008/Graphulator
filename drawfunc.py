@@ -55,7 +55,7 @@ class PlottedEquation:
         self.isDottedLine = False
         self.UpdateEquationType()
 
-        self.boundsAtBeginning: CornerValues = None
+        self.boundsAtBeginning: CornerValues = CornerValues(None)
 
 
     def RecalculatePoints(self, inData, inQueue, outQueue):

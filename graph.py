@@ -235,6 +235,9 @@ class Graph:
 
 class CornerValues:
     def __init__(self, graph):
+        if graph is None:
+            return
+
         # Lots of calculation required to draw the graphs and have them scale and pan properly.
         # All based of this formula: (offset * zoom - 0.5 * dimension + pos) / zoom
 
@@ -242,7 +245,7 @@ class CornerValues:
 
         # Variables to make the calculations more readable in the code
         ox = graph.offset[0]
-        oy = graph.offset[1]
+        oy = graph.offset[1]   # make this value negative
         z = graph.zoom
         maxX = graph.screenSize[0]
         maxY = graph.screenSize[1]
