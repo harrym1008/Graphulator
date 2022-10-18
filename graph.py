@@ -50,25 +50,13 @@ class Graph:
         renderer.surface = pygame.Surface(newSize)
 
 
-    def IsPrecalcNecessary(self):
-        if self.lastFrameData is None:
-            return True
-
-        newObject = LastFrameData(self)
-        necessary = newObject != self.lastFrameData
-        self.lastFrameData = newObject
-        return necessary
-
 
     def PerformPrecalculation(self):
-        if not self.IsPrecalcNecessary():
-            return
-
-        # Cap the zoom between 1,000,000% and 0.001%
+        # Cap the zoom between 1,000,000% and 0.0001%
         if self.zoom > 10000:
             self.zoom = 10000
-        elif self.zoom < 0.00001:
-            self.zoom = 0.00001
+        elif self.zoom < 0.000001:
+            self.zoom = 0.000001
 
         self.zoomedOffset = self.offset[0] * self.zoom, self.offset[1] * self.zoom
         self.zoomedOffsetInverse = self.offset[0] / self.zoom, self.offset[1] / self.zoom
@@ -243,18 +231,6 @@ class Graph:
     def FindNearestMultiple(number, multiple):
         return multiple * round(number / multiple)
 
-        
-
-class LastFrameData:
-    def __init__(self, graph):
-        self.offsetX = graph.offset[0]
-        self.offsetY = graph.offset[1]
-        self.zoom = graph.zoom
-
-    def __eq__(self, other):
-        if other is None:
-            return True
-        return self.offsetX == other.offsetX and self.offsetY == other.offsetY and self.zoom == other.zoom
 
 
 class CornerValues:

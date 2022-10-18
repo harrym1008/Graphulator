@@ -1,11 +1,14 @@
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+# Prevents the welcome message from pygame from spamming in the terminal
 
+# External modules
 import tkinter as tk
 import pygame
 import numpy as np
 import sympy as sp
 
+# Internal modules
 import deltatime
 import evaluate
 from colours import *
@@ -42,6 +45,8 @@ def PygameInput(events, graph):
     global mouseStart, mouseMoved, graphMouseStart, mouseFocusTime, mouseButtonDown
 
     keys = pygame.key.get_pressed()
+
+    print(graph.offset)
 
     # Pan the screen with the keyboard arrow keys
     if keys[pygame.K_LEFT]:
@@ -85,8 +90,8 @@ def PygameInput(events, graph):
         mouseMoved = tuple(np.subtract(pygame.mouse.get_pos(), mouseStart))
 
     if mouseStart != [-1, -1]:
-        graph.offset[0] = graphMouseStart[0] - mouseMoved[0] / graph.zoom
-        graph.offset[1] = graphMouseStart[1] - mouseMoved[1] / graph.zoom
+        graph.offset = [graphMouseStart[0] - mouseMoved[0] / graph.zoom, 
+                        graphMouseStart[1] - mouseMoved[1] / graph.zoom]
 
     # Zoom in and out with the scroll wheel
     for e in events:

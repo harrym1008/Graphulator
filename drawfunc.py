@@ -95,9 +95,9 @@ class PlottedEquation:
             surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
             outData = ThreadOutput(surface, bounds, inData.zoomedOffset)
 
-            print(outData.serialisedSurface.GetSurface())
-            np. set_printoptions(threshold=np.inf)
-            print(outData.serialisedSurface.npArray)
+            #print(outData.serialisedSurface.GetSurface())
+            #np. set_printoptions(threshold=np.inf)
+            #print(outData.serialisedSurface.npArray)
 
             outQueue.put(outData)
 
