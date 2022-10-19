@@ -288,3 +288,10 @@ class CornerValues:
 
     def ShortString(self):
         return f"{self.NW}, {self.SE}, {self.CENTRE}, {self.zoom}"
+
+
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, CornerValues):
+            if __o.NW == self.NW and __o.SE == self.SE:
+                return True
+        return False

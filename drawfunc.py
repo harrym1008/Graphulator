@@ -13,7 +13,7 @@ from colours import *
 from enum import IntEnum
 
 
-INCREMENT_FACTOR = 10
+INCREMENT_FACTOR = 1.5
 π = pi = 3.14159265358979323846
 e = 2.7182818284590452353602875
 Φ = φ = phi = goldenRatio = 1.618033988749894
@@ -61,9 +61,14 @@ class PlottedEquation:
     def RecalculatePoints(self, inData, inQueue, outQueue):
         firstPass = True
 
+        lastBounds = None
+        savedPoints = []
+
         # time.sleep(random.uniform(0, 0.2))
         while True:
             # wait for the in queue to have a length of 1 (this means data is present)
+            startTime = time.perf_counter()
+
             while inQueue.qsize() < 1:
                 time.sleep(0.01)
 
@@ -73,24 +78,31 @@ class PlottedEquation:
                 firstPass = False
 
                 
-            skip = self.equation == ""
             bounds = inData.bounds
+
+
+            skipNoEquation = self.equation == ""            
+            skipSameBounds = (lastBounds == bounds if bounds is not None else False)
+
+            print((lastBounds == bounds if bounds is not None else False))
+            lastBounds = bounds
 
             points = []
             start, end = bounds.W, bounds.E
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
 
-            if not skip:
+            if not skipNoEquation and not skipSameBounds:
                 for x in np.arange(start[0], end[0], increment):
                     try:
                         points.append((x, eval(self.equation)))
                     except Exception as e:
                         points.append((x, np.inf))
                         print(f"{e} -----> Error at x={x}")
-            else:
-                time.sleep(0.2)
-                continue
+                savedPoints = points
+            elif not skipNoEquation and skipSameBounds:
+                points = savedPoints
+            
             
             surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
             outData = ThreadOutput(surface, bounds, inData.zoomedOffset)
@@ -100,6 +112,7 @@ class PlottedEquation:
             #print(outData.serialisedSurface.npArray)
 
             outQueue.put(outData)
+            print(f"Full process took {time.perf_counter() - startTime}")
 
 
 
@@ -107,6 +120,9 @@ class PlottedEquation:
     def ListToSurfaceInThread(cls, array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
         surface.fill(colours["transparent"].colour)
+
+        if len(array) == 0:
+            return surface
 
         zoom = bounds.zoom
         screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
