@@ -1,5 +1,5 @@
-from os import environ
-environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+import os
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 # Prevents the welcome message from pygame from spamming in the terminal
 
 # External modules
@@ -20,7 +20,7 @@ from funcmgr import FunctionManager
 from ui import UserInterface
 
 # Screen starts at this resolution by default
-screenSize = (720, 480)
+screenSize = (800, 600)
 minScreenSize = (128, 128)
 
 running = True

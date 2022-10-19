@@ -1,4 +1,5 @@
 from socket import INADDR_ALLHOSTS_GROUP
+from winreg import REG_OPTION_BACKUP_RESTORE
 import sympy
 import numpy as np
 import math
@@ -63,8 +64,7 @@ class PlottedEquation:
 
         lastBounds = None
         savedPoints = []
-
-        # time.sleep(random.uniform(0, 0.2))
+        
         while True:
             # wait for the in queue to have a length of 1 (this means data is present)
             startTime = time.perf_counter()
@@ -83,8 +83,6 @@ class PlottedEquation:
 
             skipNoEquation = self.equation == ""            
             skipSameBounds = (lastBounds == bounds if bounds is not None else False)
-
-            print((lastBounds == bounds if bounds is not None else False))
             lastBounds = bounds
 
             points = []
@@ -107,12 +105,11 @@ class PlottedEquation:
             surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
             outData = ThreadOutput(surface, bounds, inData.zoomedOffset)
 
-            #print(outData.serialisedSurface.GetSurface())
-            #np. set_printoptions(threshold=np.inf)
-            #print(outData.serialisedSurface.npArray)
+            print(outData.serialisedSurface.npArray)
+            print(pygame.surfarray.array_alpha(surface))
 
             outQueue.put(outData)
-            print(f"Full process took {time.perf_counter() - startTime}")
+            # print(f"Full process took {time.perf_counter() - startTime}")
 
 
 
@@ -235,14 +232,16 @@ class ThreadOutput:
 
 
 
-
 # This is a class that converts a pygame Surface into a serialisable
 # Numpy array that can be transferred in queues
 
 class SerialisedSurface:
     def __init__(self, surface):
-        self.npArray = pygame.surfarray.array3d(surface)
-        # self.alphaChannel = 
+        self.rgbChannels = pygame.surfarray.array3d(surface)
+        self.alphaChannel = pygame.surfarray.array_alpha(surface)
+
+        self.npArray = np.dstack((self.rgbChannels, np.ones(800)))
+
 
     def GetSurface(self):
         return pygame.surfarray.make_surface(self.npArray)
