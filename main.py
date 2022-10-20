@@ -46,6 +46,11 @@ def PygameInput(events, graph):
 
     keys = pygame.key.get_pressed()
 
+    # Reset offset and panning
+    if keys[pygame.K_r]:
+        graph.zoom = 50
+        graph.offset = [0, 0]
+
     # Pan the screen with the keyboard arrow keys
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
         graph.offset[0] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
@@ -61,11 +66,6 @@ def PygameInput(events, graph):
         graph.zoom *= 1 + zoomSpeed
     if keys[pygame.K_KP_MINUS] or keys[pygame.K_MINUS]:
         graph.zoom /= 1 + zoomSpeed
-
-    # Reset offset and panning
-    if keys[pygame.K_r]:
-        graph.zoom = 50
-        graph.offset = [0, 0]
 
     # Kill the program if escape is pressed
     if keys[pygame.K_ESCAPE]:

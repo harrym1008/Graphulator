@@ -1,5 +1,4 @@
-from socket import INADDR_ALLHOSTS_GROUP
-from winreg import REG_OPTION_BACKUP_RESTORE
+from turtle import shape
 import sympy
 import numpy as np
 import math
@@ -8,6 +7,7 @@ import time
 import random
 
 from numpy import sin
+from serialsurf import SerialisedSurface
 from graph import CornerValues
 from vector2 import *
 from colours import *
@@ -15,6 +15,8 @@ from enum import IntEnum
 
 
 INCREMENT_FACTOR = 1.5
+ANTIALIAS = False
+
 π = pi = 3.14159265358979323846
 e = 2.7182818284590452353602875
 Φ = φ = phi = goldenRatio = 1.618033988749894
@@ -55,6 +57,7 @@ class PlottedEquation:
         self.type = 0
         self.isDottedLine = False
         self.UpdateEquationType()
+        self.type = 1
 
         self.boundsAtBeginning: CornerValues = CornerValues(None)
 
@@ -80,7 +83,6 @@ class PlottedEquation:
                 
             bounds = inData.bounds
 
-
             skipNoEquation = self.equation == ""            
             skipSameBounds = (lastBounds == bounds if bounds is not None else False)
             lastBounds = bounds
@@ -90,6 +92,7 @@ class PlottedEquation:
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
 
+            # Compute all the points on the graph
             if not skipNoEquation and not skipSameBounds:
                 for x in np.arange(start[0], end[0], increment):
                     try:
@@ -100,16 +103,17 @@ class PlottedEquation:
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
+                time.sleep(0.1)
             
             
+            # Produce a pygame surface from the points just calculated
             surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
+            
+            # Place into a class of thread output data
             outData = ThreadOutput(surface, bounds, inData.zoomedOffset)
 
-            print(outData.serialisedSurface.npArray)
-            print(pygame.surfarray.array_alpha(surface))
-
             outQueue.put(outData)
-            # print(f"Full process took {time.perf_counter() - startTime}")
+            print(f"Full process took {time.perf_counter() - startTime}")
 
 
 
@@ -140,7 +144,10 @@ class PlottedEquation:
             infCheck = y == np.inf
 
             if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
+                if ANTIALIAS:
+                    pass
+                else:
+                    pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
 
             if equInstance.isDottedLine:
                 dottedCheckLine -= 1
@@ -152,47 +159,14 @@ class PlottedEquation:
         surface = pygame.transform.flip(surface, False, True)
         return surface
 
-
-
-
+    '''# Antialiased line
+    # https://stackoverflow.com/questions/30578068/pygame-draw-anti-aliased-thick-line
     @classmethod
-    def ProduceSurfaceFromList(cls, graph, array, equInstance) -> pygame.Surface:
-        startTime = time.perf_counter()
-        surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-        surface.fill(colours["transparent"].colour)
+    def AntiAliasedLine(cls, surface, start, end):
+        X0, Y0 = start
+        X1, Y1 = end
 
-        bounds = graph.bounds
-        zoom = graph.zoom
-        dottedCheckLine = 10
-
-        extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
-        lastX, lastY = array[0]
-        drawOffset = graph.screenCentre[0] - graph.zoomedOffset[0], graph.screenCentre[1] - graph.zoomedOffset[1]
-
-        for x, y in array:
-            if y == np.inf:
-                continue
-
-            plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
-            plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
-
-            asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
-            infCheck = y == np.inf
-
-            if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
-
-            if equInstance.isDottedLine:
-                dottedCheckLine -= 1
-                if dottedCheckLine < -9:
-                    dottedCheckLine = 10
-
-            lastX, lastY = x, y
-
-        surface = pygame.transform.flip(surface, False, True)
-        # print(time.perf_counter() - startTime)
-        return surface
-
+        centerL1 = (X0+X1) / 2'''
 
 
 
@@ -232,30 +206,7 @@ class ThreadOutput:
 
 
 
-# This is a class that converts a pygame Surface into a serialisable
-# Numpy array that can be transferred in queues
 
-class SerialisedSurface:
-    def __init__(self, surface):
-        self.rgbChannels = pygame.surfarray.array3d(surface)
-        self.alphaChannel = pygame.surfarray.array_alpha(surface)
-
-        self.npArray = np.dstack((self.rgbChannels, np.ones(800)))
-
-
-    def GetSurface(self):
-        return pygame.surfarray.make_surface(self.npArray)
-
-
-
-
-class NumberArrayToSurfaceData:
-    def __init__(self, ss, b, z, zo, sc):
-        self.screenSize = ss
-        self.bounds = b
-        self.zoom = z
-        self.zoomedOffset = zo
-        self.screenCentre = sc
 
 
 
