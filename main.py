@@ -20,7 +20,7 @@ from funcmgr import FunctionManager
 from ui import UserInterface
 
 # Screen starts at this resolution by default
-screenSize = (800, 600)
+screenSize = (720, 480)
 minScreenSize = (128, 128)
 
 running = True
@@ -130,7 +130,10 @@ if __name__ == "__main__":
     # so it is done at the beginning
 
     # functionManager.AddAnotherEquation(" math.fabs(np.sin(x**x)/2**(((x**x)-pi/2)/pi)) ")
-    functionManager.AddAnotherEquation("sin(2*x)")
+    # functionManager.AddAnotherEquation("sin(2*x)")
+    # functionManager.AddAnotherEquation("np.cos(2*x)")
+    # functionManager.AddAnotherEquation("np.tan(x)")
+    functionManager.AddAnotherEquation("x")
 
 
     # Start main loop

@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+import time
 
 
 
@@ -12,7 +13,6 @@ class SerialisedSurface:
         self.alphaChannel = pygame.surfarray.array_alpha(surface)
 
         self.npArray = SerialisedSurface.CombineRGBAndAlpha(self.rgbChannels, self.alphaChannel)
-        print(self.npArray.shape)
 
 
     def GetSurface(self):
@@ -30,10 +30,9 @@ class SerialisedSurface:
         shape = array.shape
 
         if shape[2] == 3:
-            print("okay revert to normal")
             return pygame.surfarray.make_surface(array)
         elif len(shape) != 3 and shape[2] != 4:
-            raise ValueError("Array not RGBA")
+            raise ValueError("Array is not RGBA: (x, y, 4)")
         
         surface = pygame.Surface(shape[0:2], pygame.SRCALPHA, 32)
         pygame.pixelcopy.array_to_surface(surface, array[:,:,0:3])

@@ -1,4 +1,3 @@
-from turtle import shape
 import sympy
 import numpy as np
 import math
@@ -18,8 +17,8 @@ INCREMENT_FACTOR = 1.5
 ANTIALIAS = False
 
 π = pi = 3.14159265358979323846
-e = 2.7182818284590452353602875
-Φ = φ = phi = goldenRatio = 1.618033988749894
+e = euler = 2.7182818284590452353602875
+phi = golden = 1.618033988749894
 
 
 
@@ -103,7 +102,6 @@ class PlottedEquation:
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
-                time.sleep(0.1)
             
             
             # Produce a pygame surface from the points just calculated
@@ -113,7 +111,7 @@ class PlottedEquation:
             outData = ThreadOutput(surface, bounds, inData.zoomedOffset)
 
             outQueue.put(outData)
-            print(f"Full process took {time.perf_counter() - startTime}")
+            # print(f"Full process took {time.perf_counter() - startTime}")
 
 
 
@@ -202,11 +200,6 @@ class ThreadOutput:
         self.zoom = bounds.zoom
         self.zoomedOffset = zoomedOffset
         self.serialisedSurface = SerialisedSurface(surface)
-
-
-
-
-
 
 
 
