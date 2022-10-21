@@ -202,13 +202,13 @@ class Graph:
         renderer.surface.blit(txtSurfaceY, renderPosY)
 
 
-    def DrawDottedLineOnGraph(self, renderer, equation, mousePos):
+    def DrawCircleAtTracedPoint(self, renderer, equation, mousePos):
         if mousePos is None or equation is None:
             return
 
         x = (self.zoomedOffset[0] - self.screenCentre[0] + mousePos[0]) / self.zoom
         y = eval(equation.equation)
-        yOnGraph = self.zoomedOffset[1] + self.screenCentre[1] + y * self.zoom
+        yOnGraph = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
 
         pygame.draw.circle(renderer.surface, equation.colour.colour, (mousePos[0], yOnGraph), 4)     
 
@@ -223,7 +223,7 @@ class Graph:
         self.DrawLinesFromOrigin(renderer)
         self.DrawZeroAtOrigin(renderer)
         self.DrawXAndYWords(renderer)
-        self.DrawDottedLineOnGraph(renderer, currentEquation, mousePos)
+        self.DrawCircleAtTracedPoint(renderer, currentEquation, mousePos)
 
 
 

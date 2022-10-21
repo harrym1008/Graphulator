@@ -35,6 +35,8 @@ def GetFractionalNumber(n, powersOf10, maxdp=6) -> str:
 
 
 def SigFig(x, sig):
+    if x == 0:
+        return 0
     return round(x, sig - int(math.floor(math.log(abs(x), 10))) - 1)
 
 

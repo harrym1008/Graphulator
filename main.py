@@ -26,7 +26,7 @@ minScreenSize = (128, 128)
 running = True
 targetFPS = 60
 
-panSpeed = 2
+panSpeed = 2.5
 zoomSpeed = 0.05
 graphMouseStart = [-1, -1]
 mouseStart = [-1, -1]
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
         graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
         functionManager.UpdateThreads(graph)
-        functionManager.BlitCurrentSurfaces(graph)
+        functionManager.BlitCurrentSurfaces(graph, graphRenderer.surface)
 
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)

@@ -1,7 +1,9 @@
 from multiprocessing import Process, Queue
 from typing import List
 from colours import *
+from numstr import SigFig
 
+import numpy as np
 import pygame
 import drawfunc
 import deltatime
@@ -76,7 +78,7 @@ class FunctionManager:
 
 
 
-    def BlitCurrentSurfaces(self, graph):
+    def BlitCurrentSurfaces(self, graph, surface):
         startTime = time.perf_counter()
         self.surface.fill(colours["transparent"].colour)
 
@@ -86,24 +88,48 @@ class FunctionManager:
 
             dataSurface = data.surface
 
-            # equation for X: p = -oz + 0.5s + xz
-            # equation for Y: p = -oz + 0.5s - yz
+            # equation for value: p = -oz + 0.5s + vz
+            # p = position
+            # o = offset
+            # z = zoom
+            # s = half of the screen size (the screen centre)
+            # v = input value
 
             surfaceCorners = [(
-                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.NW[0] * graph.zoom, 
-                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.NW[1] * graph.zoom
+                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.SW[0] * graph.zoom, 
+                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.SW[1] * graph.zoom
                 ),(
-                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.SE[0] * graph.zoom, 
-                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.SE[1] * graph.zoom
+                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.NE[0] * graph.zoom, 
+                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.NE[1] * graph.zoom
                 )]
 
-            newScale = (int(surfaceCorners[1][0] - surfaceCorners[0][0]), 
-                        int(surfaceCorners[0][1] - surfaceCorners[1][1]))
+            # pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 50)
+            # pygame.draw.circle(surface, colours["orange"].colour, surfaceCorners[1], 50)
 
-            newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[1][1]))
-            print(surfaceCorners, newPosition, newScale)
 
-            # print(f"{data.bounds.NW}, {data.bounds.SE}")
+            newScale = graph.screenSize
+
+            newPosition = (0, 0)
+
+            # check if the graph has been panned or zoomed and store if they have into boolean variables
+            zoomed = data.zoom != graph.zoom
+            panned = SigFig(data.bounds.CENTRE[0], 6) != SigFig(graph.bounds.CENTRE[0], 6) or \
+                     SigFig(data.bounds.CENTRE[1], 6) != SigFig(graph.bounds.CENTRE[1], 6)
+            # 6 is the amount of significant figures to round to, 
+            # this allows enough precision for the floating-point value
+            
+
+            if panned or zoomed:
+                newScale = (surfaceCorners[1][0] - surfaceCorners[0][0],
+                            surfaceCorners[1][1] - surfaceCorners[0][1])
+                newScale = tuple(int(np.abs(i)) for i in newScale)
+
+                newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[0][1]))
+
+            elif panned:
+                newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[0][1]))
+
+
 
             if newScale != graph.screenSize:
                 try:
@@ -113,6 +139,7 @@ class FunctionManager:
             else:
                 tempSurface = data.surface
 
+            # print(f"{surfaceCorners}", newPosition, newScale)
             self.surface.blit(tempSurface, newPosition)
         
         # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100)
