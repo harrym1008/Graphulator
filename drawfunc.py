@@ -105,7 +105,6 @@ class PlottedEquation:
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
             
-            
             # Produce a pygame surface from the points just calculated
             surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
             
@@ -129,7 +128,7 @@ class PlottedEquation:
         screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
         dottedCheckLine = 10
 
-        extremeUpper, extremeLower = bounds.N[1], bounds.S[1]
+        extremeUpper, extremeLower = bounds.S[1], bounds.N[1]
         lastX, lastY = array[0]
         drawOffset = screenCentre[0] - zoomedOffset[0], screenCentre[1] - zoomedOffset[1]
 
@@ -143,11 +142,9 @@ class PlottedEquation:
             asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
             infCheck = y == np.inf
 
+
             if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                if ANTIALIAS:
-                    pass
-                else:
-                    pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
+                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
 
             if equInstance.isDottedLine:
                 dottedCheckLine -= 1

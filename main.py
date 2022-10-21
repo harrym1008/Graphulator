@@ -138,10 +138,10 @@ if __name__ == "__main__":
 
         # Frame update code
         graphRenderer.NewFrame()
-        functionManager.UpdateThreads(graph)
-        functionManager.BlitCurrentSurfaces(graph)
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
         graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
+        functionManager.UpdateThreads(graph)
+        functionManager.BlitCurrentSurfaces(graph)
 
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)

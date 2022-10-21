@@ -91,16 +91,17 @@ class FunctionManager:
 
             surfaceCorners = [(
                 -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.NW[0] * graph.zoom, 
-                -graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.NW[1] * graph.zoom
+                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.NW[1] * graph.zoom
                 ),(
                 -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.SE[0] * graph.zoom, 
-                -graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.SE[1] * graph.zoom
+                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.SE[1] * graph.zoom
                 )]
 
             newScale = (int(surfaceCorners[1][0] - surfaceCorners[0][0]), 
                         int(surfaceCorners[0][1] - surfaceCorners[1][1]))
 
-            newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[1][1]))
+            newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[1][1]))
+            print(surfaceCorners, newPosition, newScale)
 
             # print(f"{data.bounds.NW}, {data.bounds.SE}")
 
@@ -111,7 +112,6 @@ class FunctionManager:
                     tempSurface = pygame.Surface((1, 1))
             else:
                 tempSurface = data.surface
-
 
             self.surface.blit(tempSurface, newPosition)
         
