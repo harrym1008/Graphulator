@@ -17,4 +17,4 @@ def EvaluateY(expr: Expr, xValue):
 
 
 e = StringToExpression("sin(x)")
-print(EvaluateY(e, 5))
+# print(EvaluateY(e, 5))

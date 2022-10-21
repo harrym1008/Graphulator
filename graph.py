@@ -34,6 +34,7 @@ class Graph:
         self.lastFrameData = None
 
         self.fonts = []
+        self.AssignFonts()
 
 
 
@@ -52,16 +53,16 @@ class Graph:
 
 
     def PerformPrecalculation(self):
-        # Cap the zoom between 1,000,000% and 0.0001%
-        if self.zoom > 10000:
-            self.zoom = 10000
-        elif self.zoom < 0.000001:
-            self.zoom = 0.000001
+        # Cap the zoom between 10,000,000% and 0.00001%
+        if self.zoom > 100000:
+            self.zoom = 100000
+        elif self.zoom < 0.0000001:
+            self.zoom = 0.0000001
 
         self.zoomedOffset = self.offset[0] * self.zoom, self.offset[1] * self.zoom
         self.zoomedOffsetInverse = self.offset[0] / self.zoom, self.offset[1] / self.zoom
 
-        self.orgPos = self.screenCentre[0] - self.zoomedOffset[0], self.screenCentre[1] - self.zoomedOffset[1]
+        self.orgPos = self.screenCentre[0] - self.zoomedOffset[0], self.screenCentre[1] + self.zoomedOffset[1]
 
         # calculating the bounds of the window, accounting for zooms and offsets.
         # this is calculated similarly to how WritePosOnGraph() is calculated
@@ -131,11 +132,11 @@ class Graph:
         xEnd = Graph.FindNearestMultiple(self.bounds.E[0], realGap) 
         
         for x in np.append(np.arange(xStart, xEnd, realGap), xEnd):
-            if x == 0:
+            if math.fabs(x) < realGap / 10:
                 continue
 
             posX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
-            posY = -self.zoomedOffset[1] + self.screenCentre[1]     # y is always 0 at the origin
+            posY = self.zoomedOffset[1] + self.screenCentre[1]     # y is always 0 at the origin
 
             txtSurface = self.fonts[2].render(f"{GetNumString(x, True)}", True, colours["black"].colour)
             posX -= txtSurface.get_width() / 2
@@ -145,15 +146,15 @@ class Graph:
 
 
         # Draw the Y values
-        yStart = Graph.FindNearestMultiple(self.bounds.N[1], realGap)
-        yEnd = Graph.FindNearestMultiple(self.bounds.S[1], realGap)   
+        yStart = Graph.FindNearestMultiple(self.bounds.S[1], realGap)
+        yEnd = Graph.FindNearestMultiple(self.bounds.N[1], realGap)   
         
         for y in np.append(np.arange(yStart, yEnd, realGap), yEnd):
-            if y == 0:
+            if math.fabs(y) < realGap / 10:
                 continue
 
             posX = -self.zoomedOffset[0] + self.screenCentre[0]   # x is always 0 at the origin
-            posY = -self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom    
+            posY = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom    
 
             txtSurface = self.fonts[2].render(f"{GetNumString(y, True)}", True, colours["black"].colour)
             posX += 3
@@ -202,12 +203,12 @@ class Graph:
 
 
     def DrawDottedLineOnGraph(self, renderer, equation, mousePos):
-        if mousePos is None:
+        if mousePos is None or equation is None:
             return
 
         x = (self.zoomedOffset[0] - self.screenCentre[0] + mousePos[0]) / self.zoom
         y = eval(equation.equation)
-        yOnGraph = -self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
+        yOnGraph = self.zoomedOffset[1] + self.screenCentre[1] + y * self.zoom
 
         pygame.draw.circle(renderer.surface, equation.colour.colour, (mousePos[0], yOnGraph), 4)     
 
@@ -229,6 +230,8 @@ class Graph:
         
     @staticmethod
     def FindNearestMultiple(number, multiple):
+        if multiple == 0:
+            return number
         return multiple * round(number / multiple)
 
 
@@ -252,8 +255,8 @@ class CornerValues:
         bound = {x: (-maxX / 2, maxX / 2), y: (-maxY / 2, maxY / 2)}
 
         # Calculating once all possible X and Y values
-        S = (oy * z - 0.5 * maxY - bound[y][0]) / z + graph.screenCentre[1] / z
-        N = (oy * z - 0.5 * maxY - bound[y][1]) / z + graph.screenCentre[1] / z
+        N = (oy * z - 0.5 * maxY - bound[y][0]) / z + graph.screenCentre[1] / z
+        S = (oy * z - 0.5 * maxY - bound[y][1]) / z + graph.screenCentre[1] / z
         W = (ox * z - 0.5 * maxX + bound[x][0]) / z + graph.screenCentre[0] / z
         E = (ox * z - 0.5 * maxX + bound[x][1]) / z + graph.screenCentre[0] / z
         CENTRE_X = (ox * z - 0.5 * maxX) / z + graph.screenCentre[0] / z

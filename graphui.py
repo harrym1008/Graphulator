@@ -91,6 +91,9 @@ class GraphUserInterface:
 
 
     def DrawCurrentEquationXY(self, font, equation, x):
+        if equation is None:
+            return
+            
         equationText = font.render(f"{equation.equation}", True, equation.colour.colour)
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * 2))
 

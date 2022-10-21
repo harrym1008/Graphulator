@@ -86,6 +86,8 @@ class PlottedEquation:
             skipSameBounds = (lastBounds == bounds if bounds is not None else False)
             lastBounds = bounds
 
+            # print(bounds.NW, bounds.SE)
+
             points = []
             start, end = bounds.W, bounds.E
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)

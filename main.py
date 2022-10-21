@@ -57,9 +57,9 @@ def PygameInput(events, graph):
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         graph.offset[0] += panSpeed * deltatime.GetMultiplier() / graph.zoom
     if keys[pygame.K_UP] or keys[pygame.K_w]:
-        graph.offset[1] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
-    if keys[pygame.K_DOWN] or keys[pygame.K_s]:
         graph.offset[1] += panSpeed * deltatime.GetMultiplier() / graph.zoom
+    if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        graph.offset[1] -= panSpeed * deltatime.GetMultiplier() / graph.zoom
 
     # Zoom the screen with + or - keys
     if keys[pygame.K_KP_PLUS] or keys[pygame.K_EQUALS]:
@@ -89,7 +89,7 @@ def PygameInput(events, graph):
 
     if mouseStart != [-1, -1]:
         graph.offset = [graphMouseStart[0] - mouseMoved[0] / graph.zoom, 
-                        graphMouseStart[1] - mouseMoved[1] / graph.zoom]
+                        graphMouseStart[1] + mouseMoved[1] / graph.zoom]
 
     # Zoom in and out with the scroll wheel
     for e in events:
@@ -125,24 +125,18 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
-    graph.AssignFonts()
-    # Assigning fonts at the start - this takes lots of processing time, 
-    # so it is done at the beginning
+    # Starting equations
 
-    # functionManager.AddAnotherEquation(" math.fabs(np.sin(x**x)/2**(((x**x)-pi/2)/pi)) ")
+    functionManager.AddAnotherEquation("sin(2*x)")
     # functionManager.AddAnotherEquation("sin(2*x)")
-    # functionManager.AddAnotherEquation("np.cos(2*x)")
-    # functionManager.AddAnotherEquation("np.tan(x)")
-    functionManager.AddAnotherEquation("x")
 
 
     # Start main loop
     while running:
-        # Frame update code
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
-
         currentEquation = functionManager.currentEquations[0]
 
+        # Frame update code
         graphRenderer.NewFrame()
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
@@ -162,17 +156,16 @@ if __name__ == "__main__":
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
-        # print(f"Processing time = {deltatime.deltaTime}")
 
         # Get pygame events, execute input code and check for quitting / resizing
         events = pygame.event.get()
         PygameInput(events, graph)
 
         for e in events:
-            if e.type == pygame.QUIT:
+            if e.type == pygame.QUIT:     # When the window is closed
                 Kill()
                 break
-            if e.type == pygame.VIDEORESIZE:
+            if e.type == pygame.VIDEORESIZE:    # Allow screen to be resized                
                 screenSize = (max(e.w, minScreenSize[0]),
                               max(e.h, minScreenSize[1]))
 

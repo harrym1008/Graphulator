@@ -27,6 +27,7 @@ class FunctionManager:
 
     def AddAnotherEquation(self, equation):
         index = len(self.currentEquations)
+
         newEquation = drawfunc.PlottedEquation(equation, index)
         self.currentEquations.append(newEquation)
 
