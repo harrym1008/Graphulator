@@ -13,6 +13,7 @@ import deltatime
 import evaluate
 from colours import *
 from numstr import *
+from timer import *
 from graph import Graph
 from graphui import GraphUserInterface
 from graphrenderer import GraphRenderer
@@ -111,6 +112,7 @@ def PygameInput(events, graph):
 
 
 if __name__ == "__main__":
+    ResetTimer()
     # Create pygame window and run the required initiation script
     pygame.init()
     clock = pygame.time.Clock()
@@ -127,9 +129,12 @@ if __name__ == "__main__":
 
     # Starting equations
 
-    functionManager.AddAnotherEquation("sin(2*x)")
+
+    for i in range(1, 3):
+        functionManager.AddAnotherEquation(f"sin(2*x)*{i}")
     # functionManager.AddAnotherEquation("sin(2*x)")
 
+    # print(GetTimeSince("Start code"))
 
     # Start main loop
     while running:
@@ -142,20 +147,29 @@ if __name__ == "__main__":
         graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph, graphRenderer.surface)
+        
+        # print(GetTimeSince("Frame update"))
 
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
         graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(functionManager.surface, (0, 0))  
         graphScreen.blit(graphUI.surface, (0, 0)) 
-
+        
+        # print(GetTimeSince("Blit surface"))
         # update tkinter and pygame displays
         guiWindow.root.update()
+        # print(GetTimeSince("Update tkinter screen"))
+
         pygame.display.update()
+        # print(GetTimeSince("Update pygame screen"))
+        
         
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
+        
+        # print(GetTimeSince("Wait for 60 FPS"))
 
         # Get pygame events, execute input code and check for quitting / resizing
         events = pygame.event.get()
@@ -177,6 +191,8 @@ if __name__ == "__main__":
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
 
+        
+        # print(GetTimeSince("Inputs"))
         
     # run this code on exit
     for equ in functionManager.myThreads:

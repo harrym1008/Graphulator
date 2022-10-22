@@ -1,4 +1,4 @@
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, cpu_count
 from typing import List
 from colours import *
 from numstr import SigFig
@@ -103,13 +103,15 @@ class FunctionManager:
                 -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.NE[1] * graph.zoom
                 )]
 
-            # pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 50)
-            # pygame.draw.circle(surface, colours["orange"].colour, surfaceCorners[1], 50)
+            pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 10)
+            pygame.draw.circle(surface, colours["orange"].colour, surfaceCorners[1], 10)
 
 
             newScale = graph.screenSize
-
             newPosition = (0, 0)
+
+            panOffset = (0, 0)
+            zoomOffset = (0, 0)
 
             # check if the graph has been panned or zoomed and store if they have into boolean variables
             zoomed = data.zoom != graph.zoom
@@ -124,11 +126,10 @@ class FunctionManager:
                             surfaceCorners[1][1] - surfaceCorners[0][1])
                 newScale = tuple(int(np.abs(i)) for i in newScale)
 
-                newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[0][1]))
+                newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[0][1]))
 
-            elif panned:
+            if panned and not zoomed:
                 newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[0][1]))
-
 
 
             if newScale != graph.screenSize:
@@ -139,10 +140,12 @@ class FunctionManager:
             else:
                 tempSurface = data.surface
 
-            # print(f"{surfaceCorners}", newPosition, newScale)
+            # print(newPosition, newScale)
             self.surface.blit(tempSurface, newPosition)
         
         # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100)
 
 
 
+
+print(cpu_count())

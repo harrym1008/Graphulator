@@ -131,6 +131,8 @@ class Graph:
         xStart = Graph.FindNearestMultiple(self.bounds.W[0], realGap)
         xEnd = Graph.FindNearestMultiple(self.bounds.E[0], realGap) 
         
+        # error: real gap is zero
+
         for x in np.append(np.arange(xStart, xEnd, realGap), xEnd):
             if math.fabs(x) < realGap / 10:
                 continue
