@@ -3,7 +3,7 @@ import main
 
 baseFPS = 60
 
-deltaTime = 0
+deltaTime = 1 / baseFPS
 lastFrameTime = 0
 
 

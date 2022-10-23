@@ -1,4 +1,5 @@
 import time
+import numstr
 
 
 def ResetTimer():
@@ -7,7 +8,8 @@ def ResetTimer():
 
 def GetTimeSince(header, reset=True):
     since = time.perf_counter() - t
-    
+    since = numstr.SigFig(since, 3)
+
     if reset:
         ResetTimer()
         

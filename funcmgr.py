@@ -1,13 +1,18 @@
 from multiprocessing import Process, Queue, cpu_count
 from typing import List
 from colours import *
+from timer import *
 from numstr import SigFig
 
 import numpy as np
 import pygame
-import drawfunc
 import deltatime
+import drawfunc
 import time
+
+
+UPDATE_HERTZ = 10
+UPDATE_TIME = 1 / UPDATE_HERTZ
 
 
 class FunctionManager:
@@ -19,6 +24,8 @@ class FunctionManager:
         self.myInQueues = []
         
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+
+        self.timeToNextUpdate = UPDATE_TIME
 
 
 
@@ -40,8 +47,21 @@ class FunctionManager:
 
 
 
+    def CheckIfUpdatingThreads(self):
+        self.timeToNextUpdate -= deltatime.deltaTime
+
+        if self.timeToNextUpdate < -1:
+            self.timeToNextUpdate = UPDATE_TIME
+            return True
+        elif self.timeToNextUpdate < 0:
+            self.timeToNextUpdate += UPDATE_TIME
+            return True
+        return False
+
+
+
+
     def UpdateThreads(self, graph):
-        startTime = time.perf_counter()
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
             if not equ.active or equ.equation == "":
@@ -67,12 +87,10 @@ class FunctionManager:
                     continue
 
                 data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
-                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
 
-                self.myInQueues[i].put(threadData)
-                
+                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
+                self.myInQueues[i].put(threadData)                
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
-        # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100, end=" ")
 
 
 

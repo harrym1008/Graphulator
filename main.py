@@ -130,7 +130,7 @@ if __name__ == "__main__":
     # Starting equations
 
 
-    for i in range(1, 3):
+    for i in range(1, 2):
         functionManager.AddAnotherEquation(f"sin(2*x)*{i}")
     # functionManager.AddAnotherEquation("sin(2*x)")
 
@@ -141,11 +141,15 @@ if __name__ == "__main__":
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
         currentEquation = functionManager.currentEquations[0]
 
+
         # Frame update code
-        graphRenderer.NewFrame()
+        graphRenderer.NewFrame()        
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
         graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
-        functionManager.UpdateThreads(graph)
+
+        if functionManager.CheckIfUpdatingThreads():
+            functionManager.UpdateThreads(graph)
+
         functionManager.BlitCurrentSurfaces(graph, graphRenderer.surface)
         
         # print(GetTimeSince("Frame update"))

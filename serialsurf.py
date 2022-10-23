@@ -9,10 +9,10 @@ import time
 
 class SerialisedSurface:
     def __init__(self, surface):
-        self.rgbChannels = pygame.surfarray.array3d(surface)
-        self.alphaChannel = pygame.surfarray.array_alpha(surface)
+        rgbChannels = pygame.surfarray.array3d(surface)
+        alphaChannel = pygame.surfarray.array_alpha(surface)
 
-        self.npArray = SerialisedSurface.CombineRGBAndAlpha(self.rgbChannels, self.alphaChannel)
+        self.npArray = SerialisedSurface.CombineRGBAndAlpha(rgbChannels, alphaChannel)
 
 
     def GetSurface(self):
@@ -26,7 +26,9 @@ class SerialisedSurface:
 
     # https://github.com/pygame/pygame/issues/1244
     @classmethod
-    def MakeSurfaceRGBA(cls,  array):
+    def MakeSurfaceRGBA(cls, array):
+        # s = time.perf_counter()
+        
         shape = array.shape
 
         if shape[2] == 3:
@@ -40,4 +42,5 @@ class SerialisedSurface:
         surfaceAlpha = np.array(surface.get_view("A"), copy=False)
         surfaceAlpha[:,:] = array[:,:,3]
 
+        # print(time.perf_counter()-s)
         return surface
