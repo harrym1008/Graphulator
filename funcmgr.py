@@ -11,8 +11,8 @@ import drawfunc
 import time
 
 
-UPDATE_HERTZ = 10
-UPDATE_TIME = 1 / UPDATE_HERTZ
+UPDATE_HERTZ = 16
+UPDATE_TIME = 1 / UPDATE_HERTZ if UPDATE_HERTZ > 0 else 0
 
 
 class FunctionManager:
@@ -150,16 +150,15 @@ class FunctionManager:
                 newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[0][1]))
 
 
-            if newScale != graph.screenSize:
-                try:
+            try:
+                if newScale != graph.screenSize:
                     tempSurface = pygame.transform.scale(dataSurface, newScale)
-                except:
-                    tempSurface = pygame.Surface((1, 1))
-            else:
-                tempSurface = data.surface
-
-            # print(newPosition, newScale)
-            self.surface.blit(tempSurface, newPosition)
+                else:
+                    tempSurface = data.surface
+                self.surface.blit(tempSurface, newPosition)
+            except:
+                print("Error when blitting surface - ignoring and continuing")
+                self.timeToNextUpdate = 0    # Force a frame update
         
         # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100)
 

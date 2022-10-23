@@ -15,6 +15,8 @@ LOG_4 = math.log(4, 10)
 e = 2.7182818284590452353602875
 Φ = φ = phi = goldenRatio = 1.618033988749894
 
+MAX_ZOOM = 1e5
+MIN_ZOOM = 1e-7
 
 
 class Graph:
@@ -53,11 +55,11 @@ class Graph:
 
 
     def PerformPrecalculation(self):
-        # Cap the zoom between 10,000,000% and 0.00001%
-        if self.zoom > 100000:
-            self.zoom = 100000
-        elif self.zoom < 0.0000001:
-            self.zoom = 0.0000001
+        # Cap the zoom between min and max
+        if self.zoom > MAX_ZOOM:
+            self.zoom = MAX_ZOOM
+        elif self.zoom < MIN_ZOOM:
+            self.zoom = MIN_ZOOM
 
         self.zoomedOffset = self.offset[0] * self.zoom, self.offset[1] * self.zoom
         self.zoomedOffsetInverse = self.offset[0] / self.zoom, self.offset[1] / self.zoom
@@ -120,12 +122,16 @@ class Graph:
 
             n += increment
 
-        return round(realGap, 1)
+        return SigFig(realGap, 1)
 
 
 
     def DrawCommonXYWordsOnAxis(self, renderer, realGap):
         realGap *= 2
+
+        if self.zoom <= 1 and self.zoom != MIN_ZOOM:
+            print(self.zoom)
+            realGap *= 10
 
         # Draw the X values
         xStart = Graph.FindNearestMultiple(self.bounds.W[0], realGap)

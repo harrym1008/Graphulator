@@ -128,11 +128,7 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
     # Starting equations
-
-
-    for i in range(1, 2):
-        functionManager.AddAnotherEquation(f"sin(2*x)*{i}")
-    # functionManager.AddAnotherEquation("sin(2*x)")
+    functionManager.AddAnotherEquation("sin(2*x)")
 
     # print(GetTimeSince("Start code"))
 
@@ -141,7 +137,6 @@ if __name__ == "__main__":
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
         currentEquation = functionManager.currentEquations[0]
 
-
         # Frame update code
         graphRenderer.NewFrame()        
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
@@ -149,31 +144,22 @@ if __name__ == "__main__":
 
         if functionManager.CheckIfUpdatingThreads():
             functionManager.UpdateThreads(graph)
-
         functionManager.BlitCurrentSurfaces(graph, graphRenderer.surface)
         
-        # print(GetTimeSince("Frame update"))
-
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
         graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(functionManager.surface, (0, 0))  
         graphScreen.blit(graphUI.surface, (0, 0)) 
         
-        # print(GetTimeSince("Blit surface"))
         # update tkinter and pygame displays
         guiWindow.root.update()
-        # print(GetTimeSince("Update tkinter screen"))
-
         pygame.display.update()
-        # print(GetTimeSince("Update pygame screen"))
         
         
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
-        
-        # print(GetTimeSince("Wait for 60 FPS"))
 
         # Get pygame events, execute input code and check for quitting / resizing
         events = pygame.event.get()

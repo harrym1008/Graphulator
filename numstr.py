@@ -14,7 +14,7 @@ def GetNumString(n: float, short: bool = False) -> str:
         if n % 1 == 0:
             return str(int(n))
 
-        return GetFractionalNumber(n, powersOf10, 3 if short else 6)
+        return GetFractionalNumber(n, powersOf10, 4 if short else 6)
 
     return StandardForm(n, 2 if short else 4)
 
