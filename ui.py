@@ -48,6 +48,11 @@ class UserInterface:
         button.grid(row=16, column=0)
 
 
+    def GetListOfEquations(self):
+        return [i.get() for i in self.entries]
+
+
+
 
     def HelpWindow(self):
         if self.helpOpen:

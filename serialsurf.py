@@ -1,3 +1,4 @@
+import sys
 import pygame
 import numpy as np
 import time
@@ -8,7 +9,14 @@ import time
 # Numpy array that can be transferred in queues
 
 class SerialisedSurface:
-    def __init__(self, surface):
+    def __init__(self, surface, null):
+        self.null = null
+        self.npArray: np.ndarray
+
+        if null:
+            self.npArray = []
+            return
+        
         rgbChannels = pygame.surfarray.array3d(surface)
         alphaChannel = pygame.surfarray.array_alpha(surface)
 
@@ -16,7 +24,7 @@ class SerialisedSurface:
 
 
     def GetSurface(self):
-        return SerialisedSurface.MakeSurfaceRGBA(self.npArray)
+        return SerialisedSurface.MakeSurfaceRGBA(self.npArray, self.null)
 
 
     @classmethod
@@ -26,7 +34,10 @@ class SerialisedSurface:
 
     # https://github.com/pygame/pygame/issues/1244
     @classmethod
-    def MakeSurfaceRGBA(cls, array):
+    def MakeSurfaceRGBA(cls, array, null):
+        if null:
+            return None
+
         # s = time.perf_counter()
         
         shape = array.shape

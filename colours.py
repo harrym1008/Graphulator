@@ -1,15 +1,23 @@
+from enum import Enum
 import pygame
 
 hexLetters = "0123456789abcedf"
 
 class Colour:
     def __init__(self, r, g, b, a=255) -> None:
+        self.tuple = (r, g, b, a)
         self.colour = pygame.Color(r, g, b, a)
+        self.faded = pygame.Color(r, g, b, 100)
 
-        hexRGB = [r // 16, r % 16, g // 16, g % 16, b // 16, b % 16]
-        self.hex = ""
-        for value in hexRGB:
-            self.hex += hexLetters[value]
+        self.hex = '%02x%02x%02x' % (r, g, b)
+        
+
+
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Colour):
+            return __o.tuple == self.tuple
+        return False
+
 
 
 colours = {
@@ -24,7 +32,7 @@ colours = {
     "cyan": Colour(0, 255, 255),
     "magenta": Colour(255, 0, 255),
     "yellow": Colour(255, 255, 0),
-    "darker yellow": Colour(247, 199, 45),
+    "dark yellow": Colour(247, 199, 45),
     "orange": Colour(255, 145, 0),
 
     "transparent": Colour(0, 0, 0, 0)
@@ -37,7 +45,7 @@ graphColours = [
     "blue",
     "green",
     "magenta",
-    "darker yellow",
+    "dark yellow",
     "light blue",
     "orange"
 ]
@@ -48,3 +56,17 @@ graphColours = [
 def GetColourForPlotIndex(index):
     index = index % len(graphColours)
     return colours[graphColours[index]]
+
+
+colourMap = {
+    colours["transparent"].tuple: 0,
+    colours["red"].tuple: 1,
+    colours["blue"].tuple: 2,
+    colours["green"].tuple: 3,
+    colours["magenta"].tuple: 4,
+    colours["dark yellow"].tuple: 5,
+    colours["dark yellow"].tuple: 6,
+    colours["light blue"].tuple: 7,
+    colours["orange"].tuple: 8,
+    colours["white"].tuple: 9,
+}

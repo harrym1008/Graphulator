@@ -1,8 +1,22 @@
+from multiprocessing import Queue
+from pickletools import uint8
+from serialsurf import SerialisedSurface
+
+import colours
 import pygame
 import numpy as np
 import time
-import drawfunc
-from multiprocessing import Queue
+
+
+def GetColourMap(x, y) -> int:
+    for i, col in enumerate(colours.colourMap.keys()):
+        if tuple(npArray[x][y]) == col:
+            return i
+    return 0
+    
+
+
+
 
 
 pygame.init()
@@ -10,59 +24,20 @@ graphScreen = pygame.display.set_mode((800, 600))
 
 
 whiteSurface = pygame.Surface((800, 600))
-whiteSurface.fill((64,128,255))
-
-'''imgData = None
-
-newSurface = None
-
-
-def ConvertToList():
-    global imgData, whiteSurface, newSurface
-    imgData = pygame.surfarray.array3d(whiteSurface)
-
-def ConvertToSurface():
-    global imgData, whiteSurface, newSurface
-    imgData[100][100] = [255,255,255]
-    newSurface = pygame.surfarray.make_surface(imgData)
-
-
-
-startTime = time.perf_counter()
-ConvertToList()
-convertToList = time.perf_counter() - startTime
-
-startTime = time.perf_counter()
-ConvertToSurface()
-convertFromList = time.perf_counter() - startTime
-
-queue = Queue()
-queue.put(imgData)
-
-print("Put into queue")
-queue.get()
-print("Got from queue - success")
-
-
-
-print(convertToList, convertFromList)
-print(newSurface == whiteSurface)
-
-
-
-graphScreen.blit(whiteSurface, (0, 0))
-pygame.display.update()
-time.sleep(1)
-graphScreen.blit(newSurface, (0, 0))
-pygame.display.update()
-print("New")
-time.sleep(15)
-'''
-
-
+whiteSurface.fill((255,255,255))
 
 q = Queue()
 
-q.put(drawfunc.ThreadOutput(whiteSurface, 1, (0, 0)))
-x = q.get()
-print(x.serialisedSurface.GetSurface())
+ss = SerialisedSurface(whiteSurface)
+npArray = ss.npArray
+shape = npArray.shape
+
+
+t = time.perf_counter()
+
+g = np.vectorize(GetColourMap)
+new = np.fromfunction(g, (800, 600), dtype=np.uint8)
+
+print(time.perf_counter() - t)
+print(new)
+print(new.nbytes)

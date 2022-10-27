@@ -61,8 +61,17 @@ class PlottedEquation:
         self.boundsAtBeginning: CornerValues = CornerValues(None)
 
 
-    def RecalculatePoints(self, inData, inQueue, outQueue):
+    def ChangeMyEquation(self, new):
+        self.equation = new
+        self.UpdateEquationType()
+
+
+
+
+    def RecalculatePoints(self, inData, inQueue, outQueue, eventQueue):
         firstPass = True
+        
+        currentEquation = inData.equation.equation
 
         lastBounds = None
         savedPoints = []
@@ -72,7 +81,13 @@ class PlottedEquation:
             startTime = time.perf_counter()
 
             while inQueue.qsize() < 1:
-                time.sleep(0.01)
+                time.sleep(0.02)
+
+            # Get equation events (how the equation has changed so the thread can be updated)
+            while eventQueue.qsize() > 0:
+                event = eventQueue.get()
+                
+
 
             if not firstPass:
                 inData = inQueue.get()
@@ -82,7 +97,7 @@ class PlottedEquation:
                 
             bounds = inData.bounds
 
-            skipNoEquation = self.equation == ""            
+            skipNoEquation = currentEquation == ""            
             skipSameBounds = (lastBounds == bounds if bounds is not None else False)
             lastBounds = bounds
 
@@ -97,19 +112,20 @@ class PlottedEquation:
             if not skipNoEquation and not skipSameBounds:
                 for x in np.arange(start[0], end[0], increment):
                     try:
-                        points.append((x, eval(self.equation)))
+                        points.append((x, eval(currentEquation)))
                     except Exception as e:
                         points.append((x, np.inf))
                         print(f"{e} -----> Error at x={x}")
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
+
             
             # Produce a pygame surface from the points just calculated
             surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
-            
+
             # Place into a class of thread output data
-            outData = ThreadOutput(surface, bounds, inData.zoomedOffset)
+            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation)
 
             outQueue.put(outData)
             # print(f"Full process took {time.perf_counter() - startTime}")
@@ -143,13 +159,17 @@ class PlottedEquation:
             infCheck = y == np.inf
 
 
-            if not asymptoteCheck and not infCheck and dottedCheckLine > 0:
-                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
-
-            if equInstance.isDottedLine:
+            if not asymptoteCheck and not infCheck:
+                pygame.draw.line(surface, equInstance.colour.faded, 
+                (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
+                if dottedCheckLine > 0:
+                    pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
+                
+            if equInstance.isDottedLine or True:
                 dottedCheckLine -= 1
                 if dottedCheckLine < -9:
                     dottedCheckLine = 10
+                    
 
             lastX, lastY = x, y
 
@@ -194,11 +214,11 @@ class ThreadInput:
 
 # Cluster of data outputted from the thread
 class ThreadOutput:
-    def __init__(self, surface, bounds, zoomedOffset):
+    def __init__(self, surface, bounds, zoomedOffset, null):
         self.bounds = bounds
         self.zoom = bounds.zoom
         self.zoomedOffset = zoomedOffset
-        self.serialisedSurface = SerialisedSurface(surface)
+        self.serialisedSurface = SerialisedSurface(surface, null)
 
 
 

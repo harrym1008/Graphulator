@@ -211,7 +211,7 @@ class Graph:
 
 
     def DrawCircleAtTracedPoint(self, renderer, equation, mousePos):
-        if mousePos is None or equation is None:
+        if mousePos is None or equation is None or equation.equation == "":
             return
 
         x = (self.zoomedOffset[0] - self.screenCentre[0] + mousePos[0]) / self.zoom

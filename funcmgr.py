@@ -20,8 +20,9 @@ class FunctionManager:
         self.currentEquations: List[drawfunc.PlottedEquation] = []
         self.surfaceBoundsData: List[drawfunc.SurfaceAndBounds] = []
         self.myThreads = []
-        self.myOutQueues = []
         self.myInQueues = []
+        self.myOutQueues = []
+        self.myEventQueues = []
         
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
 
@@ -42,8 +43,9 @@ class FunctionManager:
 
         self.surfaceBoundsData.append(None)
         self.myThreads.append(None)
-        self.myOutQueues.append(Queue())
         self.myInQueues.append(Queue())
+        self.myOutQueues.append(Queue())
+        self.myEventQueues.append(Queue())
 
 
 
@@ -60,11 +62,18 @@ class FunctionManager:
 
 
 
+    def UpdateEquations(self, array):
+        for i in len(array):
+            if array[i] != self.currentEquations[i].equation:
+                self.currentEquations[i].ChangeMyEquation(array[i])
+
+
+
 
     def UpdateThreads(self, graph):
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
-            if not equ.active or equ.equation == "":
+            if not equ.active:
                 self.myThreads[i].terminate()
                 continue
 
@@ -81,7 +90,8 @@ class FunctionManager:
 
                 if self.myThreads[i] is None:
                     print("Created the new thread")
-                    self.myThreads[i] = Process(target=equ.RecalculatePoints, args=(threadData, self.myInQueues[i], self.myOutQueues[i]))
+                    self.myThreads[i] = Process(target=equ.RecalculatePoints, 
+                                          args=(threadData, self.myInQueues[i], self.myOutQueues[i], self.myEventQueues[i]))
                     self.myThreads[i].start()
                     self.myInQueues[i].put(threadData)
                     continue
@@ -89,10 +99,14 @@ class FunctionManager:
                 data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
 
                 self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
+                self.myEventQueues[i].put(self.GetEventData(i))
                 self.myInQueues[i].put(threadData)                
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
 
 
+
+    def GetEventData(self, index):
+        pass
 
 
 
@@ -164,5 +178,10 @@ class FunctionManager:
 
 
 
+class Event:
+    def __init__(self, type, data) -> None:
+        self.type = type
+        self.data = data
 
-print(cpu_count())
+    def Get(self):
+        return (self.type, self.data)

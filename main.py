@@ -121,14 +121,19 @@ if __name__ == "__main__":
     pygame.display.set_caption("Graphulator v4 - Screen View")
     
     #  ***** Instantiation of classes *****
-    guiWindow = UserInterface(Kill)             # Create and initialise an instance of the UI class
+    gui = UserInterface(Kill)             # Create and initialise an instance of the UI class
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
     graphUI = GraphUserInterface(screenSize)    # Create and initialise an instance of the graph UI class
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
     # Starting equations
-    functionManager.AddAnotherEquation("sin(2*x)")
+
+    for i in range(10):
+        functionManager.AddAnotherEquation("")
+    functionManager.currentEquations[0].ChangeMyEquation("x")
+    functionManager.currentEquations[1].ChangeMyEquation("2*x")
+    gui.entries[0].set("sin(2x)")
 
     # print(GetTimeSince("Start code"))
 
@@ -138,7 +143,7 @@ if __name__ == "__main__":
         currentEquation = functionManager.currentEquations[0]
 
         # Frame update code
-        graphRenderer.NewFrame()        
+        graphRenderer.NewFrame()
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
         graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
 
@@ -153,9 +158,10 @@ if __name__ == "__main__":
         graphScreen.blit(graphUI.surface, (0, 0)) 
         
         # update tkinter and pygame displays
-        guiWindow.root.update()
+        gui.root.update()
         pygame.display.update()
         
+        # print(gui.GetListOfEquations())
         
         # Wait for 60 FPS
         clock.tick(targetFPS)
