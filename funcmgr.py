@@ -63,7 +63,7 @@ class FunctionManager:
 
 
     def UpdateEquations(self, array):
-        for i in len(array):
+        for i in range(len(array)):
             if array[i] != self.currentEquations[i].equation:
                 self.currentEquations[i].ChangeMyEquation(array[i])
 
@@ -99,14 +99,18 @@ class FunctionManager:
                 data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
 
                 self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
-                self.myEventQueues[i].put(self.GetEventData(i))
+                
+                # Put new events
+                for event in self.GetEventData(i):
+                    self.myEventQueues[i].put(event)
+
                 self.myInQueues[i].put(threadData)                
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
 
 
 
     def GetEventData(self, index):
-        pass
+        return [Event(0, self.currentEquations[index].equation)]
 
 
 
@@ -128,11 +132,11 @@ class FunctionManager:
             # v = input value
 
             surfaceCorners = [(
-                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.SW[0] * graph.zoom, 
-                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.SW[1] * graph.zoom
+                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.NW[0] * graph.zoom, 
+                graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.NW[1] * graph.zoom
                 ),(
-                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.NE[0] * graph.zoom, 
-                -graph.zoomedOffset[1] + graph.screenCentre[1] + data.bounds.NE[1] * graph.zoom
+                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.SE[0] * graph.zoom, 
+                graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
             pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 10)
@@ -160,9 +164,6 @@ class FunctionManager:
 
                 newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[0][1]))
 
-            if panned and not zoomed:
-                newPosition = (int(surfaceCorners[0][0]), -int(surfaceCorners[0][1]))
-
 
             try:
                 if newScale != graph.screenSize:
@@ -171,7 +172,7 @@ class FunctionManager:
                     tempSurface = data.surface
                 self.surface.blit(tempSurface, newPosition)
             except:
-                print("Error when blitting surface - ignoring and continuing")
+                # print("Error when blitting surface - ignoring and continuing")
                 self.timeToNextUpdate = 0    # Force a frame update
         
         # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100)
@@ -183,5 +184,5 @@ class Event:
         self.type = type
         self.data = data
 
-    def Get(self):
-        return (self.type, self.data)
+    def __str__(self):
+        return f"'{self.type}' --> '{self.data}'"

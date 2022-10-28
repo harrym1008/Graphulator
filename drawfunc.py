@@ -84,8 +84,12 @@ class PlottedEquation:
                 time.sleep(0.02)
 
             # Get equation events (how the equation has changed so the thread can be updated)
+            forceUpdate = False
             while eventQueue.qsize() > 0:
+                forceUpdate = True
                 event = eventQueue.get()
+                if event.type == 0:
+                    currentEquation = event.data
                 
 
 
@@ -107,15 +111,18 @@ class PlottedEquation:
             start, end = bounds.W, bounds.E
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
+            # if not skipNoEquation and not skipSameBounds:
+            #     print(f"Computing {currentEquation}")
+
 
             # Compute all the points on the graph
-            if not skipNoEquation and not skipSameBounds:
+            if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
                 for x in np.arange(start[0], end[0], increment):
                     try:
-                        points.append((x, eval(currentEquation)))
+                        points.append((x, float(eval(currentEquation))))
                     except Exception as e:
                         points.append((x, np.inf))
-                        print(f"{e} -----> Error at x={x}")
+                        # print(f"{e} -----> Error at x={x}")
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
@@ -160,12 +167,12 @@ class PlottedEquation:
 
 
             if not asymptoteCheck and not infCheck:
-                pygame.draw.line(surface, equInstance.colour.faded, 
-                (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
+                # pygame.draw.line(surface, equInstance.colour.faded, 
+                # (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
                 if dottedCheckLine > 0:
                     pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
                 
-            if equInstance.isDottedLine or True:
+            if equInstance.isDottedLine:
                 dottedCheckLine -= 1
                 if dottedCheckLine < -9:
                     dottedCheckLine = 10
@@ -196,7 +203,6 @@ class PlottedEquation:
         for string in strToGraphType.keys():
             if string in self.equation:
                 self.type = strToGraphType[string]
-                print(self.type)
                 break
         self.isDottedLine = self.type not in fullLines
 

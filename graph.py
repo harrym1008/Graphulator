@@ -130,7 +130,6 @@ class Graph:
         realGap *= 2
 
         if self.zoom <= 1 and self.zoom != MIN_ZOOM:
-            print(self.zoom)
             realGap *= 10
 
         # Draw the X values

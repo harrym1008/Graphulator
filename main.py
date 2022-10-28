@@ -26,6 +26,7 @@ minScreenSize = (128, 128)
 
 running = True
 targetFPS = 60
+maxEquations = 2
 
 panSpeed = 2.5
 zoomSpeed = 0.05
@@ -121,7 +122,7 @@ if __name__ == "__main__":
     pygame.display.set_caption("Graphulator v4 - Screen View")
     
     #  ***** Instantiation of classes *****
-    gui = UserInterface(Kill)             # Create and initialise an instance of the UI class
+    gui = UserInterface(Kill)                   # Create and initialise an instance of the UI class
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
     graphUI = GraphUserInterface(screenSize)    # Create and initialise an instance of the graph UI class
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
@@ -129,11 +130,9 @@ if __name__ == "__main__":
 
     # Starting equations
 
-    for i in range(10):
+    for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
-    functionManager.currentEquations[0].ChangeMyEquation("x")
-    functionManager.currentEquations[1].ChangeMyEquation("2*x")
-    gui.entries[0].set("sin(2x)")
+    gui.entries[0].set("np.sin(2*x)")
 
     # print(GetTimeSince("Start code"))
 
@@ -141,6 +140,10 @@ if __name__ == "__main__":
     while running:
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
         currentEquation = functionManager.currentEquations[0]
+
+        # Get latest list of equations        
+        equList = gui.GetListOfEquations()[:maxEquations]
+        functionManager.UpdateEquations(equList)
 
         # Frame update code
         graphRenderer.NewFrame()
@@ -159,9 +162,7 @@ if __name__ == "__main__":
         
         # update tkinter and pygame displays
         gui.root.update()
-        pygame.display.update()
-        
-        # print(gui.GetListOfEquations())
+        pygame.display.update()        
         
         # Wait for 60 FPS
         clock.tick(targetFPS)
