@@ -162,7 +162,7 @@ class FunctionManager:
                             surfaceCorners[1][1] - surfaceCorners[0][1])
                 newScale = tuple(int(np.abs(i)) for i in newScale)
 
-                newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[0][1]))
+                newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[0][1])) 
 
 
             try:
