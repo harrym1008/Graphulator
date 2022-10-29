@@ -1,3 +1,4 @@
+import enum
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 # Prevents the welcome message from pygame from spamming in the terminal
@@ -25,8 +26,8 @@ screenSize = (720, 480)
 minScreenSize = (128, 128)
 
 running = True
-targetFPS = 60
-maxEquations = 2
+targetFPS = 30
+maxEquations = 10
 
 panSpeed = 2.5
 zoomSpeed = 0.05
@@ -36,6 +37,17 @@ mouseMoved = (0, 0)
 mouseFocusTime = 0
 mouseButtonDown = False
 
+numberKeys = [[pygame.K_1, pygame.K_KP_1],
+              [pygame.K_2, pygame.K_KP_2],
+              [pygame.K_3, pygame.K_KP_3],
+              [pygame.K_4, pygame.K_KP_4],
+              [pygame.K_5, pygame.K_KP_5],
+              [pygame.K_6, pygame.K_KP_6],
+              [pygame.K_7, pygame.K_KP_7],
+              [pygame.K_8, pygame.K_KP_8],
+              [pygame.K_9, pygame.K_KP_9],
+              [pygame.K_0, pygame.K_KP_0]]
+
 
 def Kill():
     # Sets global variable running to false, resulting in the closure of the program
@@ -43,10 +55,8 @@ def Kill():
     running = False
 
 
-def PygameInput(events, graph):
+def PygameInput(events, keys, graph):
     global mouseStart, mouseMoved, graphMouseStart, mouseFocusTime, mouseButtonDown
-
-    keys = pygame.key.get_pressed()
 
     # Reset offset and panning
     if keys[pygame.K_r]:
@@ -110,6 +120,15 @@ def PygameInput(events, graph):
     graph.zoom = SigFig(graph.zoom, 6)
 
 
+def CurrentEquationInput(keys, currentEquationIndex):
+    for i, nums in enumerate(numberKeys):
+        if keys[nums[0]] or keys[nums[1]]:
+            if i < maxEquations:
+                return i
+    return currentEquationIndex
+
+
+
 
 
 if __name__ == "__main__":
@@ -128,22 +147,37 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
-    # Starting equations
+    currentEquationIndex = 0
+    getQueueTimer = 0
+    getQueueCount = 0
 
+
+    # Starting equations
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
-    gui.entries[0].set("np.sin(2*x)")
-
-    # print(GetTimeSince("Start code"))
+    gui.entries[0].set("np.sin(x)")
+    
 
     # Start main loop
-    while running:
+    while running:     
+        GetTimeSince("")
+
+        # Get pygame events and pressed keys
+        events = pygame.event.get()
+        keys = pygame.key.get_pressed()
+
+        # Execute input code
+        PygameInput(events, keys, graph)
+        currentEquationIndex = CurrentEquationInput(keys, currentEquationIndex)
+
+        # Get data ready for next frames calculation
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
-        currentEquation = functionManager.currentEquations[0]
+        currentEquation = functionManager.currentEquations[currentEquationIndex]
 
         # Get latest list of equations        
         equList = gui.GetListOfEquations()[:maxEquations]
         functionManager.UpdateEquations(equList)
+
 
         # Frame update code
         graphRenderer.NewFrame()
@@ -151,7 +185,10 @@ if __name__ == "__main__":
         graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
 
         if functionManager.CheckIfUpdatingThreads():
-            functionManager.UpdateThreads(graph)
+            data = functionManager.UpdateThreads(graph)
+            getQueueTimer += data[0]
+            getQueueCount += data[1]
+
         functionManager.BlitCurrentSurfaces(graph, graphRenderer.surface)
         
         # redraw the screen for that frame
@@ -159,6 +196,7 @@ if __name__ == "__main__":
         graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(functionManager.surface, (0, 0))  
         graphScreen.blit(graphUI.surface, (0, 0)) 
+
         
         # update tkinter and pygame displays
         gui.root.update()
@@ -167,11 +205,9 @@ if __name__ == "__main__":
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
+        GetTimeSince("")
 
-        # Get pygame events, execute input code and check for quitting / resizing
-        events = pygame.event.get()
-        PygameInput(events, graph)
-
+        # Check for quitting / resizing
         for e in events:
             if e.type == pygame.QUIT:     # When the window is closed
                 Kill()
@@ -187,9 +223,13 @@ if __name__ == "__main__":
                 functionManager.ScreenHasBeenResized(screenSize)
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
+                
+                getQueueTimer = 0
+                getQueueCount = 0
 
         
-        # print(GetTimeSince("Inputs"))
+        #if getQueueCount > 0:
+        #    print(f"Average queue time: {getQueueTimer/getQueueCount*10} secs - {getQueueTimer}/{getQueueCount}")
         
     # run this code on exit
     for equ in functionManager.myThreads:

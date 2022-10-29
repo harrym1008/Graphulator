@@ -11,7 +11,7 @@ import drawfunc
 import time
 
 
-UPDATE_HERTZ = 16
+UPDATE_HERTZ = 60
 UPDATE_TIME = 1 / UPDATE_HERTZ if UPDATE_HERTZ > 0 else 0
 
 
@@ -71,6 +71,9 @@ class FunctionManager:
 
 
     def UpdateThreads(self, graph):
+        count = 0
+        timer = 0
+
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
             if not equ.active:
@@ -86,6 +89,10 @@ class FunctionManager:
             # print(self.myOutQueues[i].qsize())
 
             if equ.active and newDataIsAvailable if threadIsNotNone else True:
+                
+                count += 1
+                t = time.perf_counter()
+
                 threadData = drawfunc.ThreadInput(graph.bounds, graph.screenSize, graph.zoomedOffset, equ)
 
                 if self.myThreads[i] is None:
@@ -104,8 +111,11 @@ class FunctionManager:
                 for event in self.GetEventData(i):
                     self.myEventQueues[i].put(event)
 
-                self.myInQueues[i].put(threadData)                
+                self.myInQueues[i].put(threadData)
+                timer += time.perf_counter() - t             
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
+
+        return (timer, count)
 
 
 
@@ -139,8 +149,8 @@ class FunctionManager:
                 graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
-            pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 10)
-            pygame.draw.circle(surface, colours["orange"].colour, surfaceCorners[1], 10)
+            # pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 10)
+            # pygame.draw.circle(surface, colours["orange"].colour, surfaceCorners[1], 10)
 
 
             newScale = graph.screenSize

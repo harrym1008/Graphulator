@@ -49,7 +49,18 @@ class UserInterface:
 
 
     def GetListOfEquations(self):
-        return [i.get() for i in self.entries]
+        array = [i.get() for i in self.entries]
+        self.ReplaceConstantWords(array)
+        return array
+
+
+    def ReplaceConstantWords(self, array):
+        for i, string in enumerate(array):
+            string = string.replace("golden", "ϕ")
+            string = string.replace("pi", "π")
+            string = string.replace("euler", "e")
+            self.entries[i].set(string)
+
 
 
 

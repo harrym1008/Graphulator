@@ -13,12 +13,12 @@ from colours import *
 from enum import IntEnum
 
 
-INCREMENT_FACTOR = 1.5
+INCREMENT_FACTOR = 2
 ANTIALIAS = False
 
 π = pi = 3.14159265358979323846
 e = euler = 2.71828182845904523
-phi = golden = 1.61803398874989
+ϕ = golden = 1.61803398874989
 
 
 
