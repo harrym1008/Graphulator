@@ -41,9 +41,13 @@ class Graph:
 
 
     def AssignFonts(self):
-        self.fonts.append(pygame.font.Font("monofonto.otf", 16))
-        self.fonts.append(pygame.font.Font("monofonto.otf", 12))
-        self.fonts.append(pygame.font.Font("monofonto.otf", 10))
+        self.fonts.append(None)
+        for i in range(25):
+            self.fonts.append(pygame.font.Font("monofonto.otf", i))
+
+        # self.fonts.append(pygame.font.Font("monofonto.otf", 16))
+        # self.fonts.append(pygame.font.Font("monofonto.otf", 12))
+        # self.fonts.append(pygame.font.Font("monofonto.otf", 10))
 
 
 
@@ -145,7 +149,7 @@ class Graph:
             posX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
             posY = self.zoomedOffset[1] + self.screenCentre[1]     # y is always 0 at the origin
 
-            txtSurface = self.fonts[2].render(f"{GetNumString(x, True)}", True, colours["black"].colour)
+            txtSurface = self.fonts[10].render(f"{GetNumString(x, True)}", True, colours["black"].colour)
             posX -= txtSurface.get_width() / 2
             posY += 2
 
@@ -163,7 +167,7 @@ class Graph:
             posX = -self.zoomedOffset[0] + self.screenCentre[0]   # x is always 0 at the origin
             posY = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom    
 
-            txtSurface = self.fonts[2].render(f"{GetNumString(y, True)}", True, colours["black"].colour)
+            txtSurface = self.fonts[10].render(f"{GetNumString(y, True)}", True, colours["black"].colour)
             posX += 3
             posY -= txtSurface.get_height() / 2
 
@@ -190,7 +194,7 @@ class Graph:
 
 
     def DrawZeroAtOrigin(self, renderer):
-        txtSurface = self.fonts[0].render("0", True, colours["black"].colour)
+        txtSurface = self.fonts[16].render("0", True, colours["black"].colour)
         renderPos = list(self.orgPos)   # Convert to list so individual values can be changed
         renderPos[0] -= txtSurface.get_width() + 2
 
@@ -198,8 +202,8 @@ class Graph:
 
 
     def DrawXAndYWords(self, renderer):
-        txtSurfaceX = self.fonts[0].render("x", True, colours["black"].colour)
-        txtSurfaceY = self.fonts[0].render("y", True, colours["black"].colour)
+        txtSurfaceX = self.fonts[16].render("x", True, colours["black"].colour)
+        txtSurfaceY = self.fonts[16].render("y", True, colours["black"].colour)
 
         orgPos = list(self.orgPos)
         renderPosX = (self.screenSize[0] - txtSurfaceX.get_width() - 2, orgPos[1])

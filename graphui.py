@@ -23,11 +23,11 @@ class GraphUserInterface:
         self.screenSize = newSize
 
 
-    def UpdateUISurface(self, fonts, graph, clock, mousePos, equation):
+    def UpdateUISurface(self, graph, clock, mousePos, equation):
         self.ClearUISurface()
-        self.TopRightDebugData(fonts[0], graph, clock)
-        x = self.WriteMousePosition(fonts[1], mousePos, graph)
-        self.DrawCurrentEquationXY(fonts[0], equation, x)
+        self.TopRightDebugData(graph.fonts[16], graph, clock)
+        x = self.WriteMousePosition(graph.fonts[12], mousePos, graph)
+        self.DrawCurrentEquationXY(graph.fonts[16], equation, x)
         
 
 

@@ -182,7 +182,7 @@ if __name__ == "__main__":
         # Frame update code
         graphRenderer.NewFrame()
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
-        graphUI.UpdateUISurface(graph.fonts, graph, clock, mousePos, currentEquation) 
+        graphUI.UpdateUISurface(graph, clock, mousePos, currentEquation) 
 
         if functionManager.CheckIfUpdatingThreads():
             data = functionManager.UpdateThreads(graph)
