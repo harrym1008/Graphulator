@@ -5,7 +5,7 @@ import pygame
 import time
 import random
 
-from numpy import sin
+from evaluate import *
 from serialsurf import SerialisedSurface
 from graph import CornerValues
 from vector2 import *
@@ -119,7 +119,7 @@ class PlottedEquation:
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
                 for x in np.arange(start[0], end[0], increment):
                     try:
-                        points.append((x, float(eval(currentEquation))))
+                        points.append((x, float( eval(currentEquation) )))  #GetYValue(x, currentEquation) )))
                     except Exception as e:
                         points.append((x, np.inf))
                         # print(f"{e} -----> Error at x={x}")
