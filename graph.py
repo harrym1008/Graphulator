@@ -3,15 +3,14 @@ from numstr import *
 from evaluate import *
 
 import pygame
-import math
 import numpy as np
      
 
-LOG_2 = math.log(2, 10)
-LOG_4 = math.log(4, 10)
+LOG_2 = np.math.log(2, 10)
+LOG_4 = np.math.log(4, 10)
 
 
-MAX_ZOOM = 1e6
+MAX_ZOOM = 1e5
 MIN_ZOOM = 1e-8
 
 
@@ -74,7 +73,7 @@ class Graph:
 
     def GetGraphLineIncrement(self):
         # Get how much the values increment by on the origin lines
-        logarithm = math.log(self.zoom, 10)
+        logarithm = np.math.log(self.zoom, 10)
 
         lineGap: float
         factorMultiplier: float
@@ -86,7 +85,7 @@ class Graph:
             else:
                 zoomFactor *= 10
 
-        fractionalValue = math.fabs(logarithm + 100 - math.trunc(logarithm + 100))
+        fractionalValue = np.absolute(logarithm + 100 - np.trunc(logarithm + 100))
         
         if fractionalValue >= LOG_4:
             factorMultiplier = 5
@@ -96,10 +95,10 @@ class Graph:
             factorMultiplier = 20
             
         lineGap = factorMultiplier * zoomFactor
-        realGap = 10 ** math.trunc(-logarithm) * (lineGap / zoomFactor)
+        realGap = 10 ** np.trunc(-logarithm) * (lineGap / zoomFactor)
 
         if realGap <= 0:
-            realGap = 10 ** math.trunc(-logarithm)
+            realGap = 10 ** np.trunc(-logarithm)
 
         return lineGap, realGap
 
@@ -139,7 +138,7 @@ class Graph:
         # error: real gap is zero
 
         for x in np.append(np.arange(xStart, xEnd, realGap), xEnd):
-            if math.fabs(x) < realGap / 10:
+            if np.absolute(x) < realGap / 10:
                 continue
 
             posX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
@@ -157,7 +156,7 @@ class Graph:
         yEnd = Graph.FindNearestMultiple(self.bounds.N[1], realGap)   
         
         for y in np.append(np.arange(yStart, yEnd, realGap), yEnd):
-            if math.fabs(y) < realGap / 10:
+            if np.absolute(y) < realGap / 10:
                 continue
 
             posX = -self.zoomedOffset[0] + self.screenCentre[0]   # x is always 0 at the origin
@@ -246,7 +245,7 @@ class Graph:
 
 
 class CornerValues:
-    def __init__(self, graph):
+    def __init__(self, graph, boundMultiplier:float=1):
         if graph is None:
             return
 
@@ -271,6 +270,12 @@ class CornerValues:
         CENTRE_X = (ox * z - 0.5 * maxX) / z + graph.screenCentre[0] / z
         CENTRE_Y = (oy * z - 0.5 * maxY) / z + graph.screenCentre[1] / z
 
+        if boundMultiplier != 1:
+            N += N-S * (boundMultiplier - 1)
+            S -= N-S * (boundMultiplier - 1)
+            E += E-W * (boundMultiplier - 1)
+            W -= E-W * (boundMultiplier - 1)
+
         # Putting together these values into x and y tuples
         self.CENTRE = CENTRE_X, CENTRE_Y
         self.N = CENTRE_X, N
@@ -285,18 +290,7 @@ class CornerValues:
 
 
     def __str__(self):
-        return f'''*** CORNER VALUES ***
-0) N:    {self.N}
-1) NE:   {self.NE}
-2) E:    {self.E}
-3) SE:   {self.SE}
-4) S:    {self.S}
-5) SW:   {self.SW}
-6) W:    {self.W}
-7) NW:   {self.NW}
-8) CNTR: {self.CENTRE}
-9) Zoom: {self.zoom}
-'''
+        return self.ShortString()
 
     def ShortString(self):
         return f"{self.NW}, {self.SE}, {self.CENTRE}, {self.zoom}"

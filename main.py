@@ -1,4 +1,3 @@
-import enum
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 # Prevents the welcome message from pygame from spamming in the terminal
@@ -15,7 +14,7 @@ from evaluate import *
 from colours import *
 from numstr import *
 from timer import *
-from graph import Graph
+from graph import Graph, CornerValues
 from graphui import GraphUserInterface
 from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
@@ -26,7 +25,7 @@ screenSize = (720, 480)
 minScreenSize = (128, 128)
 
 running = True
-targetFPS = 30
+targetFPS = 60
 maxEquations = 10
 
 panSpeed = 2.5
@@ -157,6 +156,11 @@ if __name__ == "__main__":
         functionManager.AddAnotherEquation("")
     gui.entries[0].set("sin(x)")
     
+
+    print(CornerValues(graph, 1))
+    print(CornerValues(graph, 2))
+
+
 
     # Start main loop
     while running:     

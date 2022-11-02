@@ -28,11 +28,22 @@ class FunctionManager:
         self.timeToNextUpdate = UPDATE_TIME
 
         s = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+
+        # Create the please wait for threads message while the threads are starting
+        msg = "Please wait: threads are starting"
+
         s.fill(colours["transparent"].colour)
-        txt = graph.fonts[36].render("Please wait: threads are starting", True, colours["black"].colour)
-        renderAt = (graph.screenSize[0] // 2 - txt.get_width() // 2,
-                    graph.screenSize[1] // 2 - txt.get_height() // 2)
-        s.blit(txt, renderAt)
+        txtWhite = graph.fonts[36].render(msg, True, colours["white"].colour)
+        txtBlack = graph.fonts[36].render(msg, True, colours["black"].colour)
+
+        for offset in [(0, -1), (0, 1), (1, 0), (-1, 0)]:
+            renderAt = (graph.screenSize[0] // 2 - txtBlack.get_width() // 2 + offset[0],
+                        graph.screenSize[1] // 2 - txtBlack.get_height() // 2 + offset[1])
+            s.blit(txtBlack, renderAt)
+        renderAt = (graph.screenSize[0] // 2 - txtWhite.get_width() // 2,
+                    graph.screenSize[1] // 2 - txtWhite.get_height() // 2)
+        s.blit(txtWhite, renderAt)
+
         self.waitingForThread = s
 
 
