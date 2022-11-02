@@ -1,22 +1,18 @@
 from colours import *
 from numstr import *
-from numpy import sin
+from evaluate import *
 
 import pygame
 import math
-import time
 import numpy as np
      
 
 LOG_2 = math.log(2, 10)
 LOG_4 = math.log(4, 10)
 
-π = pi = 3.14159265358979323846
-e = 2.7182818284590452353602875
-Φ = φ = phi = goldenRatio = 1.618033988749894
 
-MAX_ZOOM = 1e5
-MIN_ZOOM = 1e-7
+MAX_ZOOM = 1e6
+MIN_ZOOM = 1e-8
 
 
 class Graph:
@@ -42,7 +38,7 @@ class Graph:
 
     def AssignFonts(self):
         self.fonts.append(None)
-        for i in range(25):
+        for i in range(40):
             self.fonts.append(pygame.font.Font("monofonto.otf", i))
 
         # self.fonts.append(pygame.font.Font("monofonto.otf", 16))

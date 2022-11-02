@@ -25,8 +25,15 @@ class FunctionManager:
         self.myEventQueues = []
         
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-
         self.timeToNextUpdate = UPDATE_TIME
+
+        s = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+        s.fill(colours["transparent"].colour)
+        txt = graph.fonts[36].render("Please wait: threads are starting", True, colours["black"].colour)
+        renderAt = (graph.screenSize[0] // 2 - txt.get_width() // 2,
+                    graph.screenSize[1] // 2 - txt.get_height() // 2)
+        s.blit(txt, renderAt)
+        self.waitingForThread = s
 
 
 
@@ -124,12 +131,15 @@ class FunctionManager:
 
 
 
-    def BlitCurrentSurfaces(self, graph, surface):
-        startTime = time.perf_counter()
+    def BlitCurrentSurfaces(self, graph):
+        waitingMessage = False
         self.surface.fill(colours["transparent"].colour)
 
         for i, data in enumerate(self.surfaceBoundsData):
             if self.currentEquations[i].equation == "" or data is None:
+                if data is None and not waitingMessage and self.currentEquations[i].equation != "":
+                    self.surface.blit(self.waitingForThread, (0, 0))
+                    waitingMessage = True
                 continue
 
             dataSurface = data.surface

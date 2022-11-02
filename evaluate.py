@@ -1,20 +1,7 @@
-import numpy as np
+from numpy import *
 from sympy import *
 
 
-x, y, z = symbols("x y z")
-
-
-
-def StringToExpression(string):
-    return sympify(string)
-
-
-def EvaluateY(expr: Expr, xValue):
-    return expr.subs(x, xValue)
-
-
-
-
-e = StringToExpression("sin(x)")
-# print(EvaluateY(e, 5))
+π = pi = 3.14159265358979323846
+e = euler = 2.71828182845904523
+ϕ = golden = 1.61803398874989

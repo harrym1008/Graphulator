@@ -3,8 +3,7 @@ import numpy as np
 
 from colours import *
 from numstr import *
-from numpy import sin
-from graph import pi, phi, e
+from evaluate import *
 
 
 class GraphUserInterface:

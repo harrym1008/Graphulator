@@ -11,7 +11,7 @@ import sympy as sp
 
 # Internal modules
 import deltatime
-import evaluate
+from evaluate import *
 from colours import *
 from numstr import *
 from timer import *
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     # Starting equations
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
-    gui.entries[0].set("np.sin(x)")
+    gui.entries[0].set("sin(x)")
     
 
     # Start main loop
@@ -189,7 +189,7 @@ if __name__ == "__main__":
             getQueueTimer += data[0]
             getQueueCount += data[1]
 
-        functionManager.BlitCurrentSurfaces(graph, graphRenderer.surface)
+        functionManager.BlitCurrentSurfaces(graph)
         
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
