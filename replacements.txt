@@ -1,0 +1,8 @@
+"sin(","np.sin("
+"cos(","np.cos("
+"tan(","np.tan("
+"asin(","np.arcsin("
+"acos(","np.arccos("
+"atan(","np.arctan("
+"floor(","np.floor("
+"ceil(","np.ceil("

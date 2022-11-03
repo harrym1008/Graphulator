@@ -3,7 +3,7 @@ import numpy as np
 
 from colours import *
 from numstr import *
-from evaluate import *
+import evaluate
 
 
 class GraphUserInterface:
@@ -93,7 +93,8 @@ class GraphUserInterface:
         if equation is None:
             return
             
-        equationText = font.render(f"{equation.equation}", True, equation.colour.colour)
+        equString = evaluate.UnreplaceEquation(equation.equation)
+        equationText = font.render(f"{equString}", True, equation.colour.colour)
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * 2))
 
         if (x != np.inf):

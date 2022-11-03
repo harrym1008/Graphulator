@@ -1,25 +1,16 @@
-import sympy
 import numpy as np
-import math
 import pygame
 import time
-import random
 
 from evaluate import *
 from serialsurf import SerialisedSurface
 from graph import CornerValues
-from vector2 import *
 from colours import *
 from enum import IntEnum
 
 
-INCREMENT_FACTOR = 2
+INCREMENT_FACTOR = 2.5
 ANTIALIAS = False
-
-π = pi = 3.14159265358979323846
-e = euler = 2.71828182845904523
-ϕ = golden = 1.61803398874989
-
 
 
 strToGraphType = {
@@ -111,8 +102,8 @@ class PlottedEquation:
             start, end = bounds.W, bounds.E
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
-            # if not skipNoEquation and not skipSameBounds:
-            #     print(f"Computing {currentEquation}")
+            if not skipNoEquation and not skipSameBounds:
+                print(f"Computing {currentEquation} at {time.perf_counter()}")
 
 
             # Compute all the points on the graph
@@ -122,7 +113,6 @@ class PlottedEquation:
                         points.append((x, float( eval(currentEquation) )))  #GetYValue(x, currentEquation) )))
                     except Exception as e:
                         points.append((x, np.inf))
-                        # print(f"{e} -----> Error at x={x}")
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
@@ -182,15 +172,6 @@ class PlottedEquation:
 
         surface = pygame.transform.flip(surface, False, True)
         return surface
-
-    '''# Antialiased line
-    # https://stackoverflow.com/questions/30578068/pygame-draw-anti-aliased-thick-line
-    @classmethod
-    def AntiAliasedLine(cls, surface, start, end):
-        X0, Y0 = start
-        X1, Y1 = end
-
-        centerL1 = (X0+X1) / 2'''
 
 
 

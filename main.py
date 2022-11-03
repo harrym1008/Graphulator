@@ -10,7 +10,7 @@ import sympy as sp
 
 # Internal modules
 import deltatime
-from evaluate import *
+import evaluate
 from colours import *
 from numstr import *
 from timer import *
@@ -25,7 +25,7 @@ screenSize = (720, 480)
 minScreenSize = (128, 128)
 
 running = True
-targetFPS = 60
+targetFPS = 30
 maxEquations = 10
 
 panSpeed = 2.5
@@ -157,10 +157,6 @@ if __name__ == "__main__":
     gui.entries[0].set("sin(x)")
     
 
-    print(CornerValues(graph, 1))
-    print(CornerValues(graph, 2))
-
-
 
     # Start main loop
     while running:     
@@ -180,6 +176,8 @@ if __name__ == "__main__":
 
         # Get latest list of equations        
         equList = gui.GetListOfEquations()[:maxEquations]
+        # Run replacement function on every equation in the list
+        equList = [evaluate.ReplaceEquation(equ) if equ != "" else "" for equ in equList]
         functionManager.UpdateEquations(equList)
 
 
