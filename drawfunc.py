@@ -108,12 +108,14 @@ class PlottedEquation:
 
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
+                t = time.perf_counter()
                 for x in np.arange(start[0], end[0], increment):
                     try:
                         points.append((x, float( eval(currentEquation) )))  #GetYValue(x, currentEquation) )))
                     except Exception as e:
                         points.append((x, np.inf))
                 savedPoints = points
+                print(time.perf_counter() - t)
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
 

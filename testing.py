@@ -1,43 +1,32 @@
-from multiprocessing import Queue
-from pickletools import uint8
-from serialsurf import SerialisedSurface
-
-import colours
-import pygame
-import numpy as np
+import sympy as sp
 import time
 
+x, y = sp.symbols("x y")
 
-def GetColourMap(x, y) -> int:
-    for i, col in enumerate(colours.colourMap.keys()):
-        if tuple(npArray[x][y]) == col:
-            return i
-    return 0
-    
-
-
-
-
-
-pygame.init()
-graphScreen = pygame.display.set_mode((800, 600))    
-
-
-whiteSurface = pygame.Surface((800, 600))
-whiteSurface.fill((255,255,255))
-
-q = Queue()
-
-ss = SerialisedSurface(whiteSurface)
-npArray = ss.npArray
-shape = npArray.shape
-
-
+strEqu = input("Enter equation: ")
 t = time.perf_counter()
 
-g = np.vectorize(GetColourMap)
-new = np.fromfunction(g, (800, 600), dtype=np.uint8)
+try:
+    sides = strEqu.split("=")
 
-print(time.perf_counter() - t)
-print(new)
-print(new.nbytes)
+    if len(sides) == 2:
+        lhs, rhs = tuple(sp.sympify(side) for side in sides)
+    elif len(sides) == 1:
+        lhs, rhs = y, sp.sympify(sides[0])
+    else:
+        raise ValueError("Too many equals signs (at most one)")
+
+    equ = sp.Eq(lhs, rhs)
+    equSolvedForY = sp.solve(equ, y)
+except Exception as e:
+    print(e)
+    quit()
+
+points = []
+print(equSolvedForY, f"Computed in {time.perf_counter() - t} secs")
+
+points = [[solution.subs(x, i).evalf() for i in range(720)] for solution in equSolvedForY]
+
+exectime = time.perf_counter() - t
+print(points)
+print(exectime)
