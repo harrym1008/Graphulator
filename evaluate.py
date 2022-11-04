@@ -7,6 +7,7 @@ replacements = []
 π = pi = 3.141592653589793238
 e = euler = 2.718281828459045
 ϕ = golden = 1.61803398874989
+inf = np.inf
 
 
 
@@ -21,7 +22,7 @@ def GetReplacements():
         # read all the lines
         lines = file.readlines()
         # loop through the lines
-        for line in lines:
+        for i, line in enumerate(lines):
             # create the parts tuple
             # 1. Remove the \n from the string by stripping "\n"
             # 2. Split the string at the comma into a list
@@ -29,19 +30,32 @@ def GetReplacements():
             # 4. Get rid of the double quotes in the string
             # 5. Convert the final list into a tuple
             # This is ready for appending into the replacements list
-            parts = tuple([x.strip('"') for x in line.strip().split(",")])
+            parts = [x.strip('"') for x in line.strip().split(",")]
+            parts.append(f"#{i}#")
             replacements.append(parts)
 
 
 def ReplaceEquation(equation: str):
     for rep in replacements:
-        equation = equation.replace(rep[0], rep[1])
+        equation = equation.replace(rep[0], rep[2])
+    for rep in replacements:
+        equation = equation.replace(rep[2], rep[1])
     return equation
 
 def UnreplaceEquation(equation: str):
     for rep in replacements:
-        equation = equation.replace(rep[1], rep[0])
+        equation = equation.replace(rep[1], rep[2])
+    for rep in replacements:
+        equation = equation.replace(rep[2], rep[0])
     return equation
+
+
+
+def factorial(x):
+    x = int(x)
+    val = 1
+    for i in range(2, x+1):
+        val *= i
 
 
 

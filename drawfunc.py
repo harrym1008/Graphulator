@@ -50,6 +50,7 @@ class PlottedEquation:
         self.type = 1
 
         self.boundsAtBeginning: CornerValues = CornerValues(None)
+        self.solutions = []
 
 
     def ChangeMyEquation(self, new):
@@ -66,6 +67,11 @@ class PlottedEquation:
 
         lastBounds = None
         savedPoints = []
+
+        lastEquation = ""
+        solutions = []
+
+
         
         while True:
             # wait for the in queue to have a length of 1 (this means data is present)
@@ -83,11 +89,16 @@ class PlottedEquation:
                     currentEquation = event.data
                 
 
-
             if not firstPass:
                 inData = inQueue.get()
             else:
                 firstPass = False
+
+
+            if lastEquation != currentEquation:
+                lastEquation = currentEquation
+                solutions = PlottedEquation.GetSolutions(currentEquation)
+                print(solutions, UnreplaceEquation(currentEquation))
 
                 
             bounds = inData.bounds
@@ -102,33 +113,63 @@ class PlottedEquation:
             start, end = bounds.W, bounds.E
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
-            if not skipNoEquation and not skipSameBounds:
-                print(f"Computing {currentEquation} at {time.perf_counter()}")
-
 
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
-                t = time.perf_counter()
-                for x in np.arange(start[0], end[0], increment):
-                    try:
-                        points.append((x, float( eval(currentEquation) )))  #GetYValue(x, currentEquation) )))
-                    except Exception as e:
-                        points.append((x, np.inf))
+                for i, solution in enumerate(solutions):
+                    points.append([])
+                    for x in np.arange(start[0], end[0], increment):
+                        try:
+                            points[i].append((x, float( eval(solution) )))  #GetYValue(x, currentEquation) )))
+                        except Exception as e:
+                            points[i].append((x, np.inf))
                 savedPoints = points
-                print(time.perf_counter() - t)
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
 
-            
+
+            surface: pygame.Surface
+
+
             # Produce a pygame surface from the points just calculated
-            surface = self.ListToSurfaceInThread(points, inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
+            if len(solutions) == 1:
+                surface = PlottedEquation.ListToSurfaceInThread(points[0], 
+                            inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
+            else:
+                surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
+                if len(solutions) > 1:
+                    for i in range(len(solutions)):
+                        tempSurface = PlottedEquation.ListToSurfaceInThread(points[i], 
+                                    inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
+                        surface.blit(tempSurface, (0, 0))
+
 
             # Place into a class of thread output data
-            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation)
+            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation, solutions)
 
             outQueue.put(outData)
             # print(f"Full process took {time.perf_counter() - startTime}")
 
+
+    @classmethod
+    def GetSolutions(cls, strEqu):
+        strEqu = UnreplaceEquation(strEqu)
+        try:
+            x, y = sp.symbols("x y")
+            sides = strEqu.split("=")
+
+            if len(sides) == 2:
+                lhs, rhs = tuple(sp.sympify(side) for side in sides)
+            elif len(sides) == 1:
+                lhs, rhs = y, sp.sympify(sides[0])
+            else:
+                lhs, rhs = y, inf
+                
+            equ = sp.Eq(lhs, rhs)
+            equSolvedForY = sp.solve(equ, y)
+            return [ReplaceEquation(str(solution)) for solution in equSolvedForY]
+        except:
+            return []
 
 
     @classmethod
@@ -203,11 +244,12 @@ class ThreadInput:
 
 # Cluster of data outputted from the thread
 class ThreadOutput:
-    def __init__(self, surface, bounds, zoomedOffset, null):
+    def __init__(self, surface, bounds, zoomedOffset, null, solutions):
         self.bounds = bounds
         self.zoom = bounds.zoom
         self.zoomedOffset = zoomedOffset
         self.serialisedSurface = SerialisedSurface(surface, null)
+        self.solutions = solutions
 
 
 

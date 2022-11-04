@@ -25,7 +25,7 @@ except Exception as e:
 points = []
 print(equSolvedForY, f"Computed in {time.perf_counter() - t} secs")
 
-points = [[solution.subs(x, i).evalf() for i in range(720)] for solution in equSolvedForY]
+points = [[(i, solution.subs(x, i).evalf()) for i in range(720)] for solution in equSolvedForY]
 
 exectime = time.perf_counter() - t
 print(points)

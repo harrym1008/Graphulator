@@ -3,7 +3,7 @@ import numpy as np
 
 from colours import *
 from numstr import *
-import evaluate
+from evaluate import *
 
 
 class GraphUserInterface:
@@ -90,10 +90,10 @@ class GraphUserInterface:
 
 
     def DrawCurrentEquationXY(self, font, equation, x):
-        if equation is None:
+        if equation is None or equation.equation == "":
             return
             
-        equString = evaluate.UnreplaceEquation(equation.equation)
+        equString = UnreplaceEquation(equation.equation)
         equationText = font.render(f"{equString}", True, equation.colour.colour)
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * 2))
 
@@ -101,11 +101,15 @@ class GraphUserInterface:
             xText = font.render(f"x={GetNumString(x)}", True, colours["black"].colour)
             self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height()))
 
+            yValues = ""
             try:
-                yText = font.render(f"y={GetNumString(eval(equation.equation))}", True, colours["black"].colour)
-            except:
-                yText = font.render(f"y=ERROR", True, colours["black"].colour)
-                
+                for solution in equation.solutions:
+                    yValues += GetNumString(float(eval(solution))) + ", "
+                yValues = yValues[:-2]
+            except Exception as e:
+                yValues = f"ERROR: {e}"
+              
+            yText = font.render(f"y={yValues}", True, colours["black"].colour)  
             yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128 
             self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))
 

@@ -29,10 +29,13 @@ class UserInterface:
         self.CreateNewLabel("", 1).grid(row=2, column=0, columnspan=4)
 
         self.entries = [StringVar(self.root) for i in range(10)]
+        self.labels = []
         self.errorImages = []
 
         for i in range(10):
-            self.CreateNewLabel(f" [{i+1}] ", 2).grid(row=3+i, column=0)
+            label = self.CreateNewLabel(f"  [{i+1}]  ", 4)
+            label.grid(row=3+i, column=0)
+            self.labels.append(label)
 
             entry = Entry(self.root, textvariable=self.entries[i])
             entry.config(font=self.fonts[3])
@@ -41,7 +44,6 @@ class UserInterface:
             image = Label(self.root, image=self.tkImages[0])
             image.grid(row=3+i, column=2)
             self.errorImages.append(image)
-
 
         button = Button(self.root, text="Help", command=self.HelpWindow)
         button.config(font=self.fonts[1])
@@ -60,6 +62,20 @@ class UserInterface:
             string = string.replace("pi", "π")
             string = string.replace("euler", "e")
             self.entries[i].set(string)
+
+
+    def UpdateEquationNumberLabels(self, equationsList, selected, i):
+        self.labels[i].forget()
+
+        if equationsList[i] != "":
+            colour = colours[graphColours[i % len(graphColours)]].hex
+        else:
+            colour = colours["black"].hex
+
+        fontNum = 4 if i == selected else 2
+        label = self.CreateNewLabel(f"  [{i+1}]  ", fontNum, colour)
+        label.grid(row=3+i, column=0)
+        self.labels[i] = label
 
 
 
@@ -98,8 +114,9 @@ intersect at the points:
         self.fonts = [
             Font(family="monofonto", size=20, weight="bold"),
             Font(family="monofonto", size=10),
-            Font(family="monofonto", size=12),
+            Font(family="monofonto", size=10),
             Font(family="monofonto", size=11),
+            Font(family="monofonto", size=12, weight="bold", ),
         ]
 
 

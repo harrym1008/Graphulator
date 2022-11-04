@@ -214,9 +214,10 @@ class Graph:
 
         try:
             x = (self.zoomedOffset[0] - self.screenCentre[0] + mousePos[0]) / self.zoom
-            y = eval(equation.equation)
-            yOnGraph = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
-            pygame.draw.circle(renderer.surface, equation.colour.colour, (mousePos[0], yOnGraph), 4)
+            for solution in equation.solutions:
+                y = eval(solution)
+                yOnGraph = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
+                pygame.draw.circle(renderer.surface, equation.colour.colour, (mousePos[0], yOnGraph), 4)
         except:
             return     
 

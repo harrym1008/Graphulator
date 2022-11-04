@@ -7,9 +7,9 @@ class Colour:
     def __init__(self, r, g, b, a=255) -> None:
         self.tuple = (r, g, b, a)
         self.colour = pygame.Color(r, g, b, a)
-        self.faded = pygame.Color(r, g, b, 100)
+        self.faded = pygame.Color(r, g, b, int(a * 0.392))
 
-        self.hex = '%02x%02x%02x' % (r, g, b)
+        self.hex = '#%02x%02x%02x' % (r, g, b)
         
 
 

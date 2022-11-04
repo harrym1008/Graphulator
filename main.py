@@ -25,7 +25,7 @@ screenSize = (720, 480)
 minScreenSize = (128, 128)
 
 running = True
-targetFPS = 30
+targetFPS = 60
 maxEquations = 10
 
 panSpeed = 2.5
@@ -147,6 +147,7 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
     currentEquationIndex = 0
+    currentGUILabelUpdate = 0
     getQueueTimer = 0
     getQueueCount = 0
 
@@ -199,6 +200,9 @@ if __name__ == "__main__":
         graphScreen.blit(functionManager.surface, (0, 0))  
         graphScreen.blit(graphUI.surface, (0, 0)) 
 
+        # redraw the ui for that frame
+        gui.UpdateEquationNumberLabels(equList, currentEquationIndex, currentGUILabelUpdate)
+        currentGUILabelUpdate = (currentGUILabelUpdate + 1) % maxEquations
         
         # update tkinter and pygame displays
         gui.root.update()

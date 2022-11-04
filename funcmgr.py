@@ -124,6 +124,7 @@ class FunctionManager:
                 data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
 
                 self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
+                self.currentEquations[i].solutions = data.solutions
                 
                 # Put new events
                 for event in self.GetEventData(i):
