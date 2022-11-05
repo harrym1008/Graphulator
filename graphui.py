@@ -103,7 +103,7 @@ class GraphUserInterface:
         
         rectangle = pygame.Rect(0, self.screenSize[1] - equationText.get_height()*pushPixels - 2, self.screenSize[0], 
                                 equationText.get_height() * pushPixels + 2)
-        pygame.draw.rect(self.surface, colours["white"].colour, rectangle)
+        # pygame.draw.rect(self.surface, colours["white"].colour, rectangle)
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * pushPixels))
 
         if not invalidX:

@@ -23,6 +23,7 @@ class Graph:
         self.zoomedOffset = (0, 0)
         self.zoomedOffsetInverse = (0, 0)
         self.orgPos = (0, 0)
+        self.croppedOrgPos = (0, 0)
 
         self.offset = [0, 0]
         self.zoom = 50
@@ -63,7 +64,20 @@ class Graph:
         self.zoomedOffset = self.offset[0] * self.zoom, self.offset[1] * self.zoom
         self.zoomedOffsetInverse = self.offset[0] / self.zoom, self.offset[1] / self.zoom
 
-        self.orgPos = self.screenCentre[0] - self.zoomedOffset[0], self.screenCentre[1] + self.zoomedOffset[1]
+        self.orgPos = self.screenCentre[0] - self.zoomedOffset[0], self.screenCentre[1] + self.zoomedOffset[1]        
+        self.croppedOrgPos = list(self.orgPos)        
+
+        if self.croppedOrgPos[0] < 1:
+            self.croppedOrgPos[0] = 1
+        elif self.croppedOrgPos[0] >= self.screenSize[0]:
+            self.croppedOrgPos[0] = self.screenSize[0] - 2
+
+        if self.croppedOrgPos[1] < 1:
+            self.croppedOrgPos[1] = 1
+        elif self.croppedOrgPos[1] >= self.screenSize[1]:
+            self.croppedOrgPos[1] = self.screenSize[1] - 2
+
+        self.croppedOrgPos = tuple(self.croppedOrgPos)   
 
         # calculating the bounds of the window, accounting for zooms and offsets.
         # this is calculated similarly to how WritePosOnGraph() is calculated
@@ -142,11 +156,14 @@ class Graph:
                 continue
 
             posX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
-            posY = self.zoomedOffset[1] + self.screenCentre[1]     # y is always 0 at the origin
+            posY = self.croppedOrgPos[1]     # y is always 0 at the origin
 
             txtSurface = self.fonts[10].render(f"{GetNumString(x, True)}", True, colours["black"].colour)
             posX -= txtSurface.get_width() / 2
             posY += 2
+
+            if (posY + txtSurface.get_height() > self.screenSize[1]):
+                posY -= 4 + txtSurface.get_height()
 
             renderer.surface.blit(txtSurface, (posX, posY))
 
@@ -159,12 +176,15 @@ class Graph:
             if np.absolute(y) < realGap / 10:
                 continue
 
-            posX = -self.zoomedOffset[0] + self.screenCentre[0]   # x is always 0 at the origin
+            posX = self.croppedOrgPos[0]   # x is always 0 at the origin
             posY = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom    
 
             txtSurface = self.fonts[10].render(f"{GetNumString(y, True)}", True, colours["black"].colour)
             posX += 3
             posY -= txtSurface.get_height() / 2
+
+            if (posX + txtSurface.get_width() > self.screenSize[0]):
+                posX -= 6 + txtSurface.get_width()
 
             renderer.surface.blit(txtSurface, (posX, posY))
 
@@ -175,7 +195,8 @@ class Graph:
 
 
     def DrawLinesFromOrigin(self, renderer):
-        orgPos = orgPosX, orgPosY = self.orgPos
+        orgPosX, orgPosY = orgPos = self.croppedOrgPos
+
         lines = [(orgPos, (0, orgPosY)), (orgPos, (self.screenSize[0], orgPosY)),
                  (orgPos, (orgPosX, 0)), (orgPos, (orgPosX, self.screenSize[1]))]
 

@@ -14,7 +14,7 @@ import evaluate
 from colours import *
 from numstr import *
 from timer import *
-from graph import Graph, CornerValues
+from graph import Graph
 from graphui import GraphUserInterface
 from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
@@ -136,13 +136,12 @@ if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
-    graphScreen.fill(colours["white"].colour)
     pygame.display.set_caption("Graphulator v4 - Screen View")
     
     #  ***** Instantiation of classes *****
     gui = UserInterface(Kill)                   # Create and initialise an instance of the UI class
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
-    graphUI = GraphUserInterface(graph)    # Create and initialise an instance of the graph UI class
+    graphUI = GraphUserInterface(graph)         # Create and initialise an instance of the graph UI class
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
