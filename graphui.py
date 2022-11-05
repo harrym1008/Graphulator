@@ -7,10 +7,12 @@ from evaluate import *
 
 
 class GraphUserInterface:
-    def __init__(self, screenSize):
-        self.screenSize = screenSize
-        self.surface = pygame.Surface(screenSize, pygame.SRCALPHA, 32)
+    def __init__(self, graph):
+        self.screenSize = graph.screenSize
+        self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA, 32)
         self.surface = self.surface.convert_alpha()
+
+        self.fonts = graph.fonts
 
 
     def ClearUISurface(self):
@@ -93,13 +95,19 @@ class GraphUserInterface:
         if equation is None or equation.equation == "":
             return
             
-        equString = UnreplaceEquation(equation.equation)
-        equationText = font.render(f"{equString}", True, equation.colour.colour)
-        self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * 2))
+        invalidX = x in [np.inf, np.NINF, np.nan]
+        pushPixels = 2 if not invalidX else 1.2
 
-        if (x != np.inf):
+        equString = UnreplaceEquation(equation.equation)
+        equationText = font.render(f"[{equation.index+1}] {equString}", True, equation.colour.colour)
+        
+        rectangle = pygame.Rect(0, self.screenSize[1] - equationText.get_height()*pushPixels - 2, self.screenSize[0], 
+                                equationText.get_height() * pushPixels + 2)
+        pygame.draw.rect(self.surface, colours["white"].colour, rectangle)
+        self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * pushPixels))
+
+        if not invalidX:
             xText = font.render(f"x={GetNumString(x)}", True, colours["black"].colour)
-            self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height()))
 
             yValues = ""
             try:
@@ -110,7 +118,9 @@ class GraphUserInterface:
                 yValues = f"ERROR: {e}"
               
             yText = font.render(f"y={yValues}", True, colours["black"].colour)  
-            yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128 
+            yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128
+
+            self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height())) 
             self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))
 
 

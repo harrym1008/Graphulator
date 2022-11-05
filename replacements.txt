@@ -12,3 +12,5 @@
 "tan(","np.tan("
 "floor(","np.floor("
 "ceil(","np.ceil("
+"abs(","np.abs("
+"sqrt(","np.sqrt("

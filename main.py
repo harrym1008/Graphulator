@@ -142,7 +142,7 @@ if __name__ == "__main__":
     #  ***** Instantiation of classes *****
     gui = UserInterface(Kill)                   # Create and initialise an instance of the UI class
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
-    graphUI = GraphUserInterface(screenSize)    # Create and initialise an instance of the graph UI class
+    graphUI = GraphUserInterface(graph)    # Create and initialise an instance of the graph UI class
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 

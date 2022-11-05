@@ -196,10 +196,10 @@ class PlottedEquation:
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
             asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
-            infCheck = y == np.inf
+            invalidNumberCheck = y in [np.inf, np.NINF, np.nan]
 
 
-            if not asymptoteCheck and not infCheck:
+            if not asymptoteCheck and not invalidNumberCheck:
                 # pygame.draw.line(surface, equInstance.colour.faded, 
                 # (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
                 if dottedCheckLine > 0:
