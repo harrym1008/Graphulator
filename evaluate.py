@@ -1,5 +1,6 @@
 import numpy as np
 import sympy as sp
+import time
 
 replacements = []
 
@@ -8,6 +9,11 @@ replacements = []
 e = euler = 2.718281828459045
 ϕ = golden = 1.61803398874989
 inf = np.inf
+
+
+
+def GetTime():
+    return time.perf_counter() % 10
 
 
 
