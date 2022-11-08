@@ -147,8 +147,6 @@ if __name__ == "__main__":
 
     currentEquationIndex = 0
     currentGUILabelUpdate = 0
-    getQueueTimer = 0
-    getQueueCount = 0
 
 
     # Starting equations
@@ -188,8 +186,6 @@ if __name__ == "__main__":
 
         if functionManager.CheckIfUpdatingThreads():
             data = functionManager.UpdateThreads(graph)
-            getQueueTimer += data[0]
-            getQueueCount += data[1]
 
         functionManager.BlitCurrentSurfaces(graph)
         
@@ -228,9 +224,6 @@ if __name__ == "__main__":
                 functionManager.ScreenHasBeenResized(screenSize)
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
-                
-                getQueueTimer = 0
-                getQueueCount = 0
 
         
         #if getQueueCount > 0:

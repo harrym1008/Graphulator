@@ -4,6 +4,7 @@ from colours import *
 from timer import *
 from numstr import SigFig
 
+import sys
 import numpy as np
 import pygame
 import deltatime

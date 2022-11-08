@@ -56,17 +56,3 @@ graphColours = [
 def GetColourForPlotIndex(index):
     index = index % len(graphColours)
     return colours[graphColours[index]]
-
-
-colourMap = {
-    colours["transparent"].tuple: 0,
-    colours["red"].tuple: 1,
-    colours["blue"].tuple: 2,
-    colours["green"].tuple: 3,
-    colours["magenta"].tuple: 4,
-    colours["dark yellow"].tuple: 5,
-    colours["dark yellow"].tuple: 6,
-    colours["light blue"].tuple: 7,
-    colours["orange"].tuple: 8,
-    colours["white"].tuple: 9,
-}

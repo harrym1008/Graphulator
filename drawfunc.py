@@ -47,7 +47,7 @@ class PlottedEquation:
         self.type = 1
 
         self.boundsAtBeginning: CornerValues = CornerValues(None)
-        self.solutions = []
+        self.solutions = {}
 
 
     def ChangeMyEquation(self, new):
@@ -66,8 +66,9 @@ class PlottedEquation:
         savedPoints = []
 
         lastEquation = ""
-        solutions = []
+        solutions = {}
 
+        print(f"Thread {self.index} has been started")
 
         
         while True:
@@ -110,10 +111,11 @@ class PlottedEquation:
             start, end = bounds.W, bounds.E
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
+            print(solutions["y"])
 
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
-                for i, solution in enumerate(solutions):
+                for i, solution in enumerate(solutions["y"]):
                     points.append([])
                     for x in np.arange(start[0], end[0], increment):
                         try:
@@ -148,11 +150,34 @@ class PlottedEquation:
             # print(f"Full process took {time.perf_counter() - startTime}")
 
 
-    @classmethod
-    def GetSolutions(cls, strEqu):
+    @staticmethod
+    def GetSolutions(strEqu):
         strEqu = UnreplaceEquation(strEqu)
+        equ = PlottedEquation.ProduceSympyEquation(strEqu)
+        ySolutions = PlottedEquation.ProduceEquationSolutions(equ, "y")
+        xSolutions = PlottedEquation.ProduceEquationSolutions(equ, "x")
+
+        if equ is None:
+            return {"y": [],"x": []}
+        solutions = {"y": ySolutions,"x": xSolutions}
+        return solutions
+
+
+    @staticmethod
+    def ProduceEquationSolutions(equ, category):
+        x, y = sp.symbols("x y")
         try:
-            x, y = sp.symbols("x y")
+            solveFor = x if category == "x" else y
+            return sp.solve(equ, solveFor)
+        except:
+            return []
+
+
+    @staticmethod
+    def ProduceSympyEquation(strEqu):
+        y = sp.symbols("y")
+        
+        try:
             sides = strEqu.split("=")
 
             if len(sides) == 2:
@@ -162,15 +187,15 @@ class PlottedEquation:
             else:
                 lhs, rhs = y, inf
                 
-            equ = sp.Eq(lhs, rhs)
-            equSolvedForY = sp.solve(equ, y)
-            return [ReplaceEquation(str(solution)) for solution in equSolvedForY]
+            return sp.Eq(lhs, rhs)
         except:
-            return []
+            return None
 
 
-    @classmethod
-    def ListToSurfaceInThread(cls, array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
+
+
+    @staticmethod
+    def ListToSurfaceInThread(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
         surface.fill(colours["transparent"].colour)
 
@@ -249,7 +274,7 @@ class ThreadOutput:
         self.solutions = solutions
 
 
-
+# Class that holds the produced surface and its bounds
 class SurfaceAndBounds:
     def __init__(self, surface, bounds) -> None:
         self.surface = surface
@@ -260,3 +285,6 @@ class SurfaceAndBounds:
         return f'''Surface: {self.surface}
 Bounds: {self.bounds}
 Zoom: {self.zoom}'''
+
+                  
+                            
