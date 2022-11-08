@@ -22,11 +22,11 @@ from ui import UserInterface
 
 # Screen starts at this resolution by default
 screenSize = (720, 480)
-minScreenSize = (128, 128)
+minScreenSize = (192, 192)
 
 running = True
 targetFPS = 60
-maxEquations = 10
+maxEquations = 1#0
 
 panSpeed = 2.5
 zoomSpeed = 0.05
@@ -185,7 +185,7 @@ if __name__ == "__main__":
         graphUI.UpdateUISurface(graph, clock, mousePos, currentEquation) 
 
         if functionManager.CheckIfUpdatingThreads():
-            data = functionManager.UpdateThreads(graph)
+            functionManager.UpdateThreads(graph)
 
         functionManager.BlitCurrentSurfaces(graph)
         

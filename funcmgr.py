@@ -90,8 +90,6 @@ class FunctionManager:
 
 
     def UpdateThreads(self, graph):
-        count = 0
-        timer = 0
 
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
@@ -107,11 +105,7 @@ class FunctionManager:
 
             # print(self.myOutQueues[i].qsize())
 
-            if equ.active and newDataIsAvailable if threadIsNotNone else True:
-                
-                count += 1
-                t = time.perf_counter()
-
+            if equ.active and newDataIsAvailable if threadIsNotNone else True:                
                 threadData = drawfunc.ThreadInput(graph.bounds, graph.screenSize, graph.zoomedOffset, equ)
 
                 if self.myThreads[i] is None:
@@ -131,11 +125,9 @@ class FunctionManager:
                 for event in self.GetEventData(i):
                     self.myEventQueues[i].put(event)
 
-                self.myInQueues[i].put(threadData)
-                timer += time.perf_counter() - t             
+                self.myInQueues[i].put(threadData)         
                 # save the drawn surface to the array, so it does not have to be redrawn every frame
 
-        return (timer, count)
 
 
 

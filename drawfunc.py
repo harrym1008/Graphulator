@@ -9,7 +9,7 @@ from colours import *
 from enum import IntEnum
 
 
-INCREMENT_FACTOR = 2
+INCREMENT_FACTOR = 1.5
 ANTIALIAS = False
 
 
@@ -47,7 +47,7 @@ class PlottedEquation:
         self.type = 1
 
         self.boundsAtBeginning: CornerValues = CornerValues(None)
-        self.solutions = {}
+        self.solutions = {"y": [],"x": []}
 
 
     def ChangeMyEquation(self, new):
@@ -66,7 +66,8 @@ class PlottedEquation:
         savedPoints = []
 
         lastEquation = ""
-        solutions = {}
+        solutions = {"y": [],"x": []}
+        solutionCount = len(solutions["x"]) + len(solutions["y"])
 
         print(f"Thread {self.index} has been started")
 
@@ -76,7 +77,7 @@ class PlottedEquation:
             startTime = time.perf_counter()
 
             while inQueue.qsize() < 1:
-                time.sleep(0.02)
+                time.sleep(0.04)
 
             # Get equation events (how the equation has changed so the thread can be updated)
             forceUpdate = False
@@ -96,6 +97,7 @@ class PlottedEquation:
             if lastEquation != currentEquation:
                 lastEquation = currentEquation
                 solutions = PlottedEquation.GetSolutions(currentEquation)
+                solutionCount = len(solutions["x"]) + len(solutions["y"])
                 print(solutions, UnreplaceEquation(currentEquation))
 
                 
@@ -105,23 +107,33 @@ class PlottedEquation:
             skipSameBounds = (lastBounds == bounds if bounds is not None else False)
             lastBounds = bounds
 
-            # print(bounds.NW, bounds.SE)
-
             points = []
+            yPoints = []
+            xPoints = []
+
             start, end = bounds.W, bounds.E
             increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
 
-            print(solutions["y"])
-
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
+                # Loop through all Y solutions
                 for i, solution in enumerate(solutions["y"]):
-                    points.append([])
+                    yPoints.append([])
                     for x in np.arange(start[0], end[0], increment):
                         try:
-                            points[i].append((x, float( eval(solution) )))  #GetYValue(x, currentEquation) )))
+                            yPoints[i].append((x, float( eval(solution) )))  #GetYValue(x, currentEquation) )))
                         except Exception as e:
-                            points[i].append((x, np.inf))
+                            yPoints[i].append((x, np.inf))
+                            
+                # Loop through all X solutions
+                for i, solution in enumerate(solutions["x"]):
+                    xPoints.append([])
+                    for y in np.arange(start[0], end[0], increment):
+                        try:
+                            xPoints[i].append((float( eval(solution), y )))  #GetYValue(x, currentEquation) )))
+                        except Exception as e:
+                            xPoints[i].append((np.inf, y))
+                points = yPoints + xPoints
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
@@ -131,20 +143,20 @@ class PlottedEquation:
 
 
             # Produce a pygame surface from the points just calculated
-            if len(solutions) == 1:
-                surface = PlottedEquation.ListToSurfaceInThread(points[0], 
+            if solutionCount == 1:
+                surface = PlottedEquation.DrawSurfaceFromArray(points[0], 
                             inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
             else:
                 surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
-                if len(solutions) > 1:
-                    for i in range(len(solutions)):
-                        tempSurface = PlottedEquation.ListToSurfaceInThread(points[i], 
+                if solutionCount > 1:
+                    for i in range(solutionCount):
+                        tempSurface = PlottedEquation.DrawSurfaceFromArray(points[i], 
                                     inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
                         surface.blit(tempSurface, (0, 0))
 
 
             # Place into a class of thread output data
-            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation, solutions)
+            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation, solutions["y"])
 
             outQueue.put(outData)
             # print(f"Full process took {time.perf_counter() - startTime}")
@@ -153,14 +165,25 @@ class PlottedEquation:
     @staticmethod
     def GetSolutions(strEqu):
         strEqu = UnreplaceEquation(strEqu)
-        equ = PlottedEquation.ProduceSympyEquation(strEqu)
+        equ, lhs, rhs = PlottedEquation.ProduceSympyEquation(strEqu)
+        print(equ, lhs, rhs)
         ySolutions = PlottedEquation.ProduceEquationSolutions(equ, "y")
         xSolutions = PlottedEquation.ProduceEquationSolutions(equ, "x")
 
         if equ is None:
             return {"y": [],"x": []}
-        solutions = {"y": ySolutions,"x": xSolutions}
+        solutions = PlottedEquation.AssignSolutions(lhs, rhs, ySolutions, xSolutions)
         return solutions
+
+
+    @staticmethod
+    def AssignSolutions(lhs, rhs, yS, xS):
+        empty = []
+        if lhs == "x" or rhs == "x":
+            return {"y": empty,"x": xS}
+        if lhs == "y" or rhs == "y":
+            return {"y": yS,"x": empty}
+        return {"y": yS, "x": xS}
 
 
     @staticmethod
@@ -168,7 +191,9 @@ class PlottedEquation:
         x, y = sp.symbols("x y")
         try:
             solveFor = x if category == "x" else y
-            return sp.solve(equ, solveFor)
+            solved = sp.solve(equ, solveFor)
+            print(solved)
+            return [ReplaceEquation(str(solution)) for solution in solved]
         except:
             return []
 
@@ -187,15 +212,15 @@ class PlottedEquation:
             else:
                 lhs, rhs = y, inf
                 
-            return sp.Eq(lhs, rhs)
+            return sp.Eq(lhs, rhs), str(lhs), str(rhs)
         except:
-            return None
+            return None, "", ""
 
 
 
 
     @staticmethod
-    def ListToSurfaceInThread(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
+    def DrawSurfaceFromArray(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
         surface.fill(colours["transparent"].colour)
 
@@ -211,15 +236,17 @@ class PlottedEquation:
         drawOffset = screenCentre[0] - zoomedOffset[0], screenCentre[1] - zoomedOffset[1]
 
         for x, y in array:
-            if y == np.inf:
-                continue
-
             plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
             asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
-            invalidNumberCheck = y in [np.inf, np.NINF, np.nan]
+            invalidNumberCheck = y in [np.inf, np.NINF, np.nan] or \
+                                 x in [np.inf, np.NINF, np.nan] or \
+                                 lastY in [np.inf, np.NINF, np.nan] or \
+                                 lastX in [np.inf, np.NINF, np.nan]
 
+            if invalidNumberCheck:
+                continue
 
             if not asymptoteCheck and not invalidNumberCheck:
                 # pygame.draw.line(surface, equInstance.colour.faded, 
