@@ -1,11 +1,11 @@
 import numpy as np
 import pygame
+import colours
 import time
 
 from evaluate import *
 from serialsurf import SerialisedSurface
 from graph import CornerValues
-from colours import *
 from enum import IntEnum
 
 
@@ -39,7 +39,7 @@ class PlottedEquation:
         self.active = True
         self.equation = equation
         self.index = index
-        self.colour = GetColourForPlotIndex(index)
+        self.colour = colours.GetColourForPlotIndex(index)
 
         self.type = 0
         self.isDottedLine = False
@@ -77,7 +77,7 @@ class PlottedEquation:
             startTime = time.perf_counter()
 
             while inQueue.qsize() < 1:
-                time.sleep(0.04)
+                time.sleep(1)
 
             # Get equation events (how the equation has changed so the thread can be updated)
             forceUpdate = False
@@ -222,7 +222,7 @@ class PlottedEquation:
     @staticmethod
     def DrawSurfaceFromArray(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
-        surface.fill(colours["transparent"].colour)
+        surface.fill(colours.colours["transparent"].colour)
 
         if len(array) == 0:
             return surface

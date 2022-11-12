@@ -25,8 +25,8 @@ screenSize = (720, 480)
 minScreenSize = (192, 192)
 
 running = True
-targetFPS = 60
-maxEquations = 1#0
+targetFPS = 2000
+maxEquations = 10
 
 panSpeed = 2.5
 zoomSpeed = 0.05
