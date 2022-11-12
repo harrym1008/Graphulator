@@ -112,14 +112,15 @@ class PlottedEquation:
             xPoints = []
 
             start, end = bounds.W, bounds.E
-            increment = (end[0] - start[0]) / (inData.screenSize[0] * INCREMENT_FACTOR)
+            incrementY = (end[0] - start[0]) / (bounds.screenSize[0] * INCREMENT_FACTOR)
+            incrementX = (end[0] - start[0]) / (bounds.screenSize[1] * INCREMENT_FACTOR)
 
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
                 # Loop through all Y solutions
                 for i, solution in enumerate(solutions["y"]):
                     yPoints.append([])
-                    for x in np.arange(start[0], end[0], increment):
+                    for x in np.arange(start[0], end[0], incrementY):
                         try:
                             yPoints[i].append((x, float( eval(solution) )))  #GetYValue(x, currentEquation) )))
                         except Exception as e:
@@ -128,7 +129,7 @@ class PlottedEquation:
                 # Loop through all X solutions
                 for i, solution in enumerate(solutions["x"]):
                     xPoints.append([])
-                    for y in np.arange(start[0], end[0], increment):
+                    for y in np.arange(start[0], end[0], incrementX):
                         try:
                             xPoints[i].append((float( eval(solution)), y ))  #GetYValue(x, currentEquation) ))
                         except Exception as e:

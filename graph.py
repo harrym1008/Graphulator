@@ -313,7 +313,8 @@ class CornerValues:
         self.NW = W, N
         self.zoom = z
 
-        self.atSize = screenSize
+        self.boundMultiplier = boundMultiplier
+        self.screenSize = screenSize
 
 
     def __str__(self):

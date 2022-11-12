@@ -150,6 +150,8 @@ class FunctionManager:
                 continue
 
             dataSurface = data.surface
+            b = data.bounds.boundMultiplier
+            ss = tuple([i // 2 for i in data.bounds.screenSize])
 
             # equation for value: p = -oz + 0.5s + vz
             # p = position
@@ -159,19 +161,20 @@ class FunctionManager:
             # v = input value
 
             surfaceCorners = [(
-                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.NW[0] * graph.zoom, 
-                graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.NW[1] * graph.zoom
+                -graph.zoomedOffset[0] + ss[0] + data.bounds.NW[0] * graph.zoom, 
+                graph.zoomedOffset[1] + ss[1] - data.bounds.NW[1] * graph.zoom
                 ),(
-                -graph.zoomedOffset[0] + graph.screenCentre[0] + data.bounds.SE[0] * graph.zoom, 
-                graph.zoomedOffset[1] + graph.screenCentre[1] - data.bounds.SE[1] * graph.zoom
+                -graph.zoomedOffset[0] + ss[0] + data.bounds.SE[0] * graph.zoom, 
+                graph.zoomedOffset[1] + ss[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
             # pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 10)
             # pygame.draw.circle(surface, colours["orange"].colour, surfaceCorners[1], 10)
 
 
-            newScale = graph.screenSize
-            newPosition = (0, 0)
+            newScale = graph.screenSize # graph.screenSize[0] * b, graph.screenSize[1] * b
+            newPosition = (0, 0)     # ((graph.screenSize[0] - b * graph.screenSize[0]) // 2, 
+                                     #  (graph.screenSize[1] - b * graph.screenSize[1]) // 2)
 
             panOffset = (0, 0)
             zoomOffset = (0, 0)
@@ -187,10 +190,12 @@ class FunctionManager:
             if panned or zoomed:
                 newScale = (surfaceCorners[1][0] - surfaceCorners[0][0],
                             surfaceCorners[1][1] - surfaceCorners[0][1])
-                newScale = tuple(int(np.abs(i)) for i in newScale)
+                newScale = tuple(int(np.abs(i) / b) for i in newScale)
 
-                newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[0][1])) 
+                newPosition = (int(surfaceCorners[0][0]) // data.bounds.boundMultiplier, 
+                               int(surfaceCorners[0][1]) // data.bounds.boundMultiplier) 
 
+            print(surfaceCorners, newScale, newPosition)
 
             try:
                 if newScale != graph.screenSize:
