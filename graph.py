@@ -243,6 +243,12 @@ class Graph:
             return     
 
 
+    def DrawFadedTraceLines(self, renderer, mousePos):
+        if mousePos is None:
+            return
+
+        renderer.surface.blit(renderer.traceSurfaces[0], (mousePos[0], 0))
+        renderer.surface.blit(renderer.traceSurfaces[1], (0, mousePos[1]))
 
 
     def DrawBaseGraphSurface(self, renderer, currentEquation, mousePos):
@@ -253,6 +259,7 @@ class Graph:
         self.DrawLinesFromOrigin(renderer)
         self.DrawZeroAtOrigin(renderer)
         self.DrawXAndYWords(renderer)
+        self.DrawFadedTraceLines(renderer, mousePos)
         self.DrawCircleAtTracedPoint(renderer, currentEquation, mousePos)
 
 

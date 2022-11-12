@@ -35,7 +35,8 @@ colours = {
     "dark yellow": Colour(247, 199, 45),
     "orange": Colour(255, 145, 0),
 
-    "transparent": Colour(0, 0, 0, 0)
+    "transparent": Colour(0, 0, 0, 0),
+    "faded black": Colour(0, 0, 0, 64)
 }
 
 
