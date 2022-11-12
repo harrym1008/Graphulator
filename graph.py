@@ -47,10 +47,9 @@ class Graph:
 
 
 
-    def ScreenHasBeenResized(self, newSize, renderer):
+    def ScreenHasBeenResized(self, newSize):
         self.screenSize = newSize
         self.screenCentre = (newSize[0] // 2, newSize[1] // 2)
-        renderer.surface = pygame.Surface(newSize)
 
 
 
@@ -283,27 +282,24 @@ class CornerValues:
 
         x, y = 0, 1
 
+        screenSize = (graph.screenSize[0] * boundMultiplier, graph.screenSize[1] * boundMultiplier)
+        screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
+
         # Variables to make the calculations more readable in the code
         ox = graph.offset[0]
         oy = graph.offset[1]   # make this value negative
         z = graph.zoom
-        maxX = graph.screenSize[0]
-        maxY = graph.screenSize[1]
+        maxX = screenSize[0]
+        maxY = screenSize[1]
         bound = {x: (-maxX / 2, maxX / 2), y: (-maxY / 2, maxY / 2)}
 
         # Calculating once all possible X and Y values
-        N = (oy * z - 0.5 * maxY - bound[y][0]) / z + graph.screenCentre[1] / z
-        S = (oy * z - 0.5 * maxY - bound[y][1]) / z + graph.screenCentre[1] / z
-        W = (ox * z - 0.5 * maxX + bound[x][0]) / z + graph.screenCentre[0] / z
-        E = (ox * z - 0.5 * maxX + bound[x][1]) / z + graph.screenCentre[0] / z
-        CENTRE_X = (ox * z - 0.5 * maxX) / z + graph.screenCentre[0] / z
-        CENTRE_Y = (oy * z - 0.5 * maxY) / z + graph.screenCentre[1] / z
-
-        if boundMultiplier != 1:
-            N += N-S * (boundMultiplier - 1)
-            S -= N-S * (boundMultiplier - 1)
-            E += E-W * (boundMultiplier - 1)
-            W -= E-W * (boundMultiplier - 1)
+        N = (oy * z - 0.5 * maxY - bound[y][0]) / z + screenCentre[1] / z
+        S = (oy * z - 0.5 * maxY - bound[y][1]) / z + screenCentre[1] / z
+        W = (ox * z - 0.5 * maxX + bound[x][0]) / z + screenCentre[0] / z
+        E = (ox * z - 0.5 * maxX + bound[x][1]) / z + screenCentre[0] / z
+        CENTRE_X = (ox * z - 0.5 * maxX) / z + screenCentre[0] / z
+        CENTRE_Y = (oy * z - 0.5 * maxY) / z + screenCentre[1] / z
 
         # Putting together these values into x and y tuples
         self.CENTRE = CENTRE_X, CENTRE_Y
@@ -316,6 +312,8 @@ class CornerValues:
         self.W = W, CENTRE_Y
         self.NW = W, N
         self.zoom = z
+
+        self.atSize = screenSize
 
 
     def __str__(self):
@@ -330,3 +328,17 @@ class CornerValues:
             if __o.NW == self.NW and __o.SE == self.SE:
                 return True
         return False
+
+
+
+
+if __name__ == "__main__":
+    pygame.init()
+    graph = Graph((800, 600))
+    graph.offset = [10, 10]
+
+    cv1 = CornerValues(graph, 1)
+    cv2 = CornerValues(graph, 2)
+
+    print(cv1)
+    print(cv2)

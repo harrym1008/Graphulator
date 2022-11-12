@@ -3,6 +3,7 @@ from typing import List
 from colours import *
 from timer import *
 from numstr import SigFig
+from graph import CornerValues
 
 import sys
 import numpy as np
@@ -11,6 +12,8 @@ import deltatime
 import drawfunc
 import time
 
+
+BOUND_MULTIPLIER = 1
 
 UPDATE_HERTZ = 60
 UPDATE_TIME = 1 / UPDATE_HERTZ if UPDATE_HERTZ > 0 else 0
@@ -88,9 +91,7 @@ class FunctionManager:
 
 
 
-
     def UpdateThreads(self, graph):
-
         for i, equ in enumerate(self.currentEquations):
             # check if a thread should not be running, if so end it
             if not equ.active:
@@ -105,8 +106,9 @@ class FunctionManager:
 
             # print(self.myOutQueues[i].qsize())
 
-            if equ.active and newDataIsAvailable if threadIsNotNone else True:                
-                threadData = drawfunc.ThreadInput(graph.bounds, graph.screenSize, graph.zoomedOffset, equ)
+            if equ.active and newDataIsAvailable if threadIsNotNone else True:  
+                bounds = CornerValues(graph, BOUND_MULTIPLIER)              
+                threadData = drawfunc.ThreadInput(bounds, graph.screenSize, graph.zoomedOffset, equ)
 
                 if self.myThreads[i] is None:
                     print("Created the new thread")

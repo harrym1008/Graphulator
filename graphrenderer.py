@@ -11,6 +11,12 @@ class GraphRenderer:
     def NewFrame(self):
         self.surface.fill(colours["white"].colour)
 
+
+    def ScreenHasBeenResized(self, newSize):
+        self.surface = pygame.Surface(newSize)
+        self.traceSurfaces = GraphRenderer.CreateTraceSurfaces(newSize)
+
+
     
     @staticmethod
     def CreateTraceSurfaces(screenSize):

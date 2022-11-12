@@ -25,7 +25,7 @@ screenSize = (720, 480)
 minScreenSize = (192, 192)
 
 running = True
-targetFPS = 2000
+targetFPS = 60
 maxEquations = 10
 
 panSpeed = 2.5
@@ -111,7 +111,8 @@ def PygameInput(events, keys, graph):
                 graph.zoom /= 1 + zoomSpeed
 
     # Mouse focus
-    if pygame.mouse.get_focused():
+    focused = pygame.mouse.get_focused()
+    if focused:
         mouseFocusTime = 0.1
     else:
         mouseFocusTime -= deltatime.deltaTime
@@ -219,7 +220,8 @@ if __name__ == "__main__":
 
                 graphScreen = pygame.display.set_mode(screenSize,
                             pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
-                graph.ScreenHasBeenResized(screenSize, graphRenderer)
+                graph.ScreenHasBeenResized(screenSize)
+                graphRenderer.ScreenHasBeenResized(screenSize)
                 graphUI.ScreenHasBeenResized(screenSize)
                 functionManager.ScreenHasBeenResized(screenSize)
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
