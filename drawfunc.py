@@ -156,8 +156,14 @@ class PlottedEquation:
                 surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
                 if solutionCount > 1:
                     for i in range(solutionCount):
-                        tempSurface = PlottedEquation.DrawSurfaceFromArray(points[i], 
-                                    inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
+                        isYEquals = i < len(solutions["y"])
+                        if isYEquals:
+                            tempSurface = PlottedEquation.DrawSurfaceFromArray_YEquals(points[i], 
+                                        inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
+                        else:
+                            tempSurface = PlottedEquation.DrawSurfaceFromArray_XEquals(points[i], 
+                                        inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
+
                         surface.blit(tempSurface, (0, 0))
 
 
@@ -206,8 +212,9 @@ class PlottedEquation:
 
 
     @staticmethod
-    def ProduceSympyEquation(strEqu):
+    def ProduceSympyEquation(strEqu, getHandSides=True):
         y = sp.symbols("y")
+        returns = None, "", ""
         
         try:
             sides = strEqu.split("=")
@@ -219,9 +226,13 @@ class PlottedEquation:
             else:
                 lhs, rhs = y, inf
                 
-            return sp.Eq(lhs, rhs), str(lhs), str(rhs)
+            returns = sp.Eq(lhs, rhs), str(lhs), str(rhs)
         except:
-            return None, "", ""
+            pass
+
+        if getHandSides:
+            return returns
+        return returns[0]
 
 
 

@@ -6,8 +6,12 @@ from PIL import Image, ImageTk
 from colours import *
 
 import drawfunc
+
 from evaluate import *
 from numstr import *
+
+
+numbersDropdown = [str(i+1) for i in range(10)]
 
 
 
@@ -44,65 +48,120 @@ class UserInterface:
 
             entry = Entry(self.root, textvariable=self.entries[i])
             entry.config(font=self.fonts[3])
-            entry.grid(row=3+i, column=1)
+            entry.grid(row=3+i, column=1, columnspan=2)
 
             image = Label(self.root, image=self.tkImages[0])
-            image.grid(row=3+i, column=2)
+            image.grid(row=3+i, column=3)
             self.errorImages.append(image)
 
+        # Create help button
         button = Button(self.root, text="Help", command=self.HelpWindow)
         button.config(font=self.fonts[1])
         button.grid(row=16, column=0, columnspan=2)
         
+        # Create Y-intercept button
         button = Button(self.root, text="Y-Intercept", command=self.DisplayYIntercept)
         button.config(font=self.fonts[1])
         button.grid(row=17, column=0, columnspan=2)
         
+        # Create X-intercept button
         button = Button(self.root, text="X-Intercept (Root)", command=self.DisplayXIntercept)
         button.config(font=self.fonts[1])
         button.grid(row=18, column=0, columnspan=2)
+        
+        # Create Intersection button
+        button = Button(self.root, text=" Find Intersection ", command=self.DisplayIntersection)
+        button.config(font=self.fonts[1])
+        button.grid(row=16, column=2, columnspan=2)
+
+        self.CreateNewLabel("Equations for intsect:", 2).grid(row=17, column=2, columnspan=2)
+
+        self.intsectStringVars = [StringVar(self.root, f"{i+1}") for i in range(2)]
+        self.intsectDropdowns = [OptionMenu(self.root, self.intsectStringVars[i], *numbersDropdown) for i in range(2)]
+        [dd.config(font=self.fonts[1]) for dd in self.intsectDropdowns]
+        self.intsectDropdowns[0].grid(row=18, column=2)
+        self.intsectDropdowns[1].grid(row=18, column=3)
+
+
+
+    def DisplayIntersection(self):
+        x, y = sp.symbols("x y")
+        equNums = int(self.intsectStringVars[0].get())-1, int(self.intsectStringVars[1].get())-1
+        strEqus = self.entries[ equNums[0] ].get(), self.entries[ equNums[1] ].get() 
+
+        header = f"{equNums[0]+1}: {strEqus[0]}\n{equNums[1]+1}: {strEqus[1]}"
+
+        try:
+            strEqus = UnreplaceEquation(strEqus[0]), UnreplaceEquation(strEqus[1])
+            equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
+            equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[1], getHandSides=False)
+
+            equ1Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ1, "y")
+            equ2Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ2, "y")
+
+            xPoints = sp.solve((equ1, equ2), x)
+            yPoints = sp.solve((equ1, equ2), y)
+            
+            print(f"Intersects on X Points: {xPoints}")
+            print(f"Intersects on Y Points: {yPoints}")
+
+
+
+        except Exception as error:
+            messagebox.showerror("Intersection", f"""{header}\nAn error occured whilst calculating the intersection.\n
+Error:
+{type(error).__name__}: {error.args[0]}""")
+
+
+
+
 
 
     def DisplayYIntercept(self):
+        x, y = 0, sp.Symbol("y")
+
         try:
-            x = 0
-            y = sp.Symbol("y")
-            strEqu = self.entries[self.currentEquation].get()
-            strEqu = UnreplaceEquation(strEqu)
-            equ, lhs, rhs = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu)
+            strEqu = UnreplaceEquation(self.entries[self.currentEquation].get())
+            equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
-
-            string = f"""The Y-intercept is at point(s):
-
-    (0, { GetNumString(eval(ySolutions[0]))})"""
-
-            messagebox.showinfo("Y-Intercept", string)
-        except Exception as error:
-            messagebox.showerror("Y-Intercept", f"""There was an error calculating the Y-Intercept.
             
-Error:
-{type(error).__name__}: {error.args[0]}""")
+            if len(ySolutions) == 0:
+                messagebox.showwarning("X-Intercept", "This equation does not have an X-intercept.")
+                return
+
+            pointsString = "\n"
+            for sol in ySolutions:
+                pointsString += f"(0, {GetNumString(eval(sol))})\n"
+
+            string = f"The Y-intercept is at point{'' if len(ySolutions) > 1 else 's'}:\n{pointsString}"
+            messagebox.showinfo("Y-Intercept", string)
+
+        except Exception as error:
+            messagebox.showerror("Y-Intercept", f"""An error occured whilst calculating the Y-Intercept.\n
+Error:   {type(error).__name__}
+Message: {error.args[0]}""")
         
         
     def DisplayXIntercept(self):
         try:
-            x = sp.Symbol("x")
-            y = 0
-            strEqu = self.entries[self.currentEquation].get()
-            strEqu = UnreplaceEquation(strEqu)
-            equ, lhs, rhs = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu)
+            x, y = sp.Symbol("x"), 0
+            strEqu = UnreplaceEquation(self.entries[self.currentEquation].get())
+            equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
-            xPoints = [eval(solution) for solution in xSolutions]
-            print(xPoints)
-
-            string = f"""The X-intercept is at point(s):
-
-    (0, { GetNumString(eval(xSolutions[0]))})"""
-
-            messagebox.showinfo("X-Intercept", string)
-        except Exception as error:
-            messagebox.showerror("X-Intercept", f"""There was an error calculating the X-Intercept.
             
+            if len(xSolutions) == 0:
+                messagebox.showwarning("X-Intercept", "This equation does not have an X-intercept.")
+                return
+
+            pointsString = "\n"
+            for sol in xSolutions:
+                pointsString += f"({GetNumString(eval(sol))}, 0)\n"
+
+            string = f"The X-intercept is at point{'' if len(xSolutions) == 1 else 's'}:\n{pointsString}"
+            messagebox.showinfo("X-Intercept", string)
+
+        except Exception as error:
+            messagebox.showerror("X-Intercept", f"""An error occured whilst calculating the X-Intercept.\n
 Error:   {type(error).__name__}
 Message: {error.args[0]}""")
 
@@ -132,7 +191,7 @@ Message: {error.args[0]}""")
         else:
             colour = colours["black"].hex
 
-        fontNum = 4 if i == selected else 2
+        fontNum = 4 if i == selected else 3
         label = self.CreateNewLabel(f"  [{i+1}]  ", fontNum, colour)
         label.grid(row=3+i, column=0)
         self.labels[i] = label
@@ -160,6 +219,7 @@ intersect at the points:
     (0, 0)
     (10, 20)
 ''')
+        self.helpOpen = False
 
         
 
@@ -174,8 +234,8 @@ intersect at the points:
         self.fonts = [
             Font(family="monofonto", size=20, weight="bold"),
             Font(family="monofonto", size=10),
-            Font(family="monofonto", size=10),
-            Font(family="monofonto", size=11),
+            Font(family="monofonto", size=8),
+            Font(family="monofonto", size=12),
             Font(family="monofonto", size=12, weight="bold", ),
         ]
 
