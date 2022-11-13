@@ -195,7 +195,6 @@ class FunctionManager:
                 newPosition = (int(surfaceCorners[0][0]) // data.bounds.boundMultiplier, 
                                int(surfaceCorners[0][1]) // data.bounds.boundMultiplier) 
 
-            print(surfaceCorners, newScale, newPosition)
 
             try:
                 if newScale != graph.screenSize:

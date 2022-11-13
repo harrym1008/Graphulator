@@ -5,6 +5,10 @@ from PIL import Image, ImageTk
 
 from colours import *
 
+import drawfunc
+from evaluate import *
+from numstr import *
+
 
 
 class UserInterface:
@@ -20,6 +24,7 @@ class UserInterface:
         self.CreateWindow()
 
         self.helpOpen = False
+        self.currentEquation = 0
 
 
 
@@ -47,7 +52,61 @@ class UserInterface:
 
         button = Button(self.root, text="Help", command=self.HelpWindow)
         button.config(font=self.fonts[1])
-        button.grid(row=16, column=0)
+        button.grid(row=16, column=0, columnspan=2)
+        
+        button = Button(self.root, text="Y-Intercept", command=self.DisplayYIntercept)
+        button.config(font=self.fonts[1])
+        button.grid(row=17, column=0, columnspan=2)
+        
+        button = Button(self.root, text="X-Intercept (Root)", command=self.DisplayXIntercept)
+        button.config(font=self.fonts[1])
+        button.grid(row=18, column=0, columnspan=2)
+
+
+    def DisplayYIntercept(self):
+        try:
+            x = 0
+            y = sp.Symbol("y")
+            strEqu = self.entries[self.currentEquation].get()
+            strEqu = UnreplaceEquation(strEqu)
+            equ, lhs, rhs = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu)
+            ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
+
+            string = f"""The Y-intercept is at point(s):
+
+    (0, { GetNumString(eval(ySolutions[0]))})"""
+
+            messagebox.showinfo("Y-Intercept", string)
+        except Exception as error:
+            messagebox.showerror("Y-Intercept", f"""There was an error calculating the Y-Intercept.
+            
+Error:
+{type(error).__name__}: {error.args[0]}""")
+        
+        
+    def DisplayXIntercept(self):
+        try:
+            x = sp.Symbol("x")
+            y = 0
+            strEqu = self.entries[self.currentEquation].get()
+            strEqu = UnreplaceEquation(strEqu)
+            equ, lhs, rhs = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu)
+            xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
+            xPoints = [eval(solution) for solution in xSolutions]
+            print(xPoints)
+
+            string = f"""The X-intercept is at point(s):
+
+    (0, { GetNumString(eval(xSolutions[0]))})"""
+
+            messagebox.showinfo("X-Intercept", string)
+        except Exception as error:
+            messagebox.showerror("X-Intercept", f"""There was an error calculating the X-Intercept.
+            
+Error:   {type(error).__name__}
+Message: {error.args[0]}""")
+
+
 
 
     def GetListOfEquations(self):
@@ -65,6 +124,7 @@ class UserInterface:
 
 
     def UpdateEquationNumberLabels(self, equationsList, selected, i):
+        self.currentEquation = selected
         self.labels[i].forget()
 
         if equationsList[i] != "":

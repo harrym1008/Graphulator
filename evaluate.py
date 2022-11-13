@@ -5,9 +5,9 @@ import time
 replacements = []
 
 
-π = pi = 3.141592653589793238
-e = euler = 2.718281828459045
-ϕ = golden = 1.61803398874989
+π = pi = np.pi
+e = euler = np.e
+ϕ = golden = (1 + np.sqrt(5)) / 2
 inf = np.inf
 
 
