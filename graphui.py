@@ -14,6 +14,10 @@ class GraphUserInterface:
 
         self.fonts = graph.fonts
 
+        self.lastFrame = time.perf_counter()
+        self.frameRates = []
+        self.maxFrameRates = 240
+
 
     def ClearUISurface(self):
         self.surface.fill(colours["transparent"].colour)
@@ -24,18 +28,21 @@ class GraphUserInterface:
         self.screenSize = newSize
 
 
-    def UpdateUISurface(self, graph, clock, mousePos, equation):
+    def UpdateUISurface(self, graph, mousePos, equation):
         self.ClearUISurface()
-        self.TopRightDebugData(graph.fonts[16], graph, clock)
-        x = self.WriteMousePosition(graph.fonts[12], mousePos, graph)
-        self.DrawCurrentEquationXY(graph.fonts[16], equation, x)
+        self.TopRightDebugData(graph)
+        x = self.WriteMousePosition(mousePos, graph)
+        self.DrawCurrentEquationXY(equation, x)
+        self.DrawFramerateGraph()
         
 
 
     
-    def WriteMousePosition(self, font, mousePos, graph):
+    def WriteMousePosition(self, mousePos, graph):
         if mousePos is None:  # mouse is not focused on the window
             return np.inf
+
+        font = self.fonts[12]
 
         # Calculate co-ordinates of the mouse position
         # x = (pos[0] / screenSize[0] - 0.5) * screenSize[0] / zoom + offset[0]
@@ -68,33 +75,31 @@ class GraphUserInterface:
 
 
 
-    def TopRightDebugData(self, font, graph, clock):
-        fps = clock.get_fps()
-        frametime = 1/fps if fps != 0 else 0
+    def TopRightDebugData(self, graph):
+        font = self.fonts[20]
         # Check to make sure the program will not divide by zero on the first frame
         # ---> fps returns 0 on frame 1
 
         textToRender = [
-            f"{round(fps, 3)} FPS",
-            f"Offset: x={GetNumString(graph.offset[0])}, y={GetNumString(graph.offset[1])}",
-            f"Zoom: {SigFig(graph.zoom * 100, 5)}%",
-            f"Deltatime: {GetNumString(frametime)}",
-            f"Res: X:{self.screenSize[0]}, Y:{self.screenSize[1]}",
+            f"X = {GetNumString(graph.offset[0])}",
+            f"Y = {GetNumString(graph.offset[1])}",
+            f"Zoom: {SigFig(graph.zoom * 100, 5)}%"
         ]  # List of text to render on the screen
 
         for i, txt in enumerate(textToRender):
             rendered = font.render(txt, True, colours["blue"].colour)
-            self.surface.blit(rendered, (2, i*16))
+            self.surface.blit(rendered, (2, i*20))
             # create surface of the text and blit it onto the surface
 
 
 
 
 
-    def DrawCurrentEquationXY(self, font, equation, x):
+    def DrawCurrentEquationXY(self, equation, x):
         if equation is None or equation.equation == "":
             return
             
+        font = self.fonts[16]
         invalidX = x in [np.inf, np.NINF, np.nan]
         pushPixels = 2 if not invalidX else 1.2
 
@@ -124,3 +129,38 @@ class GraphUserInterface:
             self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))
 
 
+
+
+    def DrawFramerateGraph(self):
+        timeNow = time.perf_counter()
+        frametime = timeNow - self.lastFrame
+        self.lastFrame = timeNow
+
+        self.frameRates.append(1 / frametime)
+
+        if len(self.frameRates) > self.maxFrameRates:
+            self.frameRates.pop(0)
+
+        pygame.draw.line(self.surface, colours["magenta"].colour, 
+                (self.screenSize[0] - self.maxFrameRates, self.screenSize[1] - 30*1.8), 
+                (self.screenSize[0], self.screenSize[1] - 30*1.8), 2)
+
+        pygame.draw.line(self.surface, colours["magenta"].colour, 
+                (self.screenSize[0] - self.maxFrameRates, self.screenSize[1] - 60*1.8), 
+                (self.screenSize[0], self.screenSize[1] - 60*1.8), 2)
+
+
+
+        lastX: int
+        for i, x in enumerate(range(self.screenSize[0] - len(self.frameRates), self.screenSize[0])):
+            if i == 0:
+                lastX = x
+                continue
+
+            pygame.draw.line(self.surface, colours["purple"].colour, 
+                    (lastX, self.screenSize[1] - self.frameRates[i-1]*1.8), 
+                    (x, self.screenSize[1] - self.frameRates[i]*1.8), 1)
+            lastX = x
+
+            
+        

@@ -34,6 +34,7 @@ colours = {
     "yellow": Colour(255, 255, 0),
     "dark yellow": Colour(247, 199, 45),
     "orange": Colour(255, 145, 0),
+    "purple": Colour(160, 32, 240),
 
     "transparent": Colour(0, 0, 0, 0),
     "faded black": Colour(0, 0, 0, 64)

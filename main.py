@@ -137,7 +137,7 @@ if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
-    pygame.display.set_caption("Graphulator v4 - Screen View")
+    pygame.display.set_caption(f"Graphulator Screen View - {0} FPS")
     
     #  ***** Instantiation of classes *****
     gui = UserInterface(Kill)                   # Create and initialise an instance of the UI class
@@ -183,7 +183,7 @@ if __name__ == "__main__":
         # Frame update code
         graphRenderer.NewFrame()
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
-        graphUI.UpdateUISurface(graph, clock, mousePos, currentEquation) 
+        graphUI.UpdateUISurface(graph, mousePos, currentEquation) 
 
         if functionManager.CheckIfUpdatingThreads():
             functionManager.UpdateThreads(graph)
@@ -207,7 +207,7 @@ if __name__ == "__main__":
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
-        GetTimeSince("")
+        pygame.display.set_caption(f"Graphulator Screen View - {round(clock.get_fps(), 2)} FPS")
 
         # Check for quitting / resizing
         for e in events:

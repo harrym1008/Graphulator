@@ -44,7 +44,6 @@ class PlottedEquation:
         self.type = 0
         self.isDottedLine = False
         self.UpdateEquationType()
-        self.type = 1
 
         self.boundsAtBeginning: CornerValues = CornerValues(None)
         self.solutions = {"y": [],"x": []}
@@ -71,6 +70,7 @@ class PlottedEquation:
 
         print(f"Thread {self.index} has been started")
 
+        n = self.index + 1
         
         while True:
             # wait for the in queue to have a length of 1 (this means data is present)
