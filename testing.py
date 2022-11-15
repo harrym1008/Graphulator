@@ -1,14 +1,8 @@
-import sympy as sp
+from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
 
+transformations = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
-
-transformations = (sp.parsing.sympy_parser.standard_transformations,
-                   sp.parsing.sympy_parser.implicit_multiplication_application,
-                   sp.parsing.sympy_parser.convert_xor)
-                   
-
-expr = sp.parse_expr(input("Enter:"),
+expr = parse_expr(input("Enter:"),
                   transformations=transformations)
 
-
-print(str(expr))
+print(expr)
