@@ -7,6 +7,7 @@ import tkinter as tk
 import pygame
 import numpy as np
 import sympy as sp
+from multiprocessing import cpu_count
 
 # Internal modules
 import deltatime
@@ -26,7 +27,8 @@ minScreenSize = (192, 192)
 
 running = True
 targetFPS = 60
-maxEquations = 10
+maxEquations = int(cpu_count() * 1.25)
+print(maxEquations)
 
 panSpeed = 2.5
 zoomSpeed = 0.05
