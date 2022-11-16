@@ -3,7 +3,7 @@ import pygame
 import colours
 import time
 
-from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
+from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application, convert_xor
 from evaluate import *
 from serialsurf import SerialisedSurface
 from graph import CornerValues
