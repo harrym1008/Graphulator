@@ -27,8 +27,7 @@ minScreenSize = (192, 192)
 
 running = True
 targetFPS = 60
-maxEquations = int(cpu_count() * 1.25)
-print(maxEquations)
+maxEquations = 2 if cpu_count() == 2 else 10
 
 panSpeed = 2.5
 zoomSpeed = 0.05
