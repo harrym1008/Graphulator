@@ -3,6 +3,7 @@ import pygame
 import colours
 import time
 
+from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
 from evaluate import *
 from serialsurf import SerialisedSurface
 from graph import CornerValues
@@ -11,6 +12,7 @@ from enum import IntEnum
 
 INCREMENT_FACTOR = 1.5
 ANTIALIAS = False
+TRANSFORMATIONS = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
 
 strToGraphType = {
@@ -220,9 +222,9 @@ class PlottedEquation:
             sides = strEqu.split("=")
 
             if len(sides) == 2:
-                lhs, rhs = tuple(sp.sympify(side) for side in sides)
+                lhs, rhs = tuple(sp.parse_expr(side, transformations=TRANSFORMATIONS) for side in sides)
             elif len(sides) == 1:
-                lhs, rhs = y, sp.sympify(sides[0])
+                lhs, rhs = y, sp.parse_expr(sides[0], transformations=TRANSFORMATIONS)
             else:
                 lhs, rhs = y, inf
                 

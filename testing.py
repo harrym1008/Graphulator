@@ -1,23 +1,8 @@
-import sympy as sp
-from scipy.optimize import fsolve
-from numpy import *
-import time
+from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
 
-x, y = sp.symbols("x y")
+transformations = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
-strEqu = input("Enter equation: ")
-t = time.perf_counter()
+expr = parse_expr(input("Enter:"),
+                  transformations=transformations)
 
-sides = strEqu.split("=")
-
-if len(sides) == 2:
-    lhs, rhs = tuple(sp.sympify(side) for side in sides)
-elif len(sides) == 1:
-    lhs, rhs = y, sp.sympify(sides[0])
-else:
-    raise ValueError("Too many equals signs (at most one)")
-
-equ = sp.Eq(lhs, rhs)
-
-func_np = sp.lambdify(x, equ, modules=["numpy"])
-solution = fsolve(func_np, 0.5)
+print(expr)
