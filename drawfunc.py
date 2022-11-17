@@ -76,7 +76,7 @@ class PlottedEquation:
         
         while True:
             # wait for the in queue to have a length of 1 (this means data is present)
-            startTime = time.perf_counter()
+            t = time.perf_counter() % 10
 
             while inQueue.qsize() < 1:
                 time.sleep(0.05)

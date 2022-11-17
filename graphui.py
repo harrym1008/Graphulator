@@ -112,6 +112,8 @@ class GraphUserInterface:
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * pushPixels))
 
         if not invalidX:
+            t = time.perf_counter() % 10
+            
             xText = font.render(f"x={GetNumString(x)}", True, colours["black"].colour)
 
             yValues = ""

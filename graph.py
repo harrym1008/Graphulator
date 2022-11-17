@@ -232,6 +232,8 @@ class Graph:
         if mousePos is None or equation is None or equation.equation == "":
             return
 
+        t = time.perf_counter() % 10
+        
         try:
             x = (self.zoomedOffset[0] - self.screenCentre[0] + mousePos[0]) / self.zoom
             for solution in equation.solutions:

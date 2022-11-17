@@ -12,10 +12,6 @@ inf = np.inf
 
 
 
-def GetTime():
-    return time.perf_counter() % 10
-
-
 
 def GetYValue(x, expression):
     y = eval(expression)

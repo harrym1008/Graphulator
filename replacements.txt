@@ -27,5 +27,3 @@
 "abs(","np.abs("
 "sqrt(","np.sqrt("
 "log(","np.log("
-"factorial","factorial"
-"t","GetTime()"
