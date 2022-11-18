@@ -4,26 +4,27 @@ import colours
 import time
 
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application, convert_xor
+from multiprocessing import cpu_count
+
 from evaluate import *
 from serialsurf import SerialisedSurface
 from graph import CornerValues
 from enum import IntEnum
 
 
-INCREMENT_FACTOR = 1.5
+INCREMENT_FACTOR = 1 if cpu_count() == 2 else 2.5
 ANTIALIAS = False
 TRANSFORMATIONS = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
-
-strToGraphType = {
-    ">=": 4,
-    "<=": 3,
+STR_GRAPH_TYPES = {
+    "≥": 4,
+    "≤": 3,
     "=": 0,
     "<": 1, 
     ">": 2
 }
 
-fullLines = [0, 3, 4]
+FULL_LINES = [0, 3, 4]
 
 
 
@@ -266,13 +267,10 @@ class PlottedEquation:
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
             asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
-            invalidNumberCheck = y in [np.inf, np.NINF, np.nan] or \
-                                 x in [np.inf, np.NINF, np.nan] or \
-                                 lastY in [np.inf, np.NINF, np.nan] or \
-                                 lastX in [np.inf, np.NINF, np.nan]
-
-            if invalidNumberCheck:
-                continue
+            invalidNumberCheck = np.isnan(x) or np.isinf(x) or \
+                                 np.isnan(y) or np.isinf(y) or \
+                                 np.isnan(lastX) or np.isinf(lastX) or \
+                                 np.isnan(lastY) or np.isinf(lastY)
 
             if not asymptoteCheck and not invalidNumberCheck:
                 # pygame.draw.line(surface, equInstance.colour.faded, 
@@ -314,13 +312,10 @@ class PlottedEquation:
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
 
             asymptoteCheck = (x > extremeLower and lastX < extremeUpper) or (lastX > extremeLower and x < extremeUpper)
-            invalidNumberCheck = y in [np.inf, np.NINF, np.nan] or \
-                                 x in [np.inf, np.NINF, np.nan] or \
-                                 lastY in [np.inf, np.NINF, np.nan] or \
-                                 lastX in [np.inf, np.NINF, np.nan]
-
-            if invalidNumberCheck:
-                continue
+            invalidNumberCheck = np.isnan(x) or np.isinf(x) or \
+                                 np.isnan(y) or np.isinf(y) or \
+                                 np.isnan(lastX) or np.isinf(lastX) or \
+                                 np.isnan(lastY) or np.isinf(lastY)
 
             if not asymptoteCheck and not invalidNumberCheck:
                 # pygame.draw.line(surface, equInstance.colour.faded, 
@@ -387,12 +382,12 @@ class PlottedEquation:
 
 
     def UpdateEquationType(self):
-        self.type = strToGraphType["="]
-        for string in strToGraphType.keys():
+        self.type = STR_GRAPH_TYPES["="]
+        for string in STR_GRAPH_TYPES.keys():
             if string in self.equation:
-                self.type = strToGraphType[string]
+                self.type = STR_GRAPH_TYPES[string]
                 break
-        self.isDottedLine = self.type not in fullLines
+        self.isDottedLine = self.type not in FULL_LINES
 
 
 

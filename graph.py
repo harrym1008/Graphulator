@@ -323,7 +323,7 @@ class CornerValues:
         return self.ShortString()
 
     def ShortString(self):
-        return f"{self.NW}, {self.SE}, {self.CENTRE}, {self.zoom}"
+        return f"NW{self.NW}, SE{self.SE}, CEN{self.CENTRE}, ZOOM {self.zoom}"
 
 
     def __eq__(self, __o: object) -> bool:
