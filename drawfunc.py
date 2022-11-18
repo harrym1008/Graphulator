@@ -117,12 +117,15 @@ class PlottedEquation:
             incrementY = (end[0] - start[0]) / (bounds.screenSize[0] * INCREMENT_FACTOR)
             incrementX = (end[0] - start[0]) / (bounds.screenSize[1] * INCREMENT_FACTOR)
 
+            xRange = np.arange(start[1], end[1], incrementX)
+            yRange = np.arange(start[0], end[0], incrementY)
+
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
                 # Loop through all Y solutions
                 for i, solution in enumerate(solutions["y"]):
                     yPoints.append([])
-                    for x in np.arange(start[0], end[0], incrementY):
+                    for x in yRange:
                         try:
                             yPoints[i].append((x, float( eval(solution) )))  #GetYValue(x, currentEquation) )))
                         except Exception as e:
@@ -131,12 +134,15 @@ class PlottedEquation:
                 # Loop through all X solutions
                 for i, solution in enumerate(solutions["x"]):
                     xPoints.append([])
-                    for y in np.arange(start[0], end[0], incrementX):
+                    for y in xRange:
                         try:
                             xPoints[i].append((float( eval(solution)), y ))  #GetYValue(x, currentEquation) ))
                         except Exception as e:
                             xPoints[i].append((np.inf, y))
                 points = yPoints + xPoints
+
+                # points = PlottedEquation.GetLowHighValueXY(points, yRange)
+
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
@@ -332,6 +338,46 @@ class PlottedEquation:
 
         surface = pygame.transform.flip(surface, False, True)
         return surface
+
+
+    @staticmethod
+    def GetLowHighValueXY(allPoints, length, high=True, forX=True):
+        if len(allPoints) == 1:
+            return allPoints
+        elif len(allPoints) == 0:
+            return [[]]
+
+        newArray = allPoints[0]
+
+        try:
+            if forX:
+                if high:
+                    for i in range(length):
+                        for current in range(1, allPoints):
+                            if allPoints[current][i][0] > newArray[i][0]:
+                                newArray[i][0] = allPoints[current][i][0]
+                else:
+                    for i in range(length):
+                        for current in range(1, allPoints):
+                            if allPoints[current][i][0] > newArray[i][0]:
+                                newArray[i][0] = allPoints[current][i][0]
+            else:
+                if high:
+                    for i in range(length):
+                        for current in range(1, allPoints):
+                            if allPoints[current][i][1] > newArray[i][1]:
+                                newArray[i][1] = allPoints[current][i][1]
+                else:
+                    for i in range(length):
+                        for current in range(1, allPoints):
+                            if allPoints[current][i][1] > newArray[i][1]:
+                                newArray[i][1] = allPoints[current][i][1]   
+        except:
+            pass     
+
+        return newArray
+                
+
 
 
 

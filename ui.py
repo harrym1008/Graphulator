@@ -73,7 +73,7 @@ class UserInterface:
         button = Button(self.root, text=" Find Intersection ", command=self.DisplayIntersection)
         button.config(font=self.fonts[1])
         button.grid(row=16, column=2, columnspan=2)
-
+        
         self.CreateNewLabel("Equations for intsect:", 2).grid(row=17, column=2, columnspan=2)
 
         self.intsectStringVars = [StringVar(self.root, f"{i+1}") for i in range(2)]
@@ -81,6 +81,38 @@ class UserInterface:
         [dd.config(font=self.fonts[1]) for dd in self.intsectDropdowns]
         self.intsectDropdowns[0].grid(row=18, column=2)
         self.intsectDropdowns[1].grid(row=18, column=3)
+
+        
+        # Create Toggle Equals To button
+        button = Button(self.root, text="> ⇄ ≥", command=self.ToggleOrEqualTo)
+        button.config(font=self.fonts[1])
+        button.grid(row=19, column=0, columnspan=2)
+
+
+
+    def ToggleOrEqualTo(self):
+        array = list(self.entries[self.currentEquation].get())
+
+        for i in range(len(array)):
+            letter = array[i]
+
+            if letter == ">":
+                letter = "≥"
+            elif letter == "≥":
+                letter = ">"
+            elif letter == "<":
+                letter = "≤"
+            elif letter == "≤":
+                letter = "<"
+
+            array[i] = letter
+
+        string = ""
+        string = string.join(array)
+
+        self.entries[self.currentEquation].set(string)
+
+
 
 
 
