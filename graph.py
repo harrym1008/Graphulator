@@ -29,7 +29,6 @@ class Graph:
         self.zoom = 50
 
         self.bounds = CornerValues(self)
-        self.lastFrameData = None
 
         self.fonts = []
         self.AssignFonts()
@@ -40,10 +39,6 @@ class Graph:
         self.fonts.append(None)
         for i in range(40):
             self.fonts.append(pygame.font.Font("monofonto.otf", i))
-
-        # self.fonts.append(pygame.font.Font("monofonto.otf", 16))
-        # self.fonts.append(pygame.font.Font("monofonto.otf", 12))
-        # self.fonts.append(pygame.font.Font("monofonto.otf", 10))
 
 
 
@@ -148,8 +143,6 @@ class Graph:
         xStart = Graph.FindNearestMultiple(self.bounds.W[0], realGap)
         xEnd = Graph.FindNearestMultiple(self.bounds.E[0], realGap) 
         
-        # error: real gap is zero
-
         for x in np.append(np.arange(xStart, xEnd, realGap), xEnd):
             if np.absolute(x) < realGap / 10:
                 continue
