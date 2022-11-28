@@ -76,6 +76,7 @@ class UserInterface:
         
         self.CreateNewLabel("Equations for intsect:", 2).grid(row=17, column=2, columnspan=2)
 
+        # Create the dropdowns that are used in the intersection parameters
         self.intsectStringVars = [StringVar(self.root, f"{i+1}") for i in range(2)]
         self.intsectDropdowns = [OptionMenu(self.root, self.intsectStringVars[i], *numbersDropdown) for i in range(2)]
         [dd.config(font=self.fonts[1]) for dd in self.intsectDropdowns]
@@ -89,7 +90,7 @@ class UserInterface:
         button.grid(row=19, column=0, columnspan=2)
 
 
-
+    # This method toggles the "or equal to" for > and < in the selected equation
     def ToggleOrEqualTo(self):
         array = list(self.entries[self.currentEquation].get())
 
@@ -115,7 +116,7 @@ class UserInterface:
 
 
 
-
+    # This code finds the location(s) of the intersection, then creates a window displaying where
     def DisplayIntersection(self):
         x, y = sp.symbols("x y")
         equNums = int(self.intsectStringVars[0].get())-1, int(self.intsectStringVars[1].get())-1
@@ -128,11 +129,17 @@ class UserInterface:
             equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
             equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[1], getHandSides=False)
 
-            equ1Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ1, "y")
-            equ2Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ2, "y")
+            equ1Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ1, "y", False)
+            equ2Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ2, "y", False)
 
-            xPoints = sp.solve((equ1, equ2), x)
-            yPoints = sp.solve((equ1, equ2), y)
+            xPoints = []
+            yPoints = []
+
+            for sol1 in equ1Solutions:
+                for sol2 in equ2Solutions:      
+                    print(f"{sol1} = {sol2}")    
+                    xPoints.append(sp.solve((sol1, sol2), x))
+                    yPoints.append(sp.solve((sol1, sol2), y))
             
             print(f"Intersects on X Points: {xPoints}")
             print(f"Intersects on Y Points: {yPoints}")

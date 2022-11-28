@@ -3,10 +3,8 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 # Prevents the welcome message from pygame from spamming in the terminal
 
 # External modules
-import tkinter as tk
 import pygame
 import numpy as np
-import sympy as sp
 from multiprocessing import cpu_count
 
 # Internal modules
@@ -160,8 +158,6 @@ if __name__ == "__main__":
 
     # Start main loop
     while running:     
-        GetTimeSince("")
-
         # Get pygame events and pressed keys
         events = pygame.event.get()
         keys = pygame.key.get_pressed()
@@ -228,10 +224,7 @@ if __name__ == "__main__":
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
 
-        
-        #if getQueueCount > 0:
-        #    print(f"Average queue time: {getQueueTimer/getQueueCount*10} secs - {getQueueTimer}/{getQueueCount}")
-        
+
     # run this code on exit
     for equ in functionManager.myThreads:
         equ.terminate()

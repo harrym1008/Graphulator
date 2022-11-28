@@ -3,7 +3,9 @@ import pygame
 import colours
 import time
 
-from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application, convert_xor
+from sympy.parsing.sympy_parser import standard_transformations, \
+    implicit_multiplication_application, \
+    convert_xor
 from multiprocessing import cpu_count
 
 from evaluate import *
@@ -209,13 +211,13 @@ class PlottedEquation:
 
 
     @staticmethod
-    def ProduceEquationSolutions(equ, category):
+    def ProduceEquationSolutions(equ, category, replace=True):
         x, y = sp.symbols("x y")
         try:
             solveFor = x if category == "x" else y
             solved = sp.solve(equ, solveFor)
             print(solved)
-            return [ReplaceEquation(str(solution)) for solution in solved]
+            return [ReplaceEquation(str(solution)) if replace else str(solution) for solution in solved]
         except:
             return []
 
@@ -370,8 +372,7 @@ class PlottedEquation:
         except:
             pass     
 
-        return newArray
-                
+        return newArray              
 
 
 
