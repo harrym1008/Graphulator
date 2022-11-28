@@ -1,5 +1,4 @@
 import time
-import main
 
 baseFPS = 60
 
