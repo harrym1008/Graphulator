@@ -4,7 +4,7 @@ import random, sys
 SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"  # ⁺⁻⁼⁽⁾"
 
 
-def GetNumString(n: float, short: bool = False) -> str:
+def NStr(n: float, short: bool = False) -> str:
     if n == 0:
         return "0"
 
@@ -20,7 +20,7 @@ def GetNumString(n: float, short: bool = False) -> str:
 
 
 def GetCoordString(x: float, y: float):
-    return f"({GetNumString(x, short=True)}, {GetNumString(y, short=True)})"
+    return f"({NStr(x, short=True)}, {NStr(y, short=True)})"
 
 
 
@@ -78,6 +78,6 @@ v = time.perf_counter()
 
 while True:
     n = random.uniform(-1, 1) * 10000.5123 * 10 ** random.randint(-4, 8)
-    s = GetNumString(n)
+    s = NStr(n)
     print(f"{n}:  '{s}'  --->  {len(s)}    took {time.perf_counter() - v}")
     v = time.perf_counter()'''

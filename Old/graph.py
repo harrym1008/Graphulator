@@ -186,7 +186,7 @@ def WriteGraphValues(surface):
         number = i / zoom
         if number == 0:
             continue
-        txtSurface = smallFont.render(GetNumString(number, True), True, colours.PygameColour("black"))
+        txtSurface = smallFont.render(NStr(number, True), True, colours.PygameColour("black"))
 
         if pos[1] + 2 + txtSurface.get_height() > screenSize[1]:
             surface.blit(txtSurface, (pos[0] + i - txtSurface.get_width() / 2, screenSize[1] - txtSurface.get_height()))
@@ -203,7 +203,7 @@ def WriteGraphValues(surface):
         number = -i / zoom
         if number == 0:
             continue
-        txtSurface = smallFont.render(GetNumString(number, True), True, colours.PygameColour("black"))
+        txtSurface = smallFont.render(NStr(number, True), True, colours.PygameColour("black"))
 
         if pos[0] + 2 + txtSurface.get_width() > screenSize[0]:
             surface.blit(txtSurface, (screenSize[0] - txtSurface.get_width(), pos[1] + i - txtSurface.get_height() / 2))
@@ -253,7 +253,7 @@ def WritePosOnGraph(pos, surface, focusTime):
     surface.blit(txtSurface, (renderX, renderY))
 
     '''
-    writtenPosition = [f"x={GetNumString(x, True)}", f"y={GetNumString(y, True)}"]
+    writtenPosition = [f"x={NStr(x, True)}", f"y={NStr(y, True)}"]
 
     txtSurfaceX = smallFont.render(writtenPosition[0], True, colours.PygameColour("blue"))
     txtSurfaceY = smallFont.render(writtenPosition[1], True, colours.PygameColour("blue"))
@@ -310,9 +310,9 @@ def DebugStuff(surface, timeToExec):
         f"{round(clock.get_fps(), 3)} FPS",
         f"Offset: {Vector2(offset[0], offset[1])}",
         f"Zoom: {SigFig(zoom * 100, 5)}%",
-        f"Deltatime: {GetNumString(deltatime.deltaTime)}",
+        f"Deltatime: {NStr(deltatime.deltaTime)}",
         f"Res: X:{screenSize[0]}, Y:{screenSize[1]}",
-        f"Execution: {GetNumString(timeToExec * 1000)} ms"
+        f"Execution: {NStr(timeToExec * 1000)} ms"
     ]
 
     for i, txt in enumerate(textToRender):

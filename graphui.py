@@ -18,6 +18,8 @@ class GraphUserInterface:
         self.frameRates = []
         self.maxFrameRates = 240
 
+        self.highlightedPoints = []
+
 
     def ClearUISurface(self):
         self.surface.fill(colours["transparent"].colour)
@@ -31,9 +33,10 @@ class GraphUserInterface:
     def UpdateUISurface(self, graph, mousePos, equation):
         self.ClearUISurface()
         self.TopRightDebugData(graph)
+        self.DrawHighlightedPoints(graph)
+        self.DrawFramerateGraph()
         x = self.WriteMousePosition(mousePos, graph)
         self.DrawCurrentEquationXY(equation, x)
-        self.DrawFramerateGraph()
         
 
 
@@ -74,6 +77,29 @@ class GraphUserInterface:
         return x
 
 
+    def DrawHighlightedPoints(self, graph):
+        for currentPoint in self.highlightedPoints:
+            x = -graph.zoomedOffset[0] + graph.screenCentre[0] + currentPoint[0] * graph.zoom
+            y = graph.zoomedOffset[1] + graph.screenCentre[1] - currentPoint[1] * graph.zoom
+
+            pygame.draw.circle(self.surface, colours["black"].colour,
+                               (x, y), 5)
+            pygame.draw.circle(self.surface, colours["white"].colour,
+                               (x, y), 3)
+
+            text = f"({NStr(currentPoint[0], short=True)}, {NStr(currentPoint[1], short=True)})"
+            renderedText = self.fonts[12].render(text, True, colours["black"].colour)
+            
+            boxStart = renderedText.get_width() // 2 - 2, renderedText.get_height() // 2 - 2
+            boxSize = renderedText.get_width() + 4, renderedText.get_width() + 4
+            textStart = [i+2 for i in boxStart]
+
+            rectangle = pygame.Rect(x - boxStart[0], y - boxStart[1], boxSize[0], boxSize[1])
+            pygame.draw.rect(self.surface, colours["white"].faded, rectangle)
+            self.surface.blit(renderedText, textStart)
+
+
+
 
     def TopRightDebugData(self, graph):
         font = self.fonts[20]
@@ -81,8 +107,8 @@ class GraphUserInterface:
         # ---> fps returns 0 on frame 1
 
         textToRender = [
-            f"X = {GetNumString(graph.offset[0])}",
-            f"Y = {GetNumString(graph.offset[1])}",
+            f"X = {NStr(graph.offset[0])}",
+            f"Y = {NStr(graph.offset[1])}",
             f"Zoom: {SigFig(graph.zoom * 100, 5)}%"
         ]  # List of text to render on the screen
 
@@ -114,12 +140,12 @@ class GraphUserInterface:
         if not invalidX:
             t = time.perf_counter() % 10
             
-            xText = font.render(f"x={GetNumString(x)}", True, colours["black"].colour)
+            xText = font.render(f"x={NStr(x)}", True, colours["black"].colour)
 
             yValues = ""
             try:
                 for solution in equation.solutions:
-                    yValues += GetNumString(float(eval(solution))) + ", "
+                    yValues += NStr(float(eval(solution))) + ", "
                 yValues = yValues[:-2]
             except Exception as e:
                 yValues = f"ERROR: {e}"

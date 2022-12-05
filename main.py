@@ -139,9 +139,9 @@ if __name__ == "__main__":
     pygame.display.set_caption(f"Graphulator Screen View - {0} FPS")
     
     #  ***** Instantiation of classes *****
-    gui = UserInterface(Kill)                   # Create and initialise an instance of the UI class
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
     graphUI = GraphUserInterface(graph)         # Create and initialise an instance of the graph UI class
+    gui = UserInterface(graphUI, Kill)          # Create and initialise an instance of the UI class
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     # Starting equations
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
-    gui.entries[0].set("sin(x)")
+    gui.entries[0].set("xx+yy=2")
     gui.entries[1].set("0.5x")
     
 

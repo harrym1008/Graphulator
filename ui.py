@@ -4,6 +4,7 @@ from tkinter.font import Font
 from PIL import Image, ImageTk
 
 from colours import *
+from graphui import GraphUserInterface
 
 import drawfunc
 from evaluate import *
@@ -15,7 +16,7 @@ numbersDropdown = [str(i+1) for i in range(10)]
 
 
 class UserInterface:
-    def __init__(self, killMethodReference):
+    def __init__(self, graphUI, killMethodReference):
         self.root = Tk()
         self.root.title("Graphulator v4")
         self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
@@ -28,6 +29,8 @@ class UserInterface:
 
         self.helpOpen = False
         self.currentEquation = 0
+
+        self.graphUI: GraphUserInterface = graphUI
 
 
 
@@ -123,7 +126,7 @@ class UserInterface:
 
         header = f"{equNums[0]+1}: {strEqus[0]}\n{equNums[1]+1}: {strEqus[1]}"
 
-        if True:
+        try:
 
             strEqus = UnreplaceEquation(strEqus[0]), UnreplaceEquation(strEqus[1])
             equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
@@ -132,25 +135,25 @@ class UserInterface:
             intersections = sp.solve([equ1, equ2], (x, y))
             intsectString = ""
 
+            points = []
+
             for i in range(len(intersections[0])):
-                x = sp.N(intersections[0][i])
-                y = sp.N(intersections[1][i])
+                x = float(sp.N(intersections[0][i]))
+                y = float(sp.N(intersections[1][i]))
+                points.append((x, y))
 
-                print(x, y, type(x))
+                intsectString += f"({NStr(x)}, {NStr(y)})\n"
 
-                intsectString += f"({x}, {y})\n"
-
-            messagebox.showinfo("Intersection", f"""{header}
+            self.AskToHighlightPoints("Intersection", f"""{header}
                 
 The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}:
 
-{intsectString}""")
+{intsectString}""", points)
 
-        '''
         except Exception as error:
             messagebox.showerror("Intersection", f"""{header}\n\nAn error occured whilst calculating the intersection.\n
 Error:   {type(error).__name__}
-Message: {error.args[0]}""")'''
+Message: {error.args[0]}""")
 
 
 
@@ -178,7 +181,7 @@ Message: {error.args[0]}""")'''
 
             pointsString = "\n"
             for sol in ySolutions:
-                pointsString += f"(0, {GetNumString(eval(sol))})\n"
+                pointsString += f"(0, {NStr(eval(sol))})\n"
 
             string = f"The Y-intercept is at point{'' if len(ySolutions) == 1 else 's'}:\n{pointsString}"
             messagebox.showinfo("Y-Intercept", string)
@@ -202,7 +205,7 @@ Message: {error.args[0]}""")
 
             pointsString = "\n"
             for sol in xSolutions:
-                pointsString += f"({GetNumString(eval(sol))}, 0)\n"
+                pointsString += f"({NStr(eval(sol))}, 0)\n"
 
             string = f"The X-intercept is at point{'' if len(xSolutions) == 1 else 's'}:\n{pointsString}"
             messagebox.showinfo("X-Intercept", string)
@@ -303,3 +306,14 @@ intersect at the points:
         lbl.config(font=self.fonts[font], fg=colour)
         return lbl
 
+
+
+
+    def AskToHighlightPoints(self, title, content, points):
+        pointWord = "these points" if len(points) > 1 else "this point"
+        content += f"\nWould you like to highlight {pointWord} in the graph window?"
+
+        result = messagebox.askquestion(title, content, icon="info")
+
+        if result:
+            self.graphUI.highlightedPoints.extend(points)

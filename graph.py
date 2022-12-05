@@ -150,7 +150,7 @@ class Graph:
             posX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
             posY = self.croppedOrgPos[1]     # y is always 0 at the origin
 
-            txtSurface = self.fonts[10].render(f"{GetNumString(x, True)}", True, colours["black"].colour)
+            txtSurface = self.fonts[10].render(f"{NStr(x, True)}", True, colours["black"].colour)
             posX -= txtSurface.get_width() / 2
             posY += 2
 
@@ -171,7 +171,7 @@ class Graph:
             posX = self.croppedOrgPos[0]   # x is always 0 at the origin
             posY = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom    
 
-            txtSurface = self.fonts[10].render(f"{GetNumString(y, True)}", True, colours["black"].colour)
+            txtSurface = self.fonts[10].render(f"{NStr(y, True)}", True, colours["black"].colour)
             posX += 3
             posY -= txtSurface.get_height() / 2
 
