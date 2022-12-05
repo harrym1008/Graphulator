@@ -6,7 +6,6 @@ from PIL import Image, ImageTk
 from colours import *
 
 import drawfunc
-
 from evaluate import *
 from numstr import *
 
@@ -124,32 +123,19 @@ class UserInterface:
 
         header = f"{equNums[0]+1}: {strEqus[0]}\n{equNums[1]+1}: {strEqus[1]}"
 
-        try:
-            strEqus = UnreplaceEquation(strEqus[0]), UnreplaceEquation(strEqus[1])
-            equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
-            equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[1], getHandSides=False)
+        strEqus = UnreplaceEquation(strEqus[0]), UnreplaceEquation(strEqus[1])
+        equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
+        equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[1], getHandSides=False)
 
-            equ1Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ1, "y", False)
-            equ2Solutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ2, "y", False)
+        intersections = sp.solve([equ1, equ2], (x, y))
+        intsectString = ""
 
-            xPoints = []
-            yPoints = []
+        for i in range(intersections[0]):
+            intsectString += f"{intersections[0][i]}, {intersections[1][i]}\n"
 
-            for sol1 in equ1Solutions:
-                for sol2 in equ2Solutions:      
-                    print(f"{sol1} = {sol2}")    
-                    xPoints.append(sp.solve((sol1, sol2), x))
-                    yPoints.append(sp.solve((sol1, sol2), y))
-            
-            print(f"Intersects on X Points: {xPoints}")
-            print(f"Intersects on Y Points: {yPoints}")
+        
+                
 
-
-
-        except Exception as error:
-            messagebox.showerror("Intersection", f"""{header}\nAn error occured whilst calculating the intersection.\n
-Error:
-{type(error).__name__}: {error.args[0]}""")
 
 
 
@@ -162,6 +148,7 @@ Error:
         try:
             strEqu = UnreplaceEquation(self.entries[self.currentEquation].get())
             equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
+            print(equ)
             ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
             
             if len(ySolutions) == 0:

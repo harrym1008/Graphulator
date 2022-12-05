@@ -50,7 +50,7 @@ class GraphUserInterface:
 
         # Simplified:
         x = (graph.offset[0] * graph.zoom - 0.5 * self.screenSize[0] + mousePos[0]) / graph.zoom
-        y = (-graph.offset[1] * graph.zoom + 0.5 * self.screenSize[1] - mousePos[1]) / graph.zoom
+        y = (-graph.offset[1] * graph.zoom - 0.5 * self.screenSize[1] + mousePos[1]) / -graph.zoom
 
         writtenPosition = GetCoordString(x, y)
 
