@@ -95,8 +95,8 @@ class GraphUserInterface:
             textStart = [i+2 for i in boxStart]
 
             rectangle = pygame.Rect(x - boxStart[0], y - boxStart[1], boxSize[0], boxSize[1])
-            pygame.draw.rect(self.surface, colours["white"].faded, rectangle)
-            self.surface.blit(renderedText, textStart)
+            # pygame.draw.rect(self.surface, colours["white"].faded, rectangle)
+            self.surface.blit(renderedText, (x - textStart[0], y - textStart[0]))
 
 
 

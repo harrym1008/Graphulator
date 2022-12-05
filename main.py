@@ -131,12 +131,11 @@ def CurrentEquationInput(keys, currentEquationIndex):
 
 
 if __name__ == "__main__":
-    ResetTimer()
     # Create pygame window and run the required initiation script
     pygame.init()
     clock = pygame.time.Clock()
     graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
-    pygame.display.set_caption(f"Graphulator Screen View - {0} FPS")
+    pygame.display.set_caption(f"Graphulator Screen View")
     
     #  ***** Instantiation of classes *****
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
