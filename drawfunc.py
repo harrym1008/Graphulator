@@ -203,16 +203,17 @@ class PlottedEquation:
     def AssignSolutions(lhs, rhs, yS, xS):
         empty = []
 
-        if lhs == "x" or rhs == "x":
-            return {"y": empty,"x": xS}
         if lhs == "y" or rhs == "y":
             return {"y": yS,"x": empty}
+        if lhs == "x" or rhs == "x":
+            return {"y": empty,"x": xS}
         return {"y": yS, "x": xS}
 
 
     @staticmethod
     def ProduceEquationSolutions(equ, category, replace=True):
         x, y = sp.symbols("x y")
+
         try:
             solveFor = x if category == "x" else y
             solved = sp.solve(equ, solveFor)

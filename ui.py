@@ -123,15 +123,31 @@ class UserInterface:
 
         header = f"{equNums[0]+1}: {strEqus[0]}\n{equNums[1]+1}: {strEqus[1]}"
 
-        strEqus = UnreplaceEquation(strEqus[0]), UnreplaceEquation(strEqus[1])
-        equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
-        equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[1], getHandSides=False)
+        if True:
 
-        intersections = sp.solve([equ1, equ2], (x, y))
-        intsectString = ""
+            strEqus = UnreplaceEquation(strEqus[0]), UnreplaceEquation(strEqus[1])
+            equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
+            equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[1], getHandSides=False)
 
-        for i in range(intersections[0]):
-            intsectString += f"{intersections[0][i]}, {intersections[1][i]}\n"
+            intersections = sp.solve([equ1, equ2], (x, y))
+            intsectString = ""
+
+            for i in range(len(intersections[0])):
+                intsectString += f"{intersections[0][i]}, {intersections[1][i]}\n"
+
+                messagebox.showinfo("Intersection", f"""{header}
+                
+The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}:
+
+{intsectString}""")
+
+        '''
+        except Exception as error:
+            messagebox.showerror("Intersection", f"""{header}\n\nAn error occured whilst calculating the intersection.\n
+Error:   {type(error).__name__}
+Message: {error.args[0]}""")'''
+
+
 
         
                 
@@ -159,7 +175,7 @@ class UserInterface:
             for sol in ySolutions:
                 pointsString += f"(0, {GetNumString(eval(sol))})\n"
 
-            string = f"The Y-intercept is at point{'' if len(ySolutions) > 1 else 's'}:\n{pointsString}"
+            string = f"The Y-intercept is at point{'' if len(ySolutions) == 1 else 's'}:\n{pointsString}"
             messagebox.showinfo("Y-Intercept", string)
 
         except Exception as error:
