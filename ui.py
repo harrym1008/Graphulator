@@ -133,9 +133,14 @@ class UserInterface:
             intsectString = ""
 
             for i in range(len(intersections[0])):
-                intsectString += f"{intersections[0][i]}, {intersections[1][i]}\n"
+                x = sp.N(intersections[0][i])
+                y = sp.N(intersections[1][i])
 
-                messagebox.showinfo("Intersection", f"""{header}
+                print(x, y, type(x))
+
+                intsectString += f"({x}, {y})\n"
+
+            messagebox.showinfo("Intersection", f"""{header}
                 
 The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}:
 
