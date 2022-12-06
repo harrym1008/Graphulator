@@ -194,8 +194,8 @@ if __name__ == "__main__":
         graphScreen.blit(graphUI.surface, (0, 0)) 
 
         # redraw the ui for that frame
-        gui.UpdateEquationNumberLabels(equList, currentEquationIndex, currentGUILabelUpdate)
-        currentGUILabelUpdate = (currentGUILabelUpdate + 1) % maxEquations
+        # gui.UpdateEquationNumberLabels(equList, currentEquationIndex, currentGUILabelUpdate)
+        # currentGUILabelUpdate = (currentGUILabelUpdate + 1) % maxEquations
         
         # update tkinter and pygame displays
         gui.root.update()
