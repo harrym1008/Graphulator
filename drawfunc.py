@@ -14,7 +14,7 @@ from graph import CornerValues
 from enum import IntEnum
 
 
-INCREMENT_FACTOR = 1 if cpu_count() == 2 else 2.5
+INCREMENT_FACTOR = 1 if cpu_count() == 2 else 1.5
 ANTIALIAS = False
 TRANSFORMATIONS = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
