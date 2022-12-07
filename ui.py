@@ -7,6 +7,7 @@ from colours import *
 from graphui import GraphUserInterface
 
 import drawfunc
+from uimath import UIMath
 from evaluate import *
 from numstr import *
 
@@ -27,7 +28,6 @@ class UserInterface:
         self.CreateImages()
         self.CreateWindow()
 
-        self.helpOpen = False
         self.currentEquation = 0
 
         self.graphUI: GraphUserInterface = graphUI
@@ -245,38 +245,6 @@ Message: {error.args[0]}""")
         label = self.CreateNewLabel(f"  [{i+1}]  ", fontNum, colour)
         label.grid(row=3+i, column=0)
         self.labels[i] = label
-
-
-
-
-
-    def HelpWindow(self):
-        if self.helpOpen:
-            return
-        self.helpOpen = True
-
-        top = Toplevel()
-        top.title("Help Window")
-        top.protocol("WM_DELETE_WINDOW", lambda: self.DeactivateHelpWindow(top))  
-
-        # Draw the help window
-        messagebox.showinfo("Hello", '''
-The graphs:
-    5x
-    2x+1
-
-intersect at the points:
-    (0, 0)
-    (10, 20)
-''')
-        self.helpOpen = False
-
-        
-
-    def DeactivateHelpWindow(self, top):
-        top.destroy()
-        self.helpOpen = False
-    
 
         
 
