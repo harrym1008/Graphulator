@@ -1,5 +1,5 @@
 import os
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+# os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 # Prevents the welcome message from pygame from spamming in the terminal
 
 # External modules
@@ -151,8 +151,8 @@ if __name__ == "__main__":
     # Starting equations
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
-    gui.entries[0].set("xx+yy=2")
-    gui.entries[1].set("0.5x")
+    gui.entries[0].set("4xxx+4xx+x")
+    gui.entries[1].set("0.75x+0.2")
     
 
 

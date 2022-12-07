@@ -122,23 +122,19 @@ class UserInterface:
         header = f"{equNums[0]+1}: {strEqus[0]}\n{equNums[1]+1}: {strEqus[1]}"
 
         try:
-
-            strEqus = UnreplaceEquation(strEqus[0]), UnreplaceEquation(strEqus[1])
-            equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[0], getHandSides=False)
-            equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqus[1], getHandSides=False)
-
-            intersections = sp.solve([equ1, equ2], (x, y))
+            intersections = UIMath.FindIntersections(strEqus[0], strEqus[1])
             intsectString = ""
 
             points = []
 
-            for i in range(len(intersections[0])):
-                x = float(sp.N(intersections[0][i]))
-                y = float(sp.N(intersections[1][i]))
+            for intsect in intersections:
+                x = float(intsect[0])
+                y = float(intsect[1])
                 points.append((x, y))
 
                 intsectString += f"({NStr(x)}, {NStr(y)})\n"
 
+            print(points)
             self.AskToHighlightPoints("Intersection", f"""{header}
                 
 The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}:
@@ -146,6 +142,7 @@ The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}
 {intsectString}""", points)
 
         except Exception as error:
+            raise error
             messagebox.showerror("Intersection", f"""{header}\n\nAn error occured whilst calculating the intersection.\n
 Error:   {type(error).__name__}
 Message: {error.args[0]}""")
