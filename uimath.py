@@ -1,4 +1,3 @@
-from ui import UserInterface
 from evaluate import *
 
 import drawfunc

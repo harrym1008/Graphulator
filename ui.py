@@ -55,11 +55,6 @@ class UserInterface:
             image = Label(self.root, image=self.tkImages[0])
             image.grid(row=3+i, column=3)
             self.errorImages.append(image)
-
-        # Create help button
-        button = Button(self.root, text="Help", command=self.HelpWindow)
-        button.config(font=self.fonts[1])
-        button.grid(row=16, column=0, columnspan=2)
         
         # Create Y-intercept button
         button = Button(self.root, text="Y-Intercept", command=self.DisplayYIntercept)
