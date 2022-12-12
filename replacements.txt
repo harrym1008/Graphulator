@@ -27,5 +27,4 @@
 "abs(","np.abs("
 "sqrt(","np.sqrt("
 "Abs(","np.abs("
-"log(","np.log("
 "LambertW(","lambertw("

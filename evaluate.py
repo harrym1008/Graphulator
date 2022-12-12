@@ -1,7 +1,7 @@
 import numpy as np
 import sympy as sp
 from scipy.special import lambertw
-from math import exp
+from math import exp, log, log10
 import time
 
 replacements = []
