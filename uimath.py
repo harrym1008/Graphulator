@@ -30,6 +30,7 @@ class UIMath:
             return error
 
 
+    @staticmethod
     def RemoveDuplicatesFromArray(array, sf=6):
         new = []
         newRounded = []
@@ -41,6 +42,7 @@ class UIMath:
         return new
 
 
+    @staticmethod
     def RemoveImaginaryParts(array):
         realPoints = []
         for point in array:
@@ -60,10 +62,12 @@ class UIMath:
         return realPoints
 
 
+    @staticmethod
     def CompareFloatsWithSigFig(x, y, sf=6):
         return numstr.SigFig(x, sf) == numstr.SigFig(y, sf)
 
 
+    @staticmethod
     def FindIntersections(strEqu1, strEqu2):
         strEqu1 = UnreplaceEquation(strEqu1)
         strEqu2 = UnreplaceEquation(strEqu2)
@@ -132,9 +136,55 @@ class UIMath:
         points = UIMath.RemoveImaginaryParts(points)
         return UIMath.RemoveDuplicatesFromArray(points)
 
+
+    @staticmethod
+    def EvaluateX(equation, yValue: float):
+        x, y = sp.symbols("x y")
+        equation = UnreplaceEquation(equation)
+        equation = drawfunc.PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
+        
+        solvedForX = sp.solve(equation, x)
+        points = []
+
+        for solution in solvedForX:
+            solution = solution.subs(y, yValue)
+            points.append((solution.evalf(), yValue))
+            
+
+        points = UIMath.RemoveImaginaryParts(points)
+
+        print(solvedForX)
+
+        return UIMath.RemoveDuplicatesFromArray(points)
+
+
+    @staticmethod
+    def EvaluateY(equation, xValue: float):
+        x, y = sp.symbols("x y")
+        equation = UnreplaceEquation(equation)
+        equation = drawfunc.PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
+        
+        solvedForY = sp.solve(equation, y)
+        points = []
+
+        for solution in solvedForY:
+            solution = solution.subs(x, xValue)
+            points.append((solution.evalf(), xValue))
+            
+
+        points = UIMath.RemoveImaginaryParts(points)
+
+        print(solvedForY)
+
+        return UIMath.RemoveDuplicatesFromArray(points)
+
+
+
+
+
         
 if __name__ == "__main__":
-    equations = [ ".75x+.2", "4xxx+4xx+x" ]
+    equations = [ "2y=.75x+.2", "4xxx+4xx+x" ]
 
-    points = UIMath.FindIntersections(equations[0], equations[1])
-    print(points)
+    print(UIMath.EvaluateX(equations[1], 2))
+    print(UIMath.EvaluateY(equations[1], 2))
