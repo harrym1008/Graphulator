@@ -7,10 +7,11 @@ root = Tk()
 fonts = [
     Font(family="monofonto", size=20, weight="bold"),
     Font(family="monofonto", size=13),
-    Font(family="monofonto", size=9, weight="bold"),
-    Font(family="monofonto", size=10),
+    Font(family="monofonto", size=11, weight="bold"),
+    Font(family="monofonto", size=11),
     Font(family="monofonto", size=9),
-    Font(family="monofonto", size=7)
+    Font(family="monofonto", size=8),
+    Font(family="monofonto", size=12)
 ]
 
 
@@ -18,7 +19,11 @@ root.geometry("350x600")
 
 lbl = Label(root, text="Graphulator")
 lbl.config(font=fonts[0])
-lbl.place(relx=0.02, rely=0.01, relheight=0.07, relwidth=1)
+lbl.place(relx=0.02, rely=0.01, relheight=0.07, relwidth=0.85)
+
+btn = Button(root, text="Reset")
+btn.config(font=fonts[3])
+btn.place(relx=0.85, rely=0.02, relheight=0.05, relwidth=0.14)
 
 equationInputLabelFrame = LabelFrame(root, text="Equation Input")
 equationInputLabelFrame.config(font=fonts[1])
@@ -37,10 +42,9 @@ dataTextBox = Text(dataLabelFrame)
 dataTextBox.insert(INSERT, \
 '''Offset:    X = 2134.3214,  Y = 532.123286
 Zoom:      52442.204%
-Selected:  [4] sineruifjrewifjgoieojgoiprjogjiorejoip''')
+Selected:  [4] y = sin(x)''')
 dataTextBox.config(font=fonts[4], state="disabled")
 dataTextBox.place(relx=0.02, rely=0, relheight=0.98, relwidth=0.96)
-
 
 
 # Equation Input Frame
@@ -52,7 +56,7 @@ for i in range(10):
     equLbl.place(relx=0, rely=0.1*i, relheight=0.09, relwidth=0.15)    
 
     entry = Entry(equationInputLabelFrame, textvariable=entries[i])
-    entry.config(font=fonts[3])
+    entry.config(font=fonts[6])
     entry.place(relx=0.2, rely=0.1*i, relheight=0.09, relwidth=0.8) 
 
 
@@ -64,26 +68,26 @@ btns = [Button(calculationsLabelFrame, text="Y-Intercept"),
 
 for i, btn in enumerate(btns):
     btn.config(font=fonts[3])
-    btn.place(relx=0.05, rely=i*0.25, relheight=0.25, relwidth=0.4)
+    btn.place(relx=0.05, rely=i*0.25, relheight=0.23, relwidth=0.4)
 
 btn = Button(calculationsLabelFrame, text="Eval X")
 btn.config(font=fonts[3])
-btn.place(relx=0.05, rely=0.75, relheight=0.25, relwidth=0.2)
+btn.place(relx=0.05, rely=0.75, relheight=0.23, relwidth=0.2)
 
 btn = Button(calculationsLabelFrame, text="Eval Y")
 btn.config(font=fonts[3])
-btn.place(relx=0.25, rely=0.75, relheight=0.25, relwidth=0.2)
+btn.place(relx=0.25, rely=0.75, relheight=0.23, relwidth=0.2)
 
 
 # Frames
 
 intersectionLabelFrame = LabelFrame(calculationsLabelFrame, text="Intersection")
 intersectionLabelFrame.config(font=fonts[3])
-intersectionLabelFrame.place(relx=0.5, rely=-0.1, relheight=0.5, relwidth=0.45)
+intersectionLabelFrame.place(relx=0.5, rely=-0.05, relheight=0.5, relwidth=0.45)
 
 evaluateLabelFrame = LabelFrame(calculationsLabelFrame, text="Evaluate")
 evaluateLabelFrame.config(font=fonts[3])
-evaluateLabelFrame.place(relx=0.5, rely=0.425, relheight=0.5, relwidth=0.45)
+evaluateLabelFrame.place(relx=0.5, rely=0.475, relheight=0.5, relwidth=0.45)
 
 # Intersections
 dropdownOptions = [f"{i+1}" for i in range(10)]

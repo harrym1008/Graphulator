@@ -145,15 +145,12 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
     currentEquationIndex = 0
-    currentGUILabelUpdate = 0
-
 
     # Starting equations
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
     gui.entries[0].set("4x^3+4x^2+x")
-    gui.entries[1].set("0.75x+0.2")
-    
+    gui.entries[1].set("0.75x+0.2")    
 
 
     # Start main loop
@@ -192,10 +189,6 @@ if __name__ == "__main__":
         graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(functionManager.surface, (0, 0))  
         graphScreen.blit(graphUI.surface, (0, 0)) 
-
-        # redraw the ui for that frame
-        # gui.UpdateEquationNumberLabels(equList, currentEquationIndex, currentGUILabelUpdate)
-        # currentGUILabelUpdate = (currentGUILabelUpdate + 1) % maxEquations
         
         # update tkinter and pygame displays
         gui.root.update()

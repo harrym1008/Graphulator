@@ -10,7 +10,7 @@ LOG_2 = np.math.log(2, 10)
 LOG_4 = np.math.log(4, 10)
 
 
-MAX_ZOOM = 1e5
+MAX_ZOOM = 1e8
 MIN_ZOOM = 1e-8
 
 

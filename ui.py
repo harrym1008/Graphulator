@@ -221,6 +221,8 @@ Message: {error.args[0]}""")
             string = string.replace("golden", "ϕ")
             string = string.replace("pi", "π")
             string = string.replace("euler", "e")
+            string = string.replace(">=", "≥")
+            string = string.replace("<=", "≤")
             self.entries[i].set(string)
 
 
