@@ -19,13 +19,12 @@ numbersDropdown = [str(i+1) for i in range(10)]
 class UserInterface:
     def __init__(self, graphUI, killMethodReference):
         self.root = Tk()
-        self.root.title("Graphulator v4")
-        self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
-        self.root.iconbitmap("Images/icon.ico")
+        self.root.title("Graphulator")
+        self.root.geometry("350x600")
+        self.root.protocol("WM_DELETE_WINDOW", killMethodReference)
         # This makes it run the Kill method when the X button is pressed in the top right of the window
 
         self.CreateFonts()
-        self.CreateImages()
         self.CreateWindow()
 
         self.currentEquation = 0
@@ -35,80 +34,21 @@ class UserInterface:
 
 
     def CreateWindow(self):
-        self.CreateNewLabel("Graphulator v4", 0).grid(row=0, column=0, columnspan=8)
-        self.CreateNewLabel("A graphing calculator by Harrison McGrath", 1).grid(row=1, column=0, columnspan=8)
-        self.CreateNewLabel("", 1).grid(row=2, column=0, columnspan=4)
+        self.CreateLabel("Graphulator", 0, (0.02, 0.01, 0.85, 0.07) )
 
-        self.entries = [StringVar(self.root) for i in range(10)]
-        self.labels = []
-        self.errorImages = []
+        self.equLF = self.CreateLabelFrame("Equation Input", 1, (0.04, 0.08, 0.92, 0.49))
+        self.calcLF = self.CreateLabelFrame("Calculations", 1, (0.04, 0.57, 0.92, 0.25))
+        self.dataLF = self.CreateLabelFrame("Program Data", 1, (0.04, 0.84, 0.92, 0.15))
 
+        self.entries = []
         for i in range(10):
-            label = self.CreateNewLabel(f"  [{i+1}]  ", 4)
-            label.grid(row=3+i, column=0)
-            self.labels.append(label)
+            self.entries.append(StringVar(self.equLF))
+            self.CreateLabel(f"[{i+1}]", 2, (0, 0.1*i, 0.15, 0.09), self.equLF) 
 
-            entry = Entry(self.root, textvariable=self.entries[i])
-            entry.config(font=self.fonts[3])
-            entry.grid(row=3+i, column=1, columnspan=2)
+            entry = Entry(self.equLF, textvariable=self.entries[i])
+            entry.config(font=self.fonts[6])
+            entry.place(relx=0.2, rely=0.1*i, relheight=0.09, relwidth=0.8) 
 
-            image = Label(self.root, image=self.tkImages[0])
-            image.grid(row=3+i, column=3)
-            self.errorImages.append(image)
-        
-        # Create Y-intercept button
-        button = Button(self.root, text="Y-Intercept", command=self.DisplayYIntercept)
-        button.config(font=self.fonts[1])
-        button.grid(row=17, column=0, columnspan=2)
-        
-        # Create X-intercept button
-        button = Button(self.root, text="X-Intercept (Root)", command=self.DisplayXIntercept)
-        button.config(font=self.fonts[1])
-        button.grid(row=18, column=0, columnspan=2)
-        
-        # Create Intersection button
-        button = Button(self.root, text=" Find Intersection ", command=self.DisplayIntersection)
-        button.config(font=self.fonts[1])
-        button.grid(row=16, column=2, columnspan=2)
-        
-        self.CreateNewLabel("Equations for intsect:", 2).grid(row=17, column=2, columnspan=2)
-
-        # Create the dropdowns that are used in the intersection parameters
-        self.intsectStringVars = [StringVar(self.root, f"{i+1}") for i in range(2)]
-        self.intsectDropdowns = [OptionMenu(self.root, self.intsectStringVars[i], *numbersDropdown) for i in range(2)]
-        [dd.config(font=self.fonts[1]) for dd in self.intsectDropdowns]
-        self.intsectDropdowns[0].grid(row=18, column=2)
-        self.intsectDropdowns[1].grid(row=18, column=3)
-
-        
-        # Create Toggle Equals To button
-        button = Button(self.root, text="> ⇄ ≥", command=self.ToggleOrEqualTo)
-        button.config(font=self.fonts[1])
-        button.grid(row=19, column=0, columnspan=2)
-
-
-    # This method toggles the "or equal to" for > and < in the selected equation
-    def ToggleOrEqualTo(self):
-        array = list(self.entries[self.currentEquation].get())
-
-        for i in range(len(array)):
-            letter = array[i]
-
-            if letter == ">":
-                letter = "≥"
-            elif letter == "≥":
-                letter = ">"
-            elif letter == "<":
-                letter = "≤"
-            elif letter == "≤":
-                letter = "<"
-
-            array[i] = letter
-
-        string = ""
-        string = string.join(array)
-
-        self.entries[self.currentEquation].set(string)
 
 
 
@@ -245,28 +185,35 @@ Message: {error.args[0]}""")
     def CreateFonts(self):
         self.fonts = [
             Font(family="monofonto", size=20, weight="bold"),
-            Font(family="monofonto", size=10),
+            Font(family="monofonto", size=13),
+            Font(family="monofonto", size=11, weight="bold"),
+            Font(family="monofonto", size=11),
+            Font(family="monofonto", size=9),
             Font(family="monofonto", size=8),
-            Font(family="monofonto", size=12),
-            Font(family="monofonto", size=12, weight="bold", ),
+            Font(family="monofonto", size=12)
         ]
 
 
-    def CreateImages(self):
-        self.files = [
-            "Images/blank.png",
-            "Images/no.png"
-        ]
 
-        self.tkImages = [ImageTk.PhotoImage(Image.open(f).resize((16, 16), Image.ANTIALIAS)) for f in self.files]
+    def CreateLabel(self, text, fontNum, placement, root=None):
+        if root is None:
+            root = self.root
 
-
-
-
-    def CreateNewLabel(self, text, font, colour="black"):
-        lbl = Label(self.root, text=text)
-        lbl.config(font=self.fonts[font], fg=colour)
+        lbl = Label(root, text=text)
+        lbl.config(font=self.fonts[fontNum])
+        lbl.place(relx=placement[0], rely=placement[1], relwidth=placement[2], relheight=placement[3])
         return lbl
+
+
+    def CreateLabelFrame(self, text, fontNum, placement, root=None):
+        if root is None:
+            root = self.root
+
+        lf = LabelFrame(root, text=text)
+        lf.config(font=self.fonts[fontNum])
+        lf.place(relx=placement[0], rely=placement[1], relwidth=placement[2], relheight=placement[3])
+        return lf
+
 
 
 
