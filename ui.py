@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
-from PIL import Image, ImageTk
+from multiprocessing import cpu_count
 
 from colours import *
 from graphui import GraphUserInterface
@@ -21,6 +21,10 @@ class UserInterface:
         self.root = Tk()
         self.root.title("Graphulator")
         self.root.geometry("350x600")
+
+        if cpu_count() > 2:
+            self.root.geometry("438x750")
+
         self.root.protocol("WM_DELETE_WINDOW", killMethodReference)
         # This makes it run the Kill method when the X button is pressed in the top right of the window
 
