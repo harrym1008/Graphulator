@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
-from multiprocessing import cpu_count
+from PIL import Image, ImageTk
 
 from colours import *
 from graphui import GraphUserInterface
@@ -83,8 +83,7 @@ class UserInterface:
         self.CreateEntry(self.evalStringVars[1], 4, (0.25, 0.44, 0.7, 0.5), self.evalLF)
 
         # Create the data text box
-        self.dataStringVar = StringVar(self.dataLF)
-        
+        self.dataTextBox = Text()
 
 
 
