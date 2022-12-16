@@ -18,21 +18,9 @@ numbersDropdown = [str(i+1) for i in range(10)]
 
 class UserInterface:
     def __init__(self, graphUI, killMethodReference):
-<<<<<<< HEAD
         self.root = Tk()                  # Define the root window
         self.root.title("Graphulator")    
         self.root.geometry("350x600")     # Default resolution of 350x600
-=======
-        self.root = Tk()
-        self.root.title("Graphulator")
-        self.root.geometry("350x600")
-
-        if cpu_count() > 2:
-            self.root.geometry("438x750")
-
-        self.root.protocol("WM_DELETE_WINDOW", killMethodReference)
-        # This makes it run the Kill method when the X button is pressed in the top right of the window
->>>>>>> dc8df38d61c8f393d7d7ae53f84e18a969c30db4
 
         self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
                                     # Run the kill method when the X is pressed
