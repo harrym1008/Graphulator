@@ -153,8 +153,6 @@ class UIMath:
 
         points = UIMath.RemoveImaginaryParts(points)
 
-        print(solvedForX)
-
         return UIMath.RemoveDuplicatesFromArray(points)
 
 
@@ -173,8 +171,6 @@ class UIMath:
             
 
         points = UIMath.RemoveImaginaryParts(points)
-
-        print(solvedForY)
 
         return UIMath.RemoveDuplicatesFromArray(points)
 
