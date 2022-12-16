@@ -93,7 +93,7 @@ evaluateLabelFrame.place(relx=0.5, rely=0.475, relheight=0.5, relwidth=0.45)
 dropdownOptions = [f"{i+1}" for i in range(10)]
 intsectStringVars = [StringVar(intersectionLabelFrame, f"{i+1}") for i in range(2)]
 dropdowns = [OptionMenu(intersectionLabelFrame, intsectStringVars[i], *dropdownOptions) for i in range(2)]
-[dd.config(font=fonts[2]) for dd in dropdowns]
+[dd.config(font=fonts[2]) for dd in dropdowns]  
 
 dropdowns[0].place(relx=0, rely=0, relheight=1, relwidth=0.5)
 dropdowns[1].place(relx=0.5, rely=0, relheight=1, relwidth=0.5)

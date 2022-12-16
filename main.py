@@ -60,6 +60,7 @@ def PygameInput(events, keys, graph):
     if keys[pygame.K_r]:
         graph.zoom = 50
         graph.offset = [0, 0]
+        graphUI.highlightedPoints.clear()
 
     # Pan the screen with the keyboard arrow keys
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
