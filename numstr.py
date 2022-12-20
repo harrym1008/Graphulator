@@ -10,7 +10,7 @@ def NStr(n: float, short: bool = False) -> str:
 
     powersOf10 = int(math.log(math.fabs(n), 10))
 
-    if 9 > powersOf10 > -4:
+    if (8 > powersOf10 > -4 and short) or (9 > powersOf10  > -5 and not short):
         if n % 1 == 0:
             return str(int(n))
 
@@ -26,7 +26,7 @@ def GetCoordString(x: float, y: float):
 
 def GetFractionalNumber(n, powersOf10, maxdp=6) -> str:
     dp = maxdp - powersOf10 if maxdp - powersOf10 >= 0 else 0
-    dp = dp if powersOf10 > -2 else -2-maxdp
+    dp = dp if powersOf10 > -2 else 2+maxdp
     floatN = round(n, dp)
 
     if floatN % 1 == 0:
@@ -72,12 +72,3 @@ def StringToSuperscript(n: int) -> str:
         string += SUPERSCRIPT[int(str(n)[i])]
 
     return string
-
-'''
-v = time.perf_counter()
-
-while True:
-    n = random.uniform(-1, 1) * 10000.5123 * 10 ** random.randint(-4, 8)
-    s = NStr(n)
-    print(f"{n}:  '{s}'  --->  {len(s)}    took {time.perf_counter() - v}")
-    v = time.perf_counter()'''
