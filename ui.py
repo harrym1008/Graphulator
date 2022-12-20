@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 
 from colours import *
 from graphui import GraphUserInterface
+from multiprocessing import cpu_count
 
 import drawfunc
 from uimath import UIMath
@@ -14,13 +15,15 @@ from numstr import *
 
 numbersDropdown = [str(i+1) for i in range(10)]
 
+scrsz = "438x700" if cpu_count() > 2 else "350x600"
+
 
 
 class UserInterface:
     def __init__(self, graphUI, killMethodReference):
         self.root = Tk()                  # Define the root window
-        self.root.title("Graphulator")    
-        self.root.geometry("350x600")     # Default resolution of 350x600
+        self.root.title("Graphulator")
+        self.root.geometry(scrsz)     # Default resolution of 350x600
 
         self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
                                     # Run the kill method when the X is pressed
@@ -88,7 +91,7 @@ class UserInterface:
 
 
 
-    # This code finds the location(s) of the intersection, then creates a window displaying where
+    # This code finds the location(s) of the intersection, then creates a window displaying the points
     def DisplayIntersection(self):
         x, y = sp.symbols("x y")
         equNums = int(self.intsectStringVars[0].get())-1, int(self.intsectStringVars[1].get())-1

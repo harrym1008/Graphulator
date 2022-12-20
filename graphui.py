@@ -90,13 +90,13 @@ class GraphUserInterface:
             text = f"({NStr(currentPoint[0], short=True)}, {NStr(currentPoint[1], short=True)})"
             renderedText = self.fonts[12].render(text, True, colours["black"].colour)
             
-            boxStart = renderedText.get_width() // 2 - 2, renderedText.get_height() // 2 - 2
-            boxSize = renderedText.get_width() + 4, renderedText.get_width() + 4
-            textStart = [i+2 for i in boxStart]
+            textLocation = x - renderedText.get_width() // 2, y - renderedText.get_height() // 2 - 16
+            boxLocation = textLocation[0] - 2, textLocation[1] - 2
+            boxSize = renderedText.get_width() + 4, renderedText.get_height() + 4
 
-            rectangle = pygame.Rect(x - boxStart[0], y - boxStart[1], boxSize[0], boxSize[1])
-            # pygame.draw.rect(self.surface, colours["white"].faded, rectangle)
-            self.surface.blit(renderedText, (x - textStart[0], y - textStart[0]))
+            rectangle = pygame.Rect(boxLocation[0], boxLocation[1], boxSize[0], boxSize[1])
+            pygame.draw.rect(self.surface, colours["faded white"].colour, rectangle)
+            self.surface.blit(renderedText, (textLocation[0], textLocation[1]))
 
 
 

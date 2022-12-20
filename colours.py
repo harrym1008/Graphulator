@@ -37,7 +37,8 @@ colours = {
     "purple": Colour(160, 32, 240),
 
     "transparent": Colour(0, 0, 0, 0),
-    "faded black": Colour(0, 0, 0, 64)
+    "faded black": Colour(0, 0, 0, 64),
+    "faded white": Colour(255, 255, 255, 192)
 }
 
 
