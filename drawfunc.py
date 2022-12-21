@@ -129,19 +129,13 @@ class PlottedEquation:
                 for i, solution in enumerate(solutions["y"]):
                     yPoints.append([])
                     for x in yRange:
-                        try:
-                            yPoints[i].append((x, float( eval(solution) )))  #GetYValue(x, currentEquation) )))
-                        except Exception as e:
-                            yPoints[i].append((x, np.inf))
+                        yPoints[i].append(PlottedEquation.SolveEquationFromX(x, solution))
                             
                 # Loop through all X solutions
                 for i, solution in enumerate(solutions["x"]):
                     xPoints.append([])
                     for y in xRange:
-                        try:
-                            xPoints[i].append((float( eval(solution)), y ))  #GetYValue(x, currentEquation) ))
-                        except Exception as e:
-                            xPoints[i].append((np.inf, y))
+                        xPoints[i].append(PlottedEquation.SolveEquationFromY(y, solution))
                 points = yPoints + xPoints
 
                 # points = PlottedEquation.GetLowHighValueXY(points, yRange)
@@ -183,6 +177,24 @@ class PlottedEquation:
 
             outQueue.put(outData)
             # print(f"Full process took {time.perf_counter() - startTime}")
+
+
+    @staticmethod
+    def SolveEquationFromX(x, solution):
+        try:
+            return (x, float( eval(solution) ))
+        except:
+            return (x, np.inf)
+
+
+    @staticmethod
+    def SolveEquationFromY(y, solution):
+        try:
+            return (float( eval(solution) ), y)
+        except:
+            return (np.inf, y)
+
+
 
 
     @staticmethod

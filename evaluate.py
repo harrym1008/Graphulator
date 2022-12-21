@@ -55,18 +55,15 @@ def UnreplaceEquation(equation: str):
 
 
 
+def lerp(x, y, t):
+    return x + (y-x) * t
+
+
+
 def factorial(x):
-    x = int(x)
-    val = 1
-    for i in range(2, x+1):
-        val *= i
+    N = 400     # N is meant to be limited to infinity, but this is harsh on 
+                # cpu time, so I chose 400 as being a good enough number
+                # between CPU time and accuracy
+    k = sp.Symbol("k", integer=True)
 
-
-
-
-
-
-GetReplacements()
-
-if __name__ == "__main__":
-    print(replacements)
+    return (sp.Product(k/(x+k), (k,1,N)) * N**x).evalf()
