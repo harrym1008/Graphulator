@@ -151,6 +151,7 @@ if __name__ == "__main__":
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
     gui.entries[0].set("x=2y")
+    gui.entries[1].set("2x=y")
 
 
     # Start main loop

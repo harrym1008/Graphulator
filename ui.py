@@ -91,8 +91,10 @@ class UserInterface:
 
 
 
+
+
     # This code finds the location(s) of the intersection, then creates a window displaying the points
-    def DisplayIntersection(self):
+    def DisplayXEvaluation(self):
         x, y = sp.symbols("x y")
         equNums = int(self.intsectStringVars[0].get())-1, int(self.intsectStringVars[1].get())-1
         strEqus = self.entries[ equNums[0] ].get(), self.entries[ equNums[1] ].get() 
@@ -123,6 +125,45 @@ The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}
             messagebox.showerror("Intersection", f"""{header}\n\nAn error occured whilst calculating the intersection.\n
 Error:   {type(error).__name__}
 Message: {error.args[0]}""")
+
+
+
+
+
+    # This code finds the location(s) of the intersection, then creates a window displaying the points
+    def DisplayIntersection(self):
+        equNums = int(self.intsectStringVars[0].get())-1, int(self.intsectStringVars[1].get())-1
+        strEqus = self.entries[ equNums[0] ].get(), self.entries[ equNums[1] ].get() 
+
+        header = f"{equNums[0]+1}: {strEqus[0]}\n{equNums[1]+1}: {strEqus[1]}"
+
+        try:
+            intersections = UIMath.FindIntersections(strEqus[0], strEqus[1])
+            intsectString = ""
+
+            points = [] 
+
+            if len(intersections) == 0:
+                raise NotFoundException("The equations do not intersect")
+
+            for intsect in intersections:
+                x = float(intsect[0])
+                y = float(intsect[1])
+                points.append((x, y))
+
+                intsectString += f"({NStr(x)}, {NStr(y)})\n"
+
+            print(points)
+            self.AskToHighlightPoints("Intersection", f"""{header}
+                
+The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}:
+
+{intsectString}""", points)
+
+        except Exception as error:
+            messagebox.showerror("Intersection", f"""{header}\n\nAn error occured whilst calculating the intersection.\n
+Error:   {type(error).__name__}
+Message: {error.args[0]}""")
       
                 
 
@@ -133,8 +174,6 @@ Message: {error.args[0]}""")
 
 
     def DisplayYIntercept(self):
-        x, y = 0, sp.Symbol("y")
-
         try:
             strEqu = UnreplaceEquation(self.entries[self.currentEquation].get())
             equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
@@ -142,8 +181,7 @@ Message: {error.args[0]}""")
             ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
             
             if len(ySolutions) == 0:
-                messagebox.showwarning("X-Intercept", "This equation does not have an X-intercept.")
-                return
+                raise NotFoundException("This equation does not a solution at X=0, and so it doesn't have a Y-intercept")
 
             pointsString = "\n"
             for sol in ySolutions:
@@ -166,8 +204,7 @@ Message: {error.args[0]}""")
             xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
             
             if len(xSolutions) == 0:
-                messagebox.showwarning("X-Intercept", "This equation does not have an X-intercept.")
-                return
+                raise NotFoundException("This equation does not a solution at Y=0, and so it doesn't have a X-intercept")
 
             pointsString = "\n"
             for sol in xSolutions:
@@ -280,3 +317,8 @@ Message: {error.args[0]}""")
 
         if result:
             self.graphUI.highlightedPoints.extend(points)
+
+
+
+class NotFoundException(Exception):
+    pass
