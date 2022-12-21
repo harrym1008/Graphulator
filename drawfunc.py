@@ -155,6 +155,7 @@ class PlottedEquation:
                     surface = PlottedEquation.DrawSurfaceFromArray_YEquals(points[0], 
                                 inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
                 elif len(solutions["x"]) == 1:
+                    print("Yes")
                     surface = PlottedEquation.DrawSurfaceFromArray_XEquals(points[0], 
                                 inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
             else:
@@ -308,6 +309,7 @@ class PlottedEquation:
 
     @staticmethod
     def DrawSurfaceFromArray_XEquals(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
+        print(f"Trying to draw an X Equals graph, {array}")
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
         surface.fill(colours.colours["transparent"].colour)
 

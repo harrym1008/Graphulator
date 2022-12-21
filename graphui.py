@@ -34,7 +34,7 @@ class GraphUserInterface:
         self.ClearUISurface()
         self.TopRightDebugData(graph)
         self.DrawHighlightedPoints(graph)
-        self.DrawFramerateGraph()
+        # self.DrawFramerateGraph()
         x = self.WriteMousePosition(mousePos, graph)
         self.DrawCurrentEquationXY(equation, x)
         

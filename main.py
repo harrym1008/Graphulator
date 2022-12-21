@@ -150,8 +150,7 @@ if __name__ == "__main__":
     # Starting equations
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
-    gui.entries[0].set("4x^3+4x^2+x")
-    gui.entries[1].set("0.75x+0.2")    
+    gui.entries[0].set("x=2y")
 
 
     # Start main loop
