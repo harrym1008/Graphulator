@@ -116,7 +116,7 @@ class PlottedEquation:
             yPoints = []
             xPoints = []
 
-            start, end = bounds.W, bounds.E
+            start, end = bounds.SW, bounds.NE
             incrementY = (end[0] - start[0]) / (bounds.screenSize[0] * INCREMENT_FACTOR)
             incrementX = (end[0] - start[0]) / (bounds.screenSize[1] * INCREMENT_FACTOR)
 
@@ -145,8 +145,7 @@ class PlottedEquation:
                 points = savedPoints
 
 
-            surface: pygame.Surface
-
+            surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
 
             # Produce a pygame surface from the points just calculated
             if solutionCount == 1:
@@ -155,22 +154,20 @@ class PlottedEquation:
                     surface = PlottedEquation.DrawSurfaceFromArray_YEquals(points[0], 
                                 inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
                 elif len(solutions["x"]) == 1:
-                    print("Yes")
                     surface = PlottedEquation.DrawSurfaceFromArray_XEquals(points[0], 
                                 inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
-            else:
-                surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
-                if solutionCount > 1:
-                    for i in range(solutionCount):
-                        isYEquals = i < len(solutions["y"])
-                        if isYEquals:
-                            tempSurface = PlottedEquation.DrawSurfaceFromArray_YEquals(points[i], 
-                                        inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
-                        else:
-                            tempSurface = PlottedEquation.DrawSurfaceFromArray_XEquals(points[i], 
-                                        inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
+            elif solutionCount > 1:
+                for i in range(solutionCount):
+                    isYEquals = i < len(solutions["y"])
+                    if isYEquals:
+                        tempSurface = PlottedEquation.DrawSurfaceFromArray_YEquals(points[i], 
+                                    inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
+                    else:
+                        tempSurface = PlottedEquation.DrawSurfaceFromArray_XEquals(points[i], 
+                                    inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize)
 
-                        surface.blit(tempSurface, (0, 0))
+                    surface.blit(tempSurface, (0, 0))
+
 
 
             # Place into a class of thread output data
@@ -309,7 +306,6 @@ class PlottedEquation:
 
     @staticmethod
     def DrawSurfaceFromArray_XEquals(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
-        print(f"Trying to draw an X Equals graph, {array}")
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
         surface.fill(colours.colours["transparent"].colour)
 
