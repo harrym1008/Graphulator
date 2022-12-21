@@ -1,6 +1,7 @@
 from colours import *
 from numstr import *
 from evaluate import *
+from graphui import GraphUserInterface
 
 import pygame
 import numpy as np
@@ -222,19 +223,23 @@ class Graph:
 
 
     def DrawCircleAtTracedPoint(self, renderer, equation, mousePos):
-        if mousePos is None or equation is None or equation.equation == "":
+        if equation is None or equation.equation == "" or mousePos is None:
             return
-
-        t = time.perf_counter() % 10
         
-        try:
-            x = (self.zoomedOffset[0] - self.screenCentre[0] + mousePos[0]) / self.zoom
-            for solution in equation.solutions:
-                y = eval(solution)
-                yOnGraph = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
-                pygame.draw.circle(renderer.surface, equation.colour.colour, (mousePos[0], yOnGraph), 4)
-        except:
-            return     
+        x = (self.offset[0] * self.zoom - 0.5 * self.screenSize[0] + mousePos[0]) / self.zoom
+        y = (-self.offset[1] * self.zoom - 0.5 * self.screenSize[1] + mousePos[1]) / -self.zoom
+
+        points = GraphUserInterface.GetXAndYValues(equation, x, y)
+
+        for xPoint in points[0]:
+            for yPoint in points[1]:
+                if isinstance(xPoint, Exception) or isinstance(yPoint, Exception):
+                    continue
+
+                screenX = -self.zoomedOffset[0] + self.screenCentre[0] + xPoint * self.zoom
+                screenY = self.zoomedOffset[1] + self.screenCentre[1] - yPoint * self.zoom
+
+                pygame.draw.circle(renderer.surface, equation.colour.colour, (screenX, screenY), 4)
 
 
     def DrawFadedTraceLines(self, renderer, mousePos):

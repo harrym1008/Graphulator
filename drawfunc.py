@@ -171,7 +171,7 @@ class PlottedEquation:
 
 
             # Place into a class of thread output data
-            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation, solutions["y"])
+            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation, solutions)
 
             outQueue.put(outData)
             # print(f"Full process took {time.perf_counter() - startTime}")

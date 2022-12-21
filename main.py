@@ -204,7 +204,7 @@ if __name__ == "__main__":
             if e.type == pygame.QUIT:     # When the window is closed
                 Kill()
                 break
-            if e.type == pygame.VIDEORESIZE:    # Allow screen to be resized                
+            if e.type == pygame.VIDEORESIZE:    # Executed when the pygame window is resized     
                 screenSize = (max(e.w, minScreenSize[0]),
                               max(e.h, minScreenSize[1]))
 

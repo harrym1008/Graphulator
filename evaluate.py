@@ -67,3 +67,7 @@ def factorial(x):
     k = sp.Symbol("k", integer=True)
 
     return (sp.Product(k/(x+k), (k,1,N)) * N**x).evalf()
+
+
+
+GetReplacements()

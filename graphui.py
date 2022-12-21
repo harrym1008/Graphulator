@@ -35,15 +35,15 @@ class GraphUserInterface:
         self.TopRightDebugData(graph)
         self.DrawHighlightedPoints(graph)
         # self.DrawFramerateGraph()
-        x = self.WriteMousePosition(mousePos, graph)
-        self.DrawCurrentEquationXY(equation, x)
+        x, y = self.WriteMousePosition(mousePos, graph)
+        self.DrawCurrentEquationXY(equation, x, y)
         
 
 
     
     def WriteMousePosition(self, mousePos, graph):
         if mousePos is None:  # mouse is not focused on the window
-            return np.inf
+            return np.inf, np.inf
 
         font = self.fonts[12]
 
@@ -74,7 +74,7 @@ class GraphUserInterface:
                          pygame.Rect(renderX, renderY, txtSurface.get_width(), txtSurface.get_height()))
         self.surface.blit(txtSurface, (renderX, renderY))
 
-        return x
+        return (x, y)
 
 
     def DrawHighlightedPoints(self, graph):
@@ -121,23 +121,54 @@ class GraphUserInterface:
 
 
 
-    def DrawCurrentEquationXY(self, equation, x):
+    def DrawCurrentEquationXY(self, equation, x, y):
         if equation is None or equation.equation == "":
             return
             
         font = self.fonts[16]
-        invalidX = x in [np.inf, np.NINF, np.nan]
-        pushPixels = 2 if not invalidX else 1.2
+        invalidInputValues = GraphUserInterface.XAndYCheckForNullValues(equation, x, y)
+        pushPixels = 2 if not invalidInputValues else 1.2
 
         equString = UnreplaceEquation(equation.equation)
         equationText = font.render(f"[{equation.index+1}] {equString}", True, equation.colour.colour)
         
         rectangle = pygame.Rect(0, self.screenSize[1] - equationText.get_height()*pushPixels - 2, self.screenSize[0], 
                                 equationText.get_height() * pushPixels + 2)
-        # pygame.draw.rect(self.surface, colours["white"].colour, rectangle)
+        pygame.draw.rect(self.surface, colours["faded white"].colour, rectangle)
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * pushPixels))
 
-        if not invalidX:
+        if invalidInputValues:
+            return
+
+        points = GraphUserInterface.GetXAndYValues(equation, x, y)
+
+        xString = "x="
+        yString = "y="
+
+        for xPoint in points[0]:
+            if isinstance(xPoint, Exception):
+                xString += f"ERROR: {xPoint}, "
+                continue
+            xString += NStr(xPoint) + ", "
+
+        for yPoint in points[1]:
+            if isinstance(yPoint, Exception):
+                yString += f"ERROR: {yPoint}, "
+                continue
+            yString += NStr(yPoint) + ", "
+
+        xString = xString[:-2]
+        yString = yString[:-2]
+
+        xText = font.render(xString, True, colours["black"].colour)
+        yText = font.render(yString, True, colours["black"].colour)
+
+        yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128
+        self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height())) 
+        self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))
+
+
+        '''if not invalidX:
             t = time.perf_counter() % 10
             
             xText = font.render(f"x={NStr(x)}", True, colours["black"].colour)
@@ -154,9 +185,43 @@ class GraphUserInterface:
             yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128
 
             self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height())) 
-            self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))
+            self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))'''
 
 
+
+    @staticmethod
+    def XAndYCheckForNullValues(equation, x, y):
+        return (x in [np.inf, np.NINF, np.nan] and len(equation.solutions["y"]) > 0) or \
+               (y in [np.inf, np.NINF, np.nan] and len(equation.solutions["x"]) > 0)
+
+
+    @staticmethod
+    def GetXAndYValues(equation, x, y):
+        t = time.perf_counter() % 10
+        xArr = []
+        yArr = []
+
+        for solution in equation.solutions["y"]:
+            try:
+                yArr.append(float(eval(solution)))
+            except Exception as e:
+                yArr.append(e)
+
+            if x not in xArr:
+                xArr.append(x)
+            print("Y solution")
+
+        for solution in equation.solutions["x"]:
+            try:
+                xArr.append(float(eval(solution)))
+            except Exception as e:
+                xArr.append(e)
+
+            if y not in yArr:
+                yArr.append(y)
+            print("X solution")
+
+        return xArr, yArr
 
 
     def DrawFramerateGraph(self):
@@ -191,4 +256,4 @@ class GraphUserInterface:
             lastX = x
 
             
-        
+
