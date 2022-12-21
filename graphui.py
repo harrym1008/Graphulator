@@ -209,7 +209,6 @@ class GraphUserInterface:
 
             if x not in xArr:
                 xArr.append(x)
-            print("Y solution")
 
         for solution in equation.solutions["x"]:
             try:
@@ -219,8 +218,7 @@ class GraphUserInterface:
 
             if y not in yArr:
                 yArr.append(y)
-            print("X solution")
-
+                
         return xArr, yArr
 
 

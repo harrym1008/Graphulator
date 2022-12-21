@@ -1,10 +1,13 @@
-import math, time
-import random, sys
+import math
+import numpy as np
 
 SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"  # ⁺⁻⁼⁽⁾"
 
 
 def NStr(n: float, short: bool = False) -> str:
+    if n in [np.inf, np.NINF, np.nan, float("nan")]:
+        return "ERROR"
+
     if n == 0:
         return "0"
 
