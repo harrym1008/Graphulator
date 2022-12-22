@@ -14,6 +14,7 @@ from graph import CornerValues
 from enum import IntEnum
 
 
+
 INCREMENT_FACTOR = 1 if cpu_count() == 2 else 1.5
 ANTIALIAS = False
 TRANSFORMATIONS = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
@@ -76,13 +77,18 @@ class PlottedEquation:
         print(f"Thread {self.index} has been started")
 
         n = self.index + 1
+        a = 0
+        b = 0
+        c = 0
+        tUpper = -10
+        tLower = 10
         
         while True:
             # wait for the in queue to have a length of 1 (this means data is present)
-            t = time.perf_counter() % 10
+            t = tLower + (tUpper-tLower) * (time.perf_counter() % 10) / 10
 
             while inQueue.qsize() < 1:
-                time.sleep(0.05)
+                time.sleep(0.1)
 
             # Get equation events (how the equation has changed so the thread can be updated)
             forceUpdate = False
@@ -91,6 +97,13 @@ class PlottedEquation:
                 event = eventQueue.get()
                 if event.type == 0:
                     currentEquation = event.data
+                elif event.type == 1:
+                    a = event.data[0]
+                    b = event.data[1]
+                    c = event.data[2]
+                    tLower = event.data[3]
+                    tUpper = event.data[4]
+
                 
 
             if not firstPass:
@@ -120,22 +133,33 @@ class PlottedEquation:
             incrementY = (end[0] - start[0]) / (bounds.screenSize[0] * INCREMENT_FACTOR)
             incrementX = (end[0] - start[0]) / (bounds.screenSize[1] * INCREMENT_FACTOR)
 
-            xRange = np.arange(start[1], end[1], incrementX)
-            yRange = np.arange(start[0], end[0], incrementY)
+            xRange = np.arange(start[0], end[0], incrementY)
+            yRange = np.arange(start[1], end[1], incrementX)
+
+
+            # print(a, b, c, n, t)
 
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
                 # Loop through all Y solutions
                 for i, solution in enumerate(solutions["y"]):
                     yPoints.append([])
-                    for x in yRange:
-                        yPoints[i].append(PlottedEquation.SolveEquationFromX(x, solution, n, t))
+                    for x in xRange:
+                        try:
+                            point = (x, float( eval(solution) ))
+                        except:
+                            point = (x, np.inf)
+                        yPoints[i].append(point)
                             
                 # Loop through all X solutions
                 for i, solution in enumerate(solutions["x"]):
                     xPoints.append([])
-                    for y in xRange:
-                        xPoints[i].append(PlottedEquation.SolveEquationFromY(y, solution, n, t))
+                    for y in yRange:
+                        try:
+                            point = (float( eval(solution) ), y)
+                        except:
+                            point = (np.inf, y)
+                        xPoints[i].append(point)
                 points = yPoints + xPoints
 
                 # points = PlottedEquation.GetLowHighValueXY(points, yRange)
@@ -175,23 +199,6 @@ class PlottedEquation:
 
             outQueue.put(outData)
             # print(f"Full process took {time.perf_counter() - startTime}")
-
-
-    @staticmethod
-    def SolveEquationFromX(x, solution, n, t):
-        try:
-            return (x, float( eval(solution) ))
-        except:
-            return (x, np.inf)
-
-
-    @staticmethod
-    def SolveEquationFromY(y, solution, n, t):
-        try:
-            return (float( eval(solution) ), y)
-        except:
-            return (np.inf, y)
-
 
 
 

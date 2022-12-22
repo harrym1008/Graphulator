@@ -168,12 +168,16 @@ if __name__ == "__main__":
         mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
         currentEquation = functionManager.currentEquations[currentEquationIndex]
 
+        # Update constants
+        gui.ResetConstants()
+        constants = gui.GetConstants()
+        functionManager.SetConstants(constants)
+
         # Get latest list of equations        
         equList = gui.GetListOfEquations()[:maxEquations]
         # Run replacement function on every equation in the list
         equList = [evaluate.ReplaceEquation(equ) if equ != "" else "" for equ in equList]
         functionManager.UpdateEquations(equList)
-
 
         # Frame update code
         graphRenderer.NewFrame()
@@ -181,7 +185,6 @@ if __name__ == "__main__":
         graphUI.UpdateUISurface(graph, mousePos, currentEquation) 
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
-        gui.ResetConstants()
         
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)

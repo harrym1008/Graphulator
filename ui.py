@@ -174,10 +174,8 @@ class UserInterface:
         self.constantSliderValues[3].set(tTimer)
 
 
-        print(aLower, aUpper, self.constantSliderValues[0].get())
-
-
-        
+    def GetConstants(self):
+        return (self.a, self.b, self.c, self.t[0], self.t[1])
 
 
 

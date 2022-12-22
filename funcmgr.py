@@ -15,8 +15,6 @@ import time
 
 BOUND_MULTIPLIER = 1
 
-UPDATE_HERTZ = 60
-UPDATE_TIME = 1 / UPDATE_HERTZ if UPDATE_HERTZ > 0 else 0
 
 
 class FunctionManager:
@@ -29,7 +27,8 @@ class FunctionManager:
         self.myEventQueues = []
         
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-        self.timeToNextUpdate = UPDATE_TIME
+        self.constants = (0, 0, 0, -10, 10)
+
 
         s = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
 
@@ -71,16 +70,15 @@ class FunctionManager:
 
 
 
-    def CheckIfUpdatingThreads(self):
-        self.timeToNextUpdate -= deltatime.deltaTime
+    def SetConstants(self, constants):
+        if constants == self.constants:
+            return
+        self.constants = constants
 
-        if self.timeToNextUpdate < -1:
-            self.timeToNextUpdate = UPDATE_TIME
-            return True
-        elif self.timeToNextUpdate < 0:
-            self.timeToNextUpdate += UPDATE_TIME
-            return True
-        return False
+        for queue in self.myEventQueues:
+            queue.put(Event(1, constants))
+
+
 
 
 
