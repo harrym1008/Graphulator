@@ -2,16 +2,17 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
 from PIL import Image, ImageTk
+from multiprocessing import cpu_count
 
 from colours import *
 from graphui import GraphUserInterface
 from graph import Graph
-from multiprocessing import cpu_count
-
-import drawfunc
 from uimath import UIMath
 from evaluate import *
 from numstr import *
+
+import drawfunc
+import random
 
 
 numbersDropdown = [str(i+1) for i in range(10)]
@@ -127,7 +128,7 @@ class UserInterface:
             lbl.place(relx=0.44, rely=y, relwidth=0.14, relheight=0.25) 
 
         for i in range(4):
-            self.constantSliderValues[i].set(0.5)
+            self.constantSliderValues[i].set(random.uniform(0, 1))
             self.constantEntryPairs[i][0].set("-10")
             self.constantEntryPairs[i][1].set("10")
             self.constantValues[i].set(0)
