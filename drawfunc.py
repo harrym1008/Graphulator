@@ -129,13 +129,13 @@ class PlottedEquation:
                 for i, solution in enumerate(solutions["y"]):
                     yPoints.append([])
                     for x in yRange:
-                        yPoints[i].append(PlottedEquation.SolveEquationFromX(x, solution))
+                        yPoints[i].append(PlottedEquation.SolveEquationFromX(x, solution, n, t))
                             
                 # Loop through all X solutions
                 for i, solution in enumerate(solutions["x"]):
                     xPoints.append([])
                     for y in xRange:
-                        xPoints[i].append(PlottedEquation.SolveEquationFromY(y, solution))
+                        xPoints[i].append(PlottedEquation.SolveEquationFromY(y, solution, n, t))
                 points = yPoints + xPoints
 
                 # points = PlottedEquation.GetLowHighValueXY(points, yRange)
@@ -178,7 +178,7 @@ class PlottedEquation:
 
 
     @staticmethod
-    def SolveEquationFromX(x, solution):
+    def SolveEquationFromX(x, solution, n, t):
         try:
             return (x, float( eval(solution) ))
         except:
@@ -186,7 +186,7 @@ class PlottedEquation:
 
 
     @staticmethod
-    def SolveEquationFromY(y, solution):
+    def SolveEquationFromY(y, solution, n, t):
         try:
             return (float( eval(solution) ), y)
         except:

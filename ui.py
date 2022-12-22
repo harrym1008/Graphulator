@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 
 from colours import *
 from graphui import GraphUserInterface
+from graph import Graph
 from multiprocessing import cpu_count
 
 import drawfunc
@@ -20,7 +21,7 @@ scrsz = "438x700" if cpu_count() > 2 else "350x600"
 
 
 class UserInterface:
-    def __init__(self, graphUI, killMethodReference):
+    def __init__(self, graph, graphUI, killMethodReference):
         self.root = Tk()                  # Define the root window
         self.root.title("Graphulator")
         self.root.geometry(scrsz)     # Default resolution of 350x600
@@ -28,24 +29,36 @@ class UserInterface:
         self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
                                     # Run the kill method when the X is pressed
 
+        self.graph = graph
+        self.graphUI = graphUI
+
         self.currentEquation = 0
-        self.graphUI: GraphUserInterface = graphUI
         self.dropdownOptions = [str(i+1) for i in range(10)]
+
+        # Define constants
+        self.a = 0
+        self.b = 0
+        self.c = 0
+        self.t = (-10, 10)
 
         self.CreateFonts()      # Create fonts array
         self.CreateWindow()     # Place all tkinter widgets onto the window
+        self.ResetConstants()
 
 
 
 
 
     def CreateWindow(self):
-        self.CreateLabel("Graphulator", 0, (0.02, 0.01, 0.85, 0.07) )
+        self.CreateLabel("Graphulator", 0, (0.02, 0.01, 0.81, 0.07) )
+
+        # Create reset button
+        self.CreateButton("Reset", 3, self.Reset, (0.83, 0.005, 0.17, 0.07))
 
         # Define all of the label frames
         self.equLF = self.CreateLabelFrame("Equation Input", 1, (0.04, 0.08, 0.92, 0.49))
         self.calcLF = self.CreateLabelFrame("Calculations", 1, (0.04, 0.57, 0.92, 0.25))
-        self.dataLF = self.CreateLabelFrame("Program Data", 1, (0.04, 0.82, 0.92, 0.15))
+        self.constLF = self.CreateLabelFrame("Constants", 1, (0.04, 0.82, 0.92, 0.17))
         
         self.intsectLF = self.CreateLabelFrame("Intersection", 3, (0.5, -0.05, 0.45, 0.5), self.calcLF)
         self.evalLF = self.CreateLabelFrame("Evaluate", 3, (0.5, 0.475, 0.45, 0.5), self.calcLF)
@@ -85,15 +98,93 @@ class UserInterface:
         self.CreateEntry(self.evalStringVars[0], 4, (0.25, -0.06, 0.7, 0.5), self.evalLF)
         self.CreateEntry(self.evalStringVars[1], 4, (0.25, 0.44, 0.7, 0.5), self.evalLF)
 
-        # Create the data text box
-        self.dataTextBox = Text()
+        # Create the sliders for the constants
+        self.constantSliderValues = []
+        self.constantEntryPairs = []
+        self.constantValues = []
+
+        for letter, y in [("a", -0.03), ("b", 0.22), ("c", 0.47), ("t", 0.72)]:
+            variable = DoubleVar(self.constLF)
+            self.constantSliderValues.append(variable)
+
+            slider = Scale(self.constLF, from_=0, to=1, orient="horizontal", \
+                 variable=variable, resolution=0.001, showvalue=False)
+            slider['state'] = "disabled" if letter == "t" else "normal"
+            slider.place(relx=0.06, rely=y, relwidth=0.4, relheight=0.25)
+            
+            stringVars = [StringVar(self.constLF), StringVar(self.constLF)]
+            self.constantEntryPairs.append(stringVars)
+            self.CreateEntry(stringVars[0], 5, (0.59, y, 0.135, 0.25), self.constLF)
+            self.CreateEntry(stringVars[1], 5, (0.835, y, 0.135, 0.25), self.constLF)
+            
+            self.CreateLabel(letter, 4, (0, y, 0.06, 0.25), self.constLF)          
+            self.CreateLabel(f"≤ {letter} ≤", 5, (0.73, y, 0.10, 0.25), self.constLF)
+            
+            stringVar = StringVar(self.constLF)
+            self.constantValues.append(stringVar)            
+            lbl = Label(self.constLF, textvariable=stringVar)
+            lbl.config(font=self.fonts[5])
+            lbl.place(relx=0.44, rely=y, relwidth=0.14, relheight=0.25) 
+
+        for i in range(4):
+            self.constantSliderValues[i].set(0.5)
+            self.constantEntryPairs[i][0].set("-10")
+            self.constantEntryPairs[i][1].set("10")
+            self.constantValues[i].set(0)
+        
+            
+
+    @staticmethod
+    def Lerp(x, y, t):          # Stands for Linear Interpolation
+        return x + (y-x) * t
 
 
-        # Create reset and settings buttons
-        self.CreateButton("Reset", 3, self.DisplayYIntercept, (0.75, 0.005, 0.25, 0.04))
-        self.CreateButton("Settings", 3, self.DisplayYIntercept, (0.75, 0.045, 0.25, 0.04))
+    @staticmethod
+    def TryConvertToFloat(x):
+        try:
+            return float(x)
+        except:
+            return 0
 
 
+
+    def ResetConstants(self):
+        aLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[0][0].get())
+        aUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[0][1].get())
+        self.a = UserInterface.Lerp(aLower, aUpper, self.constantSliderValues[0].get())
+        
+        bLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[1][0].get())
+        bUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[1][1].get())
+        self.b = UserInterface.Lerp(bLower, bUpper, self.constantSliderValues[1].get())
+        
+        cLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[2][0].get())
+        cUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[2][1].get())
+        self.c = UserInterface.Lerp(cLower, cUpper, self.constantSliderValues[2].get())
+
+        tTimer = (time.perf_counter() % 10) / 10
+        tLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[3][0].get())
+        tUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[3][1].get())
+        tValue = UserInterface.Lerp(tLower, tUpper, tTimer) 
+        self.t = (tLower, tUpper)
+
+        self.constantValues[0].set(NStr(self.a))
+        self.constantValues[1].set(NStr(self.b))
+        self.constantValues[2].set(NStr(self.c))
+        self.constantValues[3].set(NStr(tValue, short=True))
+        self.constantSliderValues[3].set(tTimer)
+
+
+        print(aLower, aUpper, self.constantSliderValues[0].get())
+
+
+        
+
+
+
+    def Reset(self):        
+        self.graph.zoom = 50
+        self.graph.offset = [0, 0]
+        self.graphUI.highlightedPoints.clear()
 
 
 

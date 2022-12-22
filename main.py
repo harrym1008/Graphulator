@@ -141,7 +141,7 @@ if __name__ == "__main__":
     #  ***** Instantiation of classes *****
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
     graphUI = GraphUserInterface(graph)         # Create and initialise an instance of the graph UI class
-    gui = UserInterface(graphUI, Kill)          # Create and initialise an instance of the UI class
+    gui = UserInterface(graph, graphUI, Kill)   # Create and initialise an instance of the UI class
     graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
@@ -179,11 +179,9 @@ if __name__ == "__main__":
         graphRenderer.NewFrame()
         graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
         graphUI.UpdateUISurface(graph, mousePos, currentEquation) 
-
-        if functionManager.CheckIfUpdatingThreads():
-            functionManager.UpdateThreads(graph)
-
+        functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
+        gui.ResetConstants()
         
         # redraw the screen for that frame
         graphScreen.fill(colours["white"].colour)
