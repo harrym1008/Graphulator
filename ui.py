@@ -45,7 +45,7 @@ class UserInterface:
         # Define all of the label frames
         self.equLF = self.CreateLabelFrame("Equation Input", 1, (0.04, 0.08, 0.92, 0.49))
         self.calcLF = self.CreateLabelFrame("Calculations", 1, (0.04, 0.57, 0.92, 0.25))
-        self.dataLF = self.CreateLabelFrame("Program Data", 1, (0.04, 0.84, 0.92, 0.15))
+        self.dataLF = self.CreateLabelFrame("Program Data", 1, (0.04, 0.82, 0.92, 0.15))
         
         self.intsectLF = self.CreateLabelFrame("Intersection", 3, (0.5, -0.05, 0.45, 0.5), self.calcLF)
         self.evalLF = self.CreateLabelFrame("Evaluate", 3, (0.5, 0.475, 0.45, 0.5), self.calcLF)
@@ -87,6 +87,11 @@ class UserInterface:
 
         # Create the data text box
         self.dataTextBox = Text()
+
+
+        # Create reset and settings buttons
+        self.CreateButton("Reset", 3, self.DisplayYIntercept, (0.75, 0.005, 0.25, 0.04))
+        self.CreateButton("Settings", 3, self.DisplayYIntercept, (0.75, 0.045, 0.25, 0.04))
 
 
 
