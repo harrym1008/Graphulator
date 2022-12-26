@@ -4,6 +4,7 @@ from evaluate import *
 from graphui import GraphUserInterface
 
 import pygame
+import math
 import numpy as np
      
 
@@ -231,15 +232,22 @@ class Graph:
 
         points = GraphUserInterface.GetXAndYValues(equation, x, y)
 
-        for xPoint in points[0]:
-            for yPoint in points[1]:
-                if isinstance(xPoint, Exception) or isinstance(yPoint, Exception):
+        if len(equation.solutions["x"]) >= len(equation.solutions["y"]):
+            for xPoint in points[0]:
+                if math.isnan(xPoint):
                     continue
-
                 screenX = -self.zoomedOffset[0] + self.screenCentre[0] + xPoint * self.zoom
-                screenY = self.zoomedOffset[1] + self.screenCentre[1] - yPoint * self.zoom
-
+                screenY = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
                 pygame.draw.circle(renderer.surface, equation.colour.colour, (screenX, screenY), 4)
+
+        else:
+            for yPoint in points[1]:
+                if math.isnan(yPoint):
+                    continue
+                screenX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
+                screenY = self.zoomedOffset[1] + self.screenCentre[1] - yPoint * self.zoom
+                pygame.draw.circle(renderer.surface, equation.colour.colour, (screenX, screenY), 4)
+
 
 
     def DrawFadedTraceLines(self, renderer, mousePos):

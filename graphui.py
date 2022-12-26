@@ -205,20 +205,15 @@ class GraphUserInterface:
             try:
                 yArr.append(float(eval(solution)))
             except Exception as e:
-                yArr.append(e)
-
-            if x not in xArr:
-                xArr.append(x)
+                pass
 
         for solution in equation.solutions["x"]:
             try:
                 xArr.append(float(eval(solution)))
             except Exception as e:
-                xArr.append(e)
-
-            if y not in yArr:
-                yArr.append(y)
+                pass
                 
+
         return xArr, yArr
 
 

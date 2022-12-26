@@ -167,7 +167,7 @@ class PlottedEquation:
                 savedPoints = points
             elif not skipNoEquation and skipSameBounds:
                 points = savedPoints
-
+                
 
             surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
 
@@ -353,6 +353,9 @@ class PlottedEquation:
 
         surface = pygame.transform.flip(surface, False, True)
         return surface
+
+
+
 
 
     @staticmethod

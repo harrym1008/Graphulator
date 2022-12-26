@@ -5,7 +5,7 @@ SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"  # ⁺⁻⁼⁽⁾"
 
 
 def NStr(n: float, short: bool = False) -> str:
-    if n in [np.inf, np.NINF, np.nan, float("nan")]:
+    if n in [np.inf, np.NINF, np.nan] or math.isnan(n):
         return "ERROR"
 
     if n == 0:
@@ -40,7 +40,16 @@ def GetFractionalNumber(n, powersOf10, maxdp=6) -> str:
 def SigFig(x, sig):
     if x == 0:
         return 0
-    return round(x, sig - int(math.floor(math.log(abs(x), 10))) - 1)
+    return round(x, sig - int(math.log(abs(x), 10)) - 1)
+
+
+def SigFig(x, figures):
+    if x == 0:
+        return 0
+    logarithm = math.log(abs(x), 10)
+    decPlaces = figures - int(logarithm)
+    return round(x, decPlaces)
+
 
 
 def StandardForm(n: float, dp: int = 3) -> str:
