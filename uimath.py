@@ -13,6 +13,7 @@ class UIMath:
             strEqu = UnreplaceEquation(strEqu)
             equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
+            print("!" + ySolutions)
             return ySolutions
         except Exception as error:
             return error
@@ -24,8 +25,9 @@ class UIMath:
             x, y = sp.Symbol("x"), 0
             strEqu = UnreplaceEquation(strEqu)
             equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
-            ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
-            return ySolutions
+            xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
+            print("!" + xSolutions)
+            return xSolutions
         except Exception as error:
             return error
 
@@ -46,7 +48,6 @@ class UIMath:
     def RemoveImaginaryParts(array):
         realPoints = []
         for point in array:
-            print(type(point[0]), type(point[1]))
 
             try:
                 x = point[0].as_real_imag()[0]

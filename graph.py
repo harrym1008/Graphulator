@@ -230,7 +230,7 @@ class Graph:
         x = (self.offset[0] * self.zoom - 0.5 * self.screenSize[0] + mousePos[0]) / self.zoom
         y = (-self.offset[1] * self.zoom - 0.5 * self.screenSize[1] + mousePos[1]) / -self.zoom
 
-        points = GraphUserInterface.GetXAndYValues(equation, x, y)
+        points = GraphUserInterface.GetXAndYValuesForCircle(equation, x, y)
 
         if len(equation.solutions["x"]) >= len(equation.solutions["y"]):
             for xPoint in points[0]:

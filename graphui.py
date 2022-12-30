@@ -140,7 +140,7 @@ class GraphUserInterface:
         if invalidInputValues:
             return
 
-        points = GraphUserInterface.GetXAndYValues(equation, x, y)
+        points = GraphUserInterface.GetXAndYValuesForText(equation, x, y)
 
         xString = "x="
         yString = "y="
@@ -196,7 +196,7 @@ class GraphUserInterface:
 
 
     @staticmethod
-    def GetXAndYValues(equation, x, y):
+    def GetXAndYValuesForCircle(equation, x, y):
         t = time.perf_counter() % 10
         xArr = []
         yArr = []
@@ -214,6 +214,33 @@ class GraphUserInterface:
                 pass
                 
 
+        return xArr, yArr
+
+
+    @staticmethod
+    def GetXAndYValuesForText(equation, x, y):
+        t = time.perf_counter() % 10
+        xArr = []
+        yArr = []
+
+        for solution in equation.solutions["y"]:
+            try:
+                yArr.append(float(eval(solution)))
+            except Exception as e:
+                yArr.append(e)
+
+            if x not in xArr:
+                xArr.append(x)
+
+        for solution in equation.solutions["x"]:
+            try:
+                xArr.append(float(eval(solution)))
+            except Exception as e:
+                xArr.append(e)
+
+            if y not in yArr:
+                yArr.append(y)
+                
         return xArr, yArr
 
 
