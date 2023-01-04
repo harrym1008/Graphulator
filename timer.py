@@ -13,7 +13,7 @@ def GetTimeSince(header, reset=True):
     if reset:
         ResetTimer()
         
-    return f"{header}: {since} seconds"
+    print( f"{header}: {since} seconds")
 
 
 

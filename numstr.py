@@ -13,13 +13,13 @@ def NStr(n: float, short: bool = False) -> str:
 
     powersOf10 = int(math.log(math.fabs(n), 10))
 
-    if (8 > powersOf10 > -4 and short) or (9 > powersOf10  > -5 and not short):
+    if (8 > powersOf10 > -4 and short) or (10 > powersOf10  > -4 and not short):
         if n % 1 == 0:
             return str(int(n))
 
         return GetFractionalNumber(n, powersOf10, 4 if short else 6)
 
-    return StandardForm(n, 2 if short else 4)
+    return StandardForm(n, 2 if short else 5)
 
 
 def GetCoordString(x: float, y: float):

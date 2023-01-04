@@ -24,7 +24,7 @@ screenSize = (720, 480)
 minScreenSize = (192, 192)
 
 running = True
-targetFPS = 60
+targetFPS = 30 if cpu_count() == 2 else 60
 maxEquations = 2 if cpu_count() == 2 else 10
 
 panSpeed = 2.5
@@ -156,6 +156,8 @@ if __name__ == "__main__":
 
     # Start main loop
     while running:     
+        ResetTimer()
+
         # Get pygame events and pressed keys
         events = pygame.event.get()
         keys = pygame.key.get_pressed()
@@ -191,16 +193,12 @@ if __name__ == "__main__":
         graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(functionManager.surface, (0, 0))  
         graphScreen.blit(graphUI.surface, (0, 0)) 
+        GetTimeSince("till graph screen blitter")
         
         # update tkinter and pygame displays
         gui.root.update()
-        pygame.display.update()        
+        pygame.display.update()      
         
-        # Wait for 60 FPS
-        clock.tick(targetFPS)
-        deltatime.Update()
-        pygame.display.set_caption(f"Graphulator Screen View - {round(clock.get_fps(), 2)} FPS")
-
         # Check for quitting / resizing
         for e in events:
             if e.type == pygame.QUIT:     # When the window is closed
@@ -218,6 +216,12 @@ if __name__ == "__main__":
                 functionManager.ScreenHasBeenResized(screenSize)
                 panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
                 # the sorted()[1] expression finds the smallest of either the width or the height
+
+
+        # Wait for 60 FPS
+        clock.tick(targetFPS)
+        deltatime.Update()
+        pygame.display.set_caption(f"Graphulator Screen View - {round(clock.get_fps(), 2)} FPS")
 
 
     # run this code on exit
