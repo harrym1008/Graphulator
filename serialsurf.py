@@ -36,7 +36,7 @@ class SerialisedSurface:
     @classmethod
     def MakeSurfaceRGBA(cls, array, null):
         if null:
-            return None
+            return pygame.Surface((2, 2), pygame.SRCALPHA, 32)
 
         # s = time.perf_counter()
         

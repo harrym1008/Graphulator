@@ -30,13 +30,13 @@ class GraphUserInterface:
         self.screenSize = newSize
 
 
-    def UpdateUISurface(self, graph, mousePos, equation):
+    def UpdateUISurface(self, graph, mousePos, equation, funcMgr):
         self.ClearUISurface()
         self.TopRightDebugData(graph)
         self.DrawHighlightedPoints(graph)
         # self.DrawFramerateGraph()
         x, y = self.WriteMousePosition(mousePos, graph)
-        self.DrawCurrentEquationXY(equation, x, y)
+        self.DrawCurrentEquationXY(equation, x, y, funcMgr)
         
 
 
@@ -121,7 +121,7 @@ class GraphUserInterface:
 
 
 
-    def DrawCurrentEquationXY(self, equation, x, y):
+    def DrawCurrentEquationXY(self, equation, x, y, funcMgr):
         if equation is None or equation.equation == "":
             return
             
@@ -140,7 +140,7 @@ class GraphUserInterface:
         if invalidInputValues:
             return
 
-        points = GraphUserInterface.GetXAndYValuesForText(equation, x, y)
+        points = GraphUserInterface.GetXAndYValuesForText(equation, x, y, funcMgr)
 
         xString = "x="
         yString = "y="
@@ -196,8 +196,13 @@ class GraphUserInterface:
 
 
     @staticmethod
-    def GetXAndYValuesForCircle(equation, x, y):
-        t = time.perf_counter() % 10
+    def GetXAndYValuesForCircle(equation, x, y, funcMgr):        
+        constants = funcMgr.GetConstants()
+        a = constants[0]
+        b = constants[1]
+        c = constants[2]
+        t = Lerp(constants[3], constants[4], (time.perf_counter() % 10) / 10) 
+
         xArr = []
         yArr = []
 
@@ -218,8 +223,13 @@ class GraphUserInterface:
 
 
     @staticmethod
-    def GetXAndYValuesForText(equation, x, y):
-        t = time.perf_counter() % 10
+    def GetXAndYValuesForText(equation, x, y, funcMgr):
+        constants = funcMgr.GetConstants()
+        a = constants[0]
+        b = constants[1]
+        c = constants[2]
+        t = Lerp(constants[3], constants[4], (time.perf_counter() % 10) / 10) 
+        
         xArr = []
         yArr = []
 
@@ -229,18 +239,12 @@ class GraphUserInterface:
             except Exception as e:
                 yArr.append(e)
 
-            if x not in xArr:
-                xArr.append(x)
-
         for solution in equation.solutions["x"]:
             try:
                 xArr.append(float(eval(solution)))
             except Exception as e:
                 xArr.append(e)
 
-            if y not in yArr:
-                yArr.append(y)
-                
         return xArr, yArr
 
 
@@ -277,3 +281,5 @@ class GraphUserInterface:
 
             
 
+def Lerp(x, y, t):          # Stands for Linear Interpolation
+    return x + (y-x) * t

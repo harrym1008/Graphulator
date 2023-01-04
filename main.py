@@ -183,8 +183,8 @@ if __name__ == "__main__":
 
         # Frame update code
         graphRenderer.NewFrame()
-        graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos) 
-        graphUI.UpdateUISurface(graph, mousePos, currentEquation) 
+        graph.DrawBaseGraphSurface(graphRenderer, currentEquation, mousePos, functionManager) 
+        graphUI.UpdateUISurface(graph, mousePos, currentEquation, functionManager) 
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
         
@@ -193,7 +193,6 @@ if __name__ == "__main__":
         graphScreen.blit(graphRenderer.surface, (0, 0))
         graphScreen.blit(functionManager.surface, (0, 0))  
         graphScreen.blit(graphUI.surface, (0, 0)) 
-        GetTimeSince("till graph screen blitter")
         
         # update tkinter and pygame displays
         gui.root.update()

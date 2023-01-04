@@ -55,7 +55,6 @@ class FunctionManager:
         self.surface = pygame.Surface(newSize, pygame.SRCALPHA)
 
 
-
     def AddAnotherEquation(self, equation):
         index = len(self.currentEquations)
 
@@ -77,6 +76,10 @@ class FunctionManager:
 
         for queue in self.myEventQueues:
             queue.put(Event(1, constants))
+            
+            
+    def GetConstants(self):
+        return self.constants
 
 
 
@@ -116,8 +119,10 @@ class FunctionManager:
                     self.myInQueues[i].put(threadData)
                     continue
 
-                data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
+                ResetTimer()
 
+                data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
+                
                 self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
                 self.currentEquations[i].solutions = data.solutions
                 

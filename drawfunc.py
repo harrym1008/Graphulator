@@ -192,10 +192,12 @@ class PlottedEquation:
 
                     surface.blit(tempSurface, (0, 0))
 
+            else:       # if there are no solutions
+                time.sleep(0.3)
 
 
             # Place into a class of thread output data
-            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, skipNoEquation, solutions)
+            outData = ThreadOutput(surface, bounds, inData.zoomedOffset, (skipNoEquation or solutionCount == 0), solutions)
 
             outQueue.put(outData)
             # print(f"Full process took {time.perf_counter() - startTime}")

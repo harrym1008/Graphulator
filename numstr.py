@@ -63,10 +63,10 @@ def StandardForm(n: float, dp: int = 3) -> str:
 
     # guarantee that the standard form is between 1 and 10
     while round(normalisedN, dp) >= 10 or round(normalisedN, dp) < 1:
-        if normalisedN > 10:
+        if round(normalisedN, dp) >= 10:
             normalisedN /= 10
             x += 1
-        elif normalisedN < 1:
+        elif round(normalisedN, dp) < 1:
             normalisedN *= 10
             x -= 1
 

@@ -133,39 +133,25 @@ class UserInterface:
             self.constantEntryPairs[i][1].set("10")
             self.constantValues[i].set(0)
         
-            
-
-    @staticmethod
-    def Lerp(x, y, t):          # Stands for Linear Interpolation
-        return x + (y-x) * t
-
-
-    @staticmethod
-    def TryConvertToFloat(x):
-        try:
-            return float(x)
-        except:
-            return 0
-
 
 
     def ResetConstants(self):
-        aLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[0][0].get())
-        aUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[0][1].get())
-        self.a = UserInterface.Lerp(aLower, aUpper, self.constantSliderValues[0].get())
+        aLower = UIMath.TryConvertToFloat(self.constantEntryPairs[0][0].get())
+        aUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[0][1].get())
+        self.a = UIMath.Lerp(aLower, aUpper, self.constantSliderValues[0].get())
         
-        bLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[1][0].get())
-        bUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[1][1].get())
-        self.b = UserInterface.Lerp(bLower, bUpper, self.constantSliderValues[1].get())
+        bLower = UIMath.TryConvertToFloat(self.constantEntryPairs[1][0].get())
+        bUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[1][1].get())
+        self.b = UIMath.Lerp(bLower, bUpper, self.constantSliderValues[1].get())
         
-        cLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[2][0].get())
-        cUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[2][1].get())
-        self.c = UserInterface.Lerp(cLower, cUpper, self.constantSliderValues[2].get())
+        cLower = UIMath.TryConvertToFloat(self.constantEntryPairs[2][0].get())
+        cUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[2][1].get())
+        self.c = UIMath.Lerp(cLower, cUpper, self.constantSliderValues[2].get())
 
         tTimer = (time.perf_counter() % 10) / 10
-        tLower = UserInterface.TryConvertToFloat(self.constantEntryPairs[3][0].get())
-        tUpper = UserInterface.TryConvertToFloat(self.constantEntryPairs[3][1].get())
-        tValue = UserInterface.Lerp(tLower, tUpper, tTimer) 
+        tLower = UIMath.TryConvertToFloat(self.constantEntryPairs[3][0].get())
+        tUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[3][1].get())
+        tValue = UIMath.Lerp(tLower, tUpper, tTimer) 
         self.t = (tLower, tUpper)
 
         self.constantValues[0].set(NStr(self.a))

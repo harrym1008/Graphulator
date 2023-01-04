@@ -174,6 +174,19 @@ class UIMath:
         points = UIMath.RemoveImaginaryParts(points)
 
         return UIMath.RemoveDuplicatesFromArray(points)
+            
+
+    @staticmethod
+    def Lerp(x, y, t):          # Stands for Linear Interpolation
+        return x + (y-x) * t
+
+
+    @staticmethod
+    def TryConvertToFloat(x):
+        try:
+            return float(x)
+        except:
+            return 0
 
 
 

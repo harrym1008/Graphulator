@@ -12,8 +12,8 @@ LOG_2 = np.math.log(2, 10)
 LOG_4 = np.math.log(4, 10)
 
 
-MAX_ZOOM = 1e8
-MIN_ZOOM = 1e-8
+MAX_ZOOM = 1e800
+MIN_ZOOM = 1e-800
 
 
 class Graph:
@@ -223,14 +223,14 @@ class Graph:
         renderer.surface.blit(txtSurfaceY, renderPosY)
 
 
-    def DrawCircleAtTracedPoint(self, renderer, equation, mousePos):
+    def DrawCircleAtTracedPoint(self, renderer, equation, mousePos, funcMgr):
         if equation is None or equation.equation == "" or mousePos is None:
             return
         
         x = (self.offset[0] * self.zoom - 0.5 * self.screenSize[0] + mousePos[0]) / self.zoom
         y = (-self.offset[1] * self.zoom - 0.5 * self.screenSize[1] + mousePos[1]) / -self.zoom
 
-        points = GraphUserInterface.GetXAndYValuesForCircle(equation, x, y)
+        points = GraphUserInterface.GetXAndYValuesForCircle(equation, x, y, funcMgr)
 
         if len(equation.solutions["x"]) >= len(equation.solutions["y"]):
             for xPoint in points[0]:
@@ -258,7 +258,7 @@ class Graph:
         renderer.surface.blit(renderer.traceSurfaces[1], (0, mousePos[1]))
 
 
-    def DrawBaseGraphSurface(self, renderer, currentEquation, mousePos):
+    def DrawBaseGraphSurface(self, renderer, currentEquation, mousePos, funcMgr):
         self.screenCentre = [self.screenSize[0] // 2, self.screenSize[1] // 2]
         self.PerformPrecalculation()
         realGap = self.DrawGraphLines(renderer)
@@ -267,7 +267,7 @@ class Graph:
         self.DrawZeroAtOrigin(renderer)
         self.DrawXAndYWords(renderer)
         self.DrawFadedTraceLines(renderer, mousePos)
-        self.DrawCircleAtTracedPoint(renderer, currentEquation, mousePos)
+        self.DrawCircleAtTracedPoint(renderer, currentEquation, mousePos, funcMgr)
 
 
 
