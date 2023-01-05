@@ -128,10 +128,11 @@ class UserInterface:
             lbl.place(relx=0.44, rely=y, relwidth=0.14, relheight=0.25) 
 
         for i in range(4):
-            self.constantSliderValues[i].set(random.uniform(0, 1))
+            normalisedValue = random.uniform(0, 1)
+            self.constantSliderValues[i].set(normalisedValue)
             self.constantEntryPairs[i][0].set("-10")
             self.constantEntryPairs[i][1].set("10")
-            self.constantValues[i].set(0)
+            self.constantValues[i].set(NStr(UIMath.Lerp(-10, 10, normalisedValue), short=True))
         
 
 
@@ -255,11 +256,13 @@ Message: {error.args[0]}""")
 
 
     def DisplayYIntercept(self):
+        x, y = 0, sp.Symbol("y")
+        a, b, c, t = UIMath.GetConstants()
+        print("Hola my dawg", a, b, c, t)
+
         try:
-            strEqu = UnreplaceEquation(self.entries[self.currentEquation].get())
-            equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
-            print(equ)
-            ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
+            strEqu = self.entries[self.currentEquation].get()
+            ySolutions = UIMath.FindYIntercept(strEqu)
             
             if len(ySolutions) == 0:
                 raise NotFoundException("This equation does not a solution at X=0, and so it doesn't have a Y-intercept")
@@ -279,10 +282,8 @@ Message: {error.args[0]}""")
         
     def DisplayXIntercept(self):
         try:
-            x, y = sp.Symbol("x"), 0
-            strEqu = UnreplaceEquation(self.entries[self.currentEquation].get())
-            equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
-            xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
+            strEqu = self.entries[self.currentEquation].get()
+            xSolutions = UIMath.FindXIntercept(strEqu)
             
             if len(xSolutions) == 0:
                 raise NotFoundException("This equation does not a solution at Y=0, and so it doesn't have a X-intercept")

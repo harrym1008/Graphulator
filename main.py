@@ -18,6 +18,7 @@ from graphui import GraphUserInterface
 from graphrenderer import GraphRenderer
 from funcmgr import FunctionManager
 from ui import UserInterface
+from uimath import *
 
 # Screen starts at this resolution by default
 screenSize = (720, 480)
@@ -174,6 +175,7 @@ if __name__ == "__main__":
         gui.ResetConstants()
         constants = gui.GetConstants()
         functionManager.SetConstants(constants)
+        UIMath.DefineConstants(constants)
 
         # Get latest list of equations        
         equList = gui.GetListOfEquations()[:maxEquations]

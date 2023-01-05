@@ -6,34 +6,57 @@ import numstr
 
 
 class UIMath:
-    @staticmethod
-    def FindYIntercept(strEqu):
+    a = 0
+    b = 0
+    c = 0
+    t = 0
+
+    @classmethod
+    def DefineConstants(cls, constants):
+        cls.a = constants[0]
+        cls.b = constants[1]
+        cls.c = constants[2]
+        cls.t = cls.Lerp(constants[3], constants[4], (time.perf_counter() % 10) / 10)
+
+
+    @classmethod
+    def GetConstants(cls):
+        return (cls.a, cls.b, cls.c, cls.t)
+
+
+    @classmethod
+    def FindYIntercept(cls, strEqu):
+        a, b, c, t = cls.a, cls.b, cls.c, cls.t
+        print("Hola", a, b, c, t)
+
         try:
             x, y = 0, sp.Symbol("y")
             strEqu = UnreplaceEquation(strEqu)
             equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
-            print("!" + ySolutions)
             return ySolutions
         except Exception as error:
             return error
             
 
-    @staticmethod
-    def FindXIntercept(strEqu):
+    @classmethod
+    def FindXIntercept(cls, strEqu):
+        a, b, c, t = cls.a, cls.b, cls.c, cls.t
+
         try:
             x, y = sp.Symbol("x"), 0
             strEqu = UnreplaceEquation(strEqu)
             equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
-            print("!" + xSolutions)
             return xSolutions
         except Exception as error:
             return error
 
 
-    @staticmethod
-    def RemoveDuplicatesFromArray(array, sf=6):
+    @classmethod
+    def RemoveDuplicatesFromArray(cls, array, sf=6):
+        a, b, c, t = cls.a, cls.b, cls.c, cls.t
+
         new = []
         newRounded = []
         for point in array:
@@ -44,8 +67,10 @@ class UIMath:
         return new
 
 
-    @staticmethod
-    def RemoveImaginaryParts(array):
+    @classmethod
+    def RemoveImaginaryParts(cls, array):
+        a, b, c, t = cls.a, cls.b, cls.c, cls.t
+
         realPoints = []
         for point in array:
 
@@ -68,8 +93,10 @@ class UIMath:
         return numstr.SigFig(x, sf) == numstr.SigFig(y, sf)
 
 
-    @staticmethod
-    def FindIntersections(strEqu1, strEqu2):
+    @classmethod
+    def FindIntersections(cls, strEqu1, strEqu2):
+        a, b, c, t = cls.a, cls.b, cls.c, cls.t
+
         strEqu1 = UnreplaceEquation(strEqu1)
         strEqu2 = UnreplaceEquation(strEqu2)
 
@@ -138,9 +165,14 @@ class UIMath:
         return UIMath.RemoveDuplicatesFromArray(points)
 
 
-    @staticmethod
-    def EvaluateX(equation, yValue: float):
+    @classmethod
+    def EvaluateX(cls, equation, yValue: float, constants):
+        a, b, c, t = cls.a, cls.b, cls.c, cls.t
+
         x, y = sp.symbols("x y")
+        a = constants[0]
+
+
         equation = UnreplaceEquation(equation)
         equation = drawfunc.PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
         
@@ -157,8 +189,10 @@ class UIMath:
         return UIMath.RemoveDuplicatesFromArray(points)
 
 
-    @staticmethod
-    def EvaluateY(equation, xValue: float):
+    @classmethod
+    def EvaluateY(cls, equation, xValue: float):
+        a, b, c, t = cls.a, cls.b, cls.c, cls.t
+
         x, y = sp.symbols("x y")
         equation = UnreplaceEquation(equation)
         equation = drawfunc.PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
