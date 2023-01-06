@@ -295,8 +295,7 @@ class PlottedEquation:
                                  np.isnan(lastY) or np.isinf(lastY)
 
             if not asymptoteCheck and not invalidNumberCheck:
-                # pygame.draw.line(surface, equInstance.colour.faded, 
-                #  (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
+                # pygame.draw.line(surface, equInstance.colour.faded, (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
                 if dottedCheckLine > 0:
                     pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
                 

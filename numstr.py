@@ -43,18 +43,10 @@ def SigFig(x, sig):
     return round(x, sig - int(math.log(abs(x), 10)) - 1)
 
 
-def SigFig(x, figures):
-    if x == 0:
-        return 0
-    logarithm = math.log(abs(x), 10)
-    decPlaces = figures - int(logarithm)
-    return round(x, decPlaces)
-
-
 
 def StandardForm(n: float, dp: int = 3) -> str:
     if n == 0:
-        return f"0.0×10{StringToSuperscript(0)}"
+        return "0"
 
     negative = "-" if n < 0 else ""
     n = math.fabs(n)

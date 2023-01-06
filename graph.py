@@ -13,7 +13,7 @@ LOG_4 = np.math.log(4, 10)
 
 
 MAX_ZOOM = 1e800
-MIN_ZOOM = 1e-800
+MIN_ZOOM = 1e-80
 
 
 class Graph:
@@ -131,11 +131,12 @@ class Graph:
 
             n += increment
 
-        return SigFig(realGap, 1)
+        return SigFig(realGap, 2)
 
 
 
     def DrawCommonXYWordsOnAxis(self, renderer, realGap):
+        # Write the current
         realGap *= 2
 
         if self.zoom <= 1 and self.zoom != MIN_ZOOM:

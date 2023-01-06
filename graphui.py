@@ -109,7 +109,7 @@ class GraphUserInterface:
         textToRender = [
             f"X = {NStr(graph.offset[0])}",
             f"Y = {NStr(graph.offset[1])}",
-            f"Zoom: {SigFig(graph.zoom * 100, 5)}%"
+            f"Zoom: {SigFig(graph.zoom * 100, 6)}%"
         ]  # List of text to render on the screen
 
         for i, txt in enumerate(textToRender):

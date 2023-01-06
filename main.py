@@ -26,7 +26,7 @@ minScreenSize = (192, 192)
 
 running = True
 targetFPS = 30 if cpu_count() == 2 else 60
-maxEquations = 2 if cpu_count() == 2 else 10
+maxEquations = 3 if cpu_count() == 2 else 10
 
 panSpeed = 2.5
 zoomSpeed = 0.05
