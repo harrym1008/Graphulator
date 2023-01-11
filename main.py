@@ -139,7 +139,7 @@ if __name__ == "__main__":
     graphScreen = pygame.display.set_mode(screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
     pygame.display.set_caption(f"Graphulator Screen View")
     
-    #  ***** Instantiation of classes *****
+    #  ***** Instantiation of main classes *****
     graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
     graphUI = GraphUserInterface(graph)         # Create and initialise an instance of the graph UI class
     gui = UserInterface(graph, graphUI, Kill)   # Create and initialise an instance of the UI class

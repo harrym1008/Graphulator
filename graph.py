@@ -81,6 +81,7 @@ class Graph:
         self.bounds = CornerValues(self)
 
 
+
     def GetGraphLineIncrement(self):
         # Get how much the values increment by on the origin lines
         logarithm = np.math.log(self.zoom, 10)
@@ -338,17 +339,3 @@ class CornerValues:
             if __o.NW == self.NW and __o.SE == self.SE:
                 return True
         return False
-
-
-
-
-if __name__ == "__main__":
-    pygame.init()
-    graph = Graph((800, 600))
-    graph.offset = [10, 10]
-
-    cv1 = CornerValues(graph, 1)
-    cv2 = CornerValues(graph, 2)
-
-    print(cv1)
-    print(cv2)
