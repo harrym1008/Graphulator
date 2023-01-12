@@ -15,7 +15,7 @@ from numstr import *
 from timer import *
 from graph import Graph
 from graphui import GraphUserInterface
-from graphrenderer import GraphRenderer
+from graphrender import GraphRenderer
 from funcmgr import FunctionManager
 from ui import UserInterface
 from uimath import *
