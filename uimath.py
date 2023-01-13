@@ -48,6 +48,9 @@ class UIMath:
             strEqu = UnreplaceEquation(strEqu)
             equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
+
+            print(xSolutions)
+
             return xSolutions
         except Exception as error:
             return error
@@ -68,21 +71,13 @@ class UIMath:
 
 
     @classmethod
-    def RemoveImaginaryParts(cls, array):
+    def ConvertToFloats(cls, array):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
 
         realPoints = []
         for point in array:
-
-            try:
-                x = point[0].as_real_imag()[0]
-            except:
-                x = point[0]
-            
-            try:
-                y = point[1].as_real_imag()[0]
-            except:
-                y = point[1]
+            x = float(x)
+            y = float(y)
 
             realPoints.append((x, y))
         return realPoints
@@ -161,17 +156,15 @@ class UIMath:
                         xNum = eval(ReplaceEquation(str(solution)))                            
                         points.append((xNum, yNum))
 
-        points = UIMath.RemoveImaginaryParts(points)
+        points = UIMath.ConvertToFloats(points)
         return UIMath.RemoveDuplicatesFromArray(points)
 
 
     @classmethod
-    def EvaluateX(cls, equation, yValue: float, constants):
+    def EvaluateX(cls, equation, yValue: float):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
 
         x, y = sp.symbols("x y")
-        a = constants[0]
-
 
         equation = UnreplaceEquation(equation)
         equation = drawfunc.PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
@@ -184,7 +177,7 @@ class UIMath:
             points.append((solution.evalf(), yValue))
             
 
-        points = UIMath.RemoveImaginaryParts(points)
+        points = UIMath.ConvertToFloats(points)
 
         return UIMath.RemoveDuplicatesFromArray(points)
 
@@ -202,10 +195,10 @@ class UIMath:
 
         for solution in solvedForY:
             solution = solution.subs(x, xValue)
-            points.append((solution.evalf(), xValue))
+            points.append((xValue, solution.evalf()))
             
 
-        points = UIMath.RemoveImaginaryParts(points)
+        points = UIMath.ConvertToFloats(points)
 
         return UIMath.RemoveDuplicatesFromArray(points)
             

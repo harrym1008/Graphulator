@@ -15,9 +15,6 @@ inf = np.inf
 
 
 
-def GetYValue(x, expression):
-    y = eval(expression)
-    return y
 
 
 def GetReplacements():
@@ -52,11 +49,6 @@ def UnreplaceEquation(equation: str):
     for rep in replacements:
         equation = equation.replace(rep[2], rep[0])
     return equation
-
-
-
-def lerp(x, y, t):
-    return x + (y-x) * t
 
 
 

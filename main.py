@@ -1,3 +1,5 @@
+# sin(txxt)t^(-x)=y/sin x
+
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 # Prevents the welcome message from pygame from spamming in the terminal

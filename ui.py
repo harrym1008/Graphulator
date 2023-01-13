@@ -80,8 +80,8 @@ class UserInterface:
         self.CreateButton("X-Intercept", 3, self.DisplayXIntercept, (0.05, 0.25, 0.4, 0.23), self.calcLF)
         self.CreateButton("Intersection", 3, self.DisplayIntersection, (0.05, 0.5, 0.4, 0.23), self.calcLF)
 
-        self.CreateButton("Eval X", 3, self.DisplayIntersection, (0.05, 0.75, 0.2, 0.23), self.calcLF)
-        self.CreateButton("Eval Y", 3, self.DisplayIntersection, (0.25, 0.75, 0.2, 0.23), self.calcLF)
+        self.CreateButton("Eval X", 3, self.DisplayXEvaluation, (0.05, 0.75, 0.2, 0.23), self.calcLF)
+        self.CreateButton("Eval Y", 3, self.DisplayXEvaluation, (0.25, 0.75, 0.2, 0.23), self.calcLF)
 
         # Create the dropdowns in the intersection frame
         self.intsectStringVars = [StringVar(self.intsectLF) for i in range(2)]
@@ -98,6 +98,7 @@ class UserInterface:
         self.evalStringVars = [StringVar(self.evalLF) for i in range(2)]
         self.CreateEntry(self.evalStringVars[0], 4, (0.25, -0.06, 0.7, 0.5), self.evalLF)
         self.CreateEntry(self.evalStringVars[1], 4, (0.25, 0.44, 0.7, 0.5), self.evalLF)
+        [sVar.set("0") for sVar in self.evalStringVars]
 
         # Create the sliders for the constants
         self.constantSliderValues = []
@@ -128,7 +129,7 @@ class UserInterface:
             lbl.place(relx=0.44, rely=y, relwidth=0.14, relheight=0.25) 
 
         for i in range(4):
-            normalisedValue = random.uniform(0, 1)
+            normalisedValue = 0.5
             self.constantSliderValues[i].set(normalisedValue)
             self.constantEntryPairs[i][0].set("-10")
             self.constantEntryPairs[i][1].set("10")
@@ -175,36 +176,29 @@ class UserInterface:
 
 
 
-    # This code finds the location(s) of the intersection, then creates a window displaying the points
+    # This code finds rusn the evaluate function for finding the X value, then creates a window displaying the points
     def DisplayXEvaluation(self):
-        x, y = sp.symbols("x y")
-        equNums = int(self.intsectStringVars[0].get())-1, int(self.intsectStringVars[1].get())-1
-        strEqus = self.entries[ equNums[0] ].get(), self.entries[ equNums[1] ].get() 
-
-        header = f"{equNums[0]+1}: {strEqus[0]}\n{equNums[1]+1}: {strEqus[1]}"
+        equNum = int(self.intsectStringVars[0].get())-1
+        strEqu = self.entries[equNum].get()
 
         try:
-            intersections = UIMath.FindIntersections(strEqus[0], strEqus[1])
-            intsectString = ""
+            yValue = float(self.evalStringVars[1].get())
+            points = UIMath.EvaluateX(strEqu, yValue)
+            pointsString = ""
 
-            points = [] 
+            for point in points:
+                pointsString += f"({NStr(point[0])}, {NStr(point[1])})\n"
+                print(point)
 
-            for intsect in intersections:
-                x = float(intsect[0])
-                y = float(intsect[1])
-                points.append((x, y))
-
-                intsectString += f"({NStr(x)}, {NStr(y)})\n"
-
-            print(points)
-            self.AskToHighlightPoints("Intersection", f"""{header}
+            self.AskToHighlightPoints("X-Evaluation", f"""{strEqu}
                 
-The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}:
+At Y = {NStr(yValue)}, the following point{'' if len(points[0]) == 1 else 's'} at on the graph:
 
-{intsectString}""", points)
+{pointsString}""", points)
+
 
         except Exception as error:
-            messagebox.showerror("Intersection", f"""{header}\n\nAn error occured whilst calculating the intersection.\n
+            messagebox.showerror("X-Evaluation", f"""{strEqu}\n\nAn error occured whilst calculating the X evaluation.\n
 Error:   {type(error).__name__}
 Message: {error.args[0]}""")
 
@@ -226,7 +220,7 @@ Message: {error.args[0]}""")
             points = [] 
 
             if len(intersections) == 0:
-                raise NotFoundException("The equations do not intersect")
+                raise NotFoundException("No intersections could be found")
 
             for intsect in intersections:
                 x = float(intsect[0])
@@ -235,7 +229,6 @@ Message: {error.args[0]}""")
 
                 intsectString += f"({NStr(x)}, {NStr(y)})\n"
 
-            print(points)
             self.AskToHighlightPoints("Intersection", f"""{header}
                 
 The two graphs intersect at the point{'' if len(intersections[0]) == 1 else 's'}:
@@ -256,10 +249,6 @@ Message: {error.args[0]}""")
 
 
     def DisplayYIntercept(self):
-        x, y = 0, sp.Symbol("y")
-        a, b, c, t = UIMath.GetConstants()
-        print("Hola my dawg", a, b, c, t)
-
         try:
             strEqu = self.entries[self.currentEquation].get()
             ySolutions = UIMath.FindYIntercept(strEqu)
@@ -267,15 +256,24 @@ Message: {error.args[0]}""")
             if len(ySolutions) == 0:
                 raise NotFoundException("This equation does not a solution at X=0, and so it doesn't have a Y-intercept")
 
-            pointsString = "\n"
-            for sol in ySolutions:
-                pointsString += f"(0, {NStr(eval(sol))})\n"
+            pointsString = ""
+            points = []
 
-            string = f"The Y-intercept is at point{'' if len(ySolutions) == 1 else 's'}:\n{pointsString}"
-            messagebox.showinfo("Y-Intercept", string)
+            x = 0
+            for sol in ySolutions:
+                y = float(eval(sol))
+                points.append((x, y))
+                pointsString += f"(0, {NStr(y)})\n"
+                
+
+            self.AskToHighlightPoints("Y-Intercept", f"""{strEqu}
+            
+The Y-intercept is at point{'' if len(ySolutions) == 1 else 's'}:
+
+{pointsString}""", points)
 
         except Exception as error:
-            messagebox.showerror("Y-Intercept", f"""An error occured whilst calculating the Y-Intercept.\n
+            messagebox.showerror("Y-Intercept", f"""An error occured whilst calculating the Y-intercept.\n
 Error:   {type(error).__name__}
 Message: {error.args[0]}""")
         
@@ -289,14 +287,23 @@ Message: {error.args[0]}""")
                 raise NotFoundException("This equation does not a solution at Y=0, and so it doesn't have a X-intercept")
 
             pointsString = "\n"
-            for sol in xSolutions:
-                pointsString += f"({NStr(eval(sol))}, 0)\n"
+            points = []
 
-            string = f"The X-intercept is at point{'' if len(xSolutions) == 1 else 's'}:\n{pointsString}"
-            messagebox.showinfo("X-Intercept", string)
+            y = 0
+            for sol in xSolutions:
+                x = float(eval(sol))
+                points.append((x, y))
+                pointsString += f"({NStr(x)}, 0)\n"
+                
+
+            self.AskToHighlightPoints("X-Intercept", f"""{strEqu}
+            
+The X-intercept is at point{'' if len(xSolutions) == 1 else 's'}:
+
+{pointsString}""", points)
 
         except Exception as error:
-            messagebox.showerror("X-Intercept", f"""An error occured whilst calculating the X-Intercept.\n
+            messagebox.showerror("X-Intercept", f"""An error occured whilst calculating the X-intercept.\n
 Error:   {type(error).__name__}
 Message: {error.args[0]}""")
 
@@ -397,7 +404,7 @@ Message: {error.args[0]}""")
 
         result = messagebox.askquestion(title, content, icon="info")
 
-        if result:
+        if result == "yes":
             self.graphUI.highlightedPoints.extend(points)
 
 
