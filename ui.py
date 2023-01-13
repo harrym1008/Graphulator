@@ -81,7 +81,7 @@ class UserInterface:
         self.CreateButton("Intersection", 3, self.DisplayIntersection, (0.05, 0.5, 0.4, 0.23), self.calcLF)
 
         self.CreateButton("Eval X", 3, self.DisplayXEvaluation, (0.05, 0.75, 0.2, 0.23), self.calcLF)
-        self.CreateButton("Eval Y", 3, self.DisplayXEvaluation, (0.25, 0.75, 0.2, 0.23), self.calcLF)
+        self.CreateButton("Eval Y", 3, self.DisplayYEvaluation, (0.25, 0.75, 0.2, 0.23), self.calcLF)
 
         # Create the dropdowns in the intersection frame
         self.intsectStringVars = [StringVar(self.intsectLF) for i in range(2)]
@@ -178,8 +178,7 @@ class UserInterface:
 
     # This code finds rusn the evaluate function for finding the X value, then creates a window displaying the points
     def DisplayXEvaluation(self):
-        equNum = int(self.intsectStringVars[0].get())-1
-        strEqu = self.entries[equNum].get()
+        strEqu = self.entries[self.currentEquation].get()
 
         try:
             yValue = float(self.evalStringVars[1].get())
@@ -201,6 +200,34 @@ At Y = {NStr(yValue)}, the following point{'' if len(points[0]) == 1 else 's'} a
             messagebox.showerror("X-Evaluation", f"""{strEqu}\n\nAn error occured whilst calculating the X evaluation.\n
 Error:   {type(error).__name__}
 Message: {error.args[0]}""")
+
+
+
+    # This code finds rusn the evaluate function for finding the Y value, then creates a window displaying the points
+    def DisplayYEvaluation(self):
+        strEqu = self.entries[self.currentEquation].get()
+
+        try:
+            xValue = float(self.evalStringVars[0].get())
+            points = UIMath.EvaluateX(strEqu, xValue)
+            pointsString = ""
+
+            for point in points:
+                pointsString += f"({NStr(point[0])}, {NStr(point[1])})\n"
+                print(point)
+
+            self.AskToHighlightPoints("X-Evaluation", f"""{strEqu}
+                
+At X = {NStr(xValue)}, the following point{'' if len(points[0]) == 1 else 's'} at on the graph:
+
+{pointsString}""", points)
+
+
+        except Exception as error:
+            messagebox.showerror("X-Evaluation", f"""{strEqu}\n\nAn error occured whilst calculating the X evaluation.\n
+Error:   {type(error).__name__}
+Message: {error.args[0]}""")
+
 
 
 

@@ -157,6 +157,12 @@ if __name__ == "__main__":
     gui.entries[1].set("2x=y")
 
 
+    '''for entry in gui.entries:
+        entry.set("sin(txxt)t^(-x)=y/sin x")
+    gui.constantEntryPairs[3][0].set("0")
+    gui.constantEntryPairs[3][1].set("4")'''
+
+
     # Start main loop
     while running:     
         ResetTimer()
