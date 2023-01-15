@@ -76,7 +76,6 @@ class PlottedEquation:
 
         print(f"Thread {self.index} has been started")
 
-        n = self.index + 1
         a = 0
         b = 0
         c = 0
@@ -136,8 +135,6 @@ class PlottedEquation:
             xRange = np.arange(start[0], end[0], incrementY)
             yRange = np.arange(start[1], end[1], incrementX)
 
-
-            # print(a, b, c, n, t)
 
             # Compute all the points on the graph
             if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):

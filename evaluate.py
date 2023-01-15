@@ -43,6 +43,7 @@ def ReplaceEquation(equation: str):
         equation = equation.replace(rep[2], rep[1])
     return equation
 
+
 def UnreplaceEquation(equation: str):
     for rep in replacements:
         equation = equation.replace(rep[1], rep[2])
@@ -53,12 +54,7 @@ def UnreplaceEquation(equation: str):
 
 
 def factorial(x):
-    N = 400     # N is meant to be limited to infinity, but this is harsh on 
-                # cpu time, so I chose 400 as being a good enough number
-                # between CPU time and accuracy
-    k = sp.Symbol("k", integer=True)
-
-    return (sp.Product(k/(x+k), (k,1,N)) * N**x).evalf()
+    return np.sqrt(2 * pi * x) * (x/e)**x
 
 
 
