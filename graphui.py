@@ -36,7 +36,8 @@ class GraphUserInterface:
         self.DrawHighlightedPoints(graph)
         # self.DrawFramerateGraph()
         x, y = self.WriteMousePosition(mousePos, graph)
-        self.DrawCurrentEquationXY(equation, x, y, funcMgr)
+        xPoints, yPoints = self.DrawCircleAtTracePoint(equation, x, y, funcMgr, graph)
+        self.DrawCurrentEquationXY(equation, xPoints, yPoints, x, y)
         
 
 
@@ -109,7 +110,7 @@ class GraphUserInterface:
         textToRender = [
             f"X = {NStr(graph.offset[0])}",
             f"Y = {NStr(graph.offset[1])}",
-            f"Zoom: {SigFig(graph.zoom * 100, 6)}%"
+            f"Zoom: {NStr(graph.zoom * 100)}%"
         ]  # List of text to render on the screen
 
         for i, txt in enumerate(textToRender):
@@ -119,9 +120,39 @@ class GraphUserInterface:
 
 
 
+    def DrawCircleAtTracePoint(self, equation, mouseX, mouseY, funcMgr, graph):
+        if equation is None or equation.equation == "":
+            return [], []
+
+        points = GraphUserInterface.GetTraceValues(equation, mouseX, mouseY, funcMgr)
+        writtenPoints = []
+
+        if len(equation.solutions["x"]) >= len(equation.solutions["y"]):
+            for xPoint in points[0]:
+                if GraphUserInterface.CheckForNullValue(xPoint) or GraphUserInterface.CheckForNullValue(mouseY):
+                    continue
+                screenX = -graph.zoomedOffset[0] + graph.screenCentre[0] + xPoint * graph.zoom
+                screenY = graph.zoomedOffset[1] + graph.screenCentre[1] - mouseY * graph.zoom
+
+                pygame.draw.circle(self.surface, equation.colour.colour, (screenX, screenY), 4)
+                writtenPoints.append((xPoint, mouseY))
+
+        else:
+            for yPoint in points[1]:
+                if GraphUserInterface.CheckForNullValue(yPoint) or GraphUserInterface.CheckForNullValue(mouseX):
+                    continue                
+                screenX = -graph.zoomedOffset[0] + graph.screenCentre[0] + mouseX * graph.zoom
+                screenY = graph.zoomedOffset[1] + graph.screenCentre[1] - yPoint * graph.zoom
+                
+                pygame.draw.circle(self.surface, equation.colour.colour, (screenX, screenY), 4)
+                writtenPoints.append((mouseX, yPoint))
+
+    
+        return GraphUserInterface.RemoveDuplicates([point[0] for point in writtenPoints]), \
+               GraphUserInterface.RemoveDuplicates([point[1] for point in writtenPoints])
 
 
-    def DrawCurrentEquationXY(self, equation, x, y, funcMgr):
+    def DrawCurrentEquationXY(self, equation, xPoints, yPoints, x, y):
         if equation is None or equation.equation == "":
             return
             
@@ -140,21 +171,17 @@ class GraphUserInterface:
         if invalidInputValues:
             return
 
-        points = GraphUserInterface.GetXAndYValuesForText(equation, x, y, funcMgr)
-
         xString = "x="
         yString = "y="
 
-        for xPoint in points[0]:
-            if isinstance(xPoint, Exception):
-                xString += f"ERROR: {xPoint}, "
-                continue
+        for xPoint in xPoints:
+            if GraphUserInterface.CheckForNullValue(xPoint):
+                xString += "ERROR, "
             xString += NStr(xPoint) + ", "
 
-        for yPoint in points[1]:
-            if isinstance(yPoint, Exception):
-                yString += f"ERROR: {yPoint}, "
-                continue
+        for yPoint in yPoints:
+            if GraphUserInterface.CheckForNullValue(yPoint):
+                yString += "ERROR, "
             yString += NStr(yPoint) + ", "
 
         xString = xString[:-2]
@@ -168,24 +195,6 @@ class GraphUserInterface:
         self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))
 
 
-        '''if not invalidX:
-            t = time.perf_counter() % 10
-            
-            xText = font.render(f"x={NStr(x)}", True, colours["black"].colour)
-
-            yValues = ""
-            try:
-                for solution in equation.solutions:
-                    yValues += NStr(float(eval(solution))) + ", "
-                yValues = yValues[:-2]
-            except Exception as e:
-                yValues = f"ERROR: {e}"
-              
-            yText = font.render(f"y={yValues}", True, colours["black"].colour)  
-            yXPlacement = xText.get_width() + 30 if xText.get_width() + 30 > 128 else 128
-
-            self.surface.blit(xText, (0, self.screenSize[1] - xText.get_height())) 
-            self.surface.blit(yText, (yXPlacement, self.screenSize[1] - yText.get_height()))'''
 
 
 
@@ -196,7 +205,12 @@ class GraphUserInterface:
 
 
     @staticmethod
-    def GetXAndYValuesForCircle(equation, x, y, funcMgr):        
+    def CheckForNullValue(val):
+        return math.isinf(val) or math.isnan(val)
+
+
+    @staticmethod
+    def GetTraceValues(equation, x, y, funcMgr):        
         constants = funcMgr.GetConstants()
         a = constants[0]
         b = constants[1]
@@ -220,32 +234,20 @@ class GraphUserInterface:
                 
 
         return xArr, yArr
+        
+
 
 
     @staticmethod
-    def GetXAndYValuesForText(equation, x, y, funcMgr):
-        constants = funcMgr.GetConstants()
-        a = constants[0]
-        b = constants[1]
-        c = constants[2]
-        t = Lerp(constants[3], constants[4], (time.perf_counter() % 10) / 10) 
-        
-        xArr = []
-        yArr = []
+    def RemoveDuplicates(array):
+        newArray = []
+        for value in array:
+            if value not in newArray:
+                newArray.append(value)
+        return newArray
 
-        for solution in equation.solutions["y"]:
-            try:
-                yArr.append(float(eval(solution)))
-            except Exception as e:
-                yArr.append(e)
 
-        for solution in equation.solutions["x"]:
-            try:
-                xArr.append(float(eval(solution)))
-            except Exception as e:
-                xArr.append(e)
-
-        return xArr, yArr
+    
 
 
     def DrawFramerateGraph(self):

@@ -1,6 +1,6 @@
 from evaluate import *
 
-import drawfunc
+from drawfunc import PlottedEquation
 import numstr
 
 
@@ -32,8 +32,8 @@ class UIMath:
         try:
             x, y = 0, sp.Symbol("y")
             strEqu = UnreplaceEquation(strEqu)
-            equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
-            ySolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "y")
+            equ = PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
+            ySolutions = PlottedEquation.ProduceEquationSolutions(equ, "y")
             return ySolutions
         except Exception as error:
             return error
@@ -46,8 +46,8 @@ class UIMath:
         try:
             x, y = sp.Symbol("x"), 0
             strEqu = UnreplaceEquation(strEqu)
-            equ = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
-            xSolutions = drawfunc.PlottedEquation.ProduceEquationSolutions(equ, "x")
+            equ = PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
+            xSolutions = PlottedEquation.ProduceEquationSolutions(equ, "x")
 
             print(xSolutions)
 
@@ -95,8 +95,8 @@ class UIMath:
         strEqu1 = UnreplaceEquation(strEqu1)
         strEqu2 = UnreplaceEquation(strEqu2)
 
-        equ1 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu1, getHandSides=False)
-        equ2 = drawfunc.PlottedEquation.ProduceSympyEquation(strEqu2, getHandSides=False)
+        equ1 = PlottedEquation.ProduceSympyEquation(strEqu1, getHandSides=False)
+        equ2 = PlottedEquation.ProduceSympyEquation(strEqu2, getHandSides=False)
 
         solvedForY = [sp.solve(equ1, "y"), sp.solve(equ2, "y")]
         solvedForX = [sp.solve(equ1, "x"), sp.solve(equ2, "x")]
@@ -167,7 +167,7 @@ class UIMath:
         x, y = sp.symbols("x y")
 
         equation = UnreplaceEquation(equation)
-        equation = drawfunc.PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
+        equation = PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
         
         solvedForX = sp.solve(equation, x)
         points = []
@@ -188,7 +188,7 @@ class UIMath:
 
         x, y = sp.symbols("x y")
         equation = UnreplaceEquation(equation)
-        equation = drawfunc.PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
+        equation = PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
         
         solvedForY = sp.solve(equation, y)
         points = []

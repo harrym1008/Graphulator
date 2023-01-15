@@ -49,6 +49,21 @@ class Graph:
         self.screenCentre = (newSize[0] // 2, newSize[1] // 2)
 
 
+        
+
+
+    def DrawBaseGraphSurface(self, renderer, mousePos):
+        self.screenCentre = [self.screenSize[0] // 2, self.screenSize[1] // 2]
+        self.PerformPrecalculation()
+        realGap = self.DrawGraphLines(renderer)
+        self.DrawCommonXYWordsOnAxis(renderer, realGap)
+        self.DrawLinesFromOrigin(renderer)
+        self.DrawZeroAtOrigin(renderer)
+        self.DrawXAndYWords(renderer)
+        self.DrawFadedTraceLines(renderer, mousePos)
+
+
+
 
     def PerformPrecalculation(self):
         # Cap the zoom between min and max
@@ -225,51 +240,12 @@ class Graph:
         renderer.surface.blit(txtSurfaceY, renderPosY)
 
 
-    def DrawCircleAtTracedPoint(self, renderer, equation, mousePos, funcMgr):
-        if equation is None or equation.equation == "" or mousePos is None:
-            return
-        
-        x = (self.offset[0] * self.zoom - 0.5 * self.screenSize[0] + mousePos[0]) / self.zoom
-        y = (-self.offset[1] * self.zoom - 0.5 * self.screenSize[1] + mousePos[1]) / -self.zoom
-
-        points = GraphUserInterface.GetXAndYValuesForCircle(equation, x, y, funcMgr)
-
-        if len(equation.solutions["x"]) >= len(equation.solutions["y"]):
-            for xPoint in points[0]:
-                if math.isnan(xPoint):
-                    continue
-                screenX = -self.zoomedOffset[0] + self.screenCentre[0] + xPoint * self.zoom
-                screenY = self.zoomedOffset[1] + self.screenCentre[1] - y * self.zoom
-                pygame.draw.circle(renderer.surface, equation.colour.colour, (screenX, screenY), 4)
-
-        else:
-            for yPoint in points[1]:
-                if math.isnan(yPoint):
-                    continue
-                screenX = -self.zoomedOffset[0] + self.screenCentre[0] + x * self.zoom
-                screenY = self.zoomedOffset[1] + self.screenCentre[1] - yPoint * self.zoom
-                pygame.draw.circle(renderer.surface, equation.colour.colour, (screenX, screenY), 4)
-
-
-
     def DrawFadedTraceLines(self, renderer, mousePos):
         if mousePos is None:
             return
 
         renderer.surface.blit(renderer.traceSurfaces[0], (mousePos[0], 0))
         renderer.surface.blit(renderer.traceSurfaces[1], (0, mousePos[1]))
-
-
-    def DrawBaseGraphSurface(self, renderer, currentEquation, mousePos, funcMgr):
-        self.screenCentre = [self.screenSize[0] // 2, self.screenSize[1] // 2]
-        self.PerformPrecalculation()
-        realGap = self.DrawGraphLines(renderer)
-        self.DrawCommonXYWordsOnAxis(renderer, realGap)
-        self.DrawLinesFromOrigin(renderer)
-        self.DrawZeroAtOrigin(renderer)
-        self.DrawXAndYWords(renderer)
-        self.DrawFadedTraceLines(renderer, mousePos)
-        self.DrawCircleAtTracedPoint(renderer, currentEquation, mousePos, funcMgr)
 
 
 
