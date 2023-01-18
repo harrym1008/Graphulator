@@ -21,7 +21,7 @@ class Graph:
 
     def __init__(self, screenSize):
         self.screenSize = screenSize
-        self.screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
+        self.screenCentre = [screenSize[0] // 2, screenSize[1] // 2]
         self.zoomedOffset = (0, 0)
         self.zoomedOffsetInverse = (0, 0)
         self.orgPos = (0, 0)

@@ -38,6 +38,7 @@ mouseMoved = (0, 0)
 mouseFocusTime = 0
 mouseButtonDown = False
 
+
 numberKeys = [[pygame.K_1, pygame.K_KP_1],
               [pygame.K_2, pygame.K_KP_2],
               [pygame.K_3, pygame.K_KP_3],
@@ -56,9 +57,62 @@ def Kill():
     running = False
 
 
-def PygameInput(events, keys, graph):
-    global mouseStart, mouseMoved, graphMouseStart, mouseFocusTime, mouseButtonDown
+class MouseData:
+    BLANK = (-1, -1)
 
+    def __init__(self):
+        self.mousePosition = (0, 0)
+        self.startPosition = (0, 0)
+        self.graphPosition = (0, 0)
+        self.focusTime = 0
+        self.buttonDown = False
+
+
+    @staticmethod
+    def MousePositionSubtraction(val1, val2):
+        return (val1[0] - val2[0], val1[1] - val2[1])
+
+
+    def ApplyMouseMovement(self, graph):
+        self.buttonDown = pygame.mouse.get_pressed()[0] 
+        self.mousePosition = pygame.mouse.get_pos()
+
+        mouseMoved = (0, 0)
+
+        if self.buttonDown and self.startPosition == self.BLANK:
+            self.startPosition = self.mousePosition
+            self.graphPosition = (graph.offset[0], graph.offset[1])
+
+        elif not self.buttonDown and mouseStart != self.BLANK:
+            mouseMoved = MouseData.MousePositionSubtraction(self.mousePosition, self.startPosition)
+            self.startPosition = self.BLANK
+            self.graphPosition = self.BLANK
+
+        elif self.buttonDown:
+            mouseMoved = MouseData.MousePositionSubtraction(self.mousePosition, self.startPosition)
+
+        if self.startPosition != self.BLANK:
+            graph.offset = [self.graphPosition[0] - mouseMoved[0] / graph.zoom,
+                            self.graphPosition[1] + mouseMoved[1] / graph.zoom]
+
+    def UpdateMouseFocus(self):
+        focused = pygame.mouse.get_focused()
+        
+        if focused:
+            self.focusTime = 0.1
+        else:
+            self.focusTime -= deltatime.deltaTime
+
+    def GetMousePos(self):
+        if self.focusTime > 0:
+            return self.mousePosition
+        return None        
+            
+
+
+        
+
+def KeyboardInput(events, keys, graph):
     # Reset offset and panning
     if keys[pygame.K_r]:
         graph.zoom = 50
@@ -85,26 +139,6 @@ def PygameInput(events, keys, graph):
     if keys[pygame.K_ESCAPE]:
         Kill()
 
-    # Panning the graph while mouse is pressed
-    mouseClicked = pygame.mouse.get_pressed()
-    mouseButtonDown = mouseClicked[0]
-
-    if mouseClicked[0] and mouseStart == [-1, -1]:
-        mouseStart = pygame.mouse.get_pos()
-        graphMouseStart = [graph.offset[0], graph.offset[1]]
-
-    if not mouseClicked[0] and mouseStart != [-1, -1]:
-        mouseMoved = tuple(np.subtract(pygame.mouse.get_pos(), mouseStart))
-        mouseStart = [-1, -1]
-        graphMouseStart = [-1, -1]
-
-    elif mouseClicked[0]:
-        mouseMoved = tuple(np.subtract(pygame.mouse.get_pos(), mouseStart))
-
-    if mouseStart != [-1, -1]:
-        graph.offset = [graphMouseStart[0] - mouseMoved[0] / graph.zoom, 
-                        graphMouseStart[1] + mouseMoved[1] / graph.zoom]
-
     # Zoom in and out with the scroll wheel
     for e in events:
         if e.type == pygame.MOUSEBUTTONDOWN:
@@ -113,17 +147,9 @@ def PygameInput(events, keys, graph):
             elif e.button == 5:
                 graph.zoom /= 1 + zoomSpeed
 
-    # Mouse focus
-    focused = pygame.mouse.get_focused()
-    if focused:
-        mouseFocusTime = 0.1
-    else:
-        mouseFocusTime -= deltatime.deltaTime
-
-    graph.zoom = SigFig(graph.zoom, 6)
 
 
-def CurrentEquationInput(keys, currentEquationIndex):
+def GetCurrentEquationInput(keys, currentEquationIndex):
     for i, nums in enumerate(numberKeys):
         if keys[nums[0]] or keys[nums[1]]:
             if i < maxEquations:
@@ -149,18 +175,13 @@ if __name__ == "__main__":
     functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
 
     currentEquationIndex = 0
+    mouse = MouseData()
 
-    # Starting equations
+    # Create equation instances and set one as default "y=sin x"
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
-    gui.entries[0].set("x=2y")
-    gui.entries[1].set("2x=y")
+    gui.entries[0].set("sin x")
 
-
-    '''for entry in gui.entries:
-        entry.set("sin(txxt)t^(-x)=y/sin x")
-    gui.constantEntryPairs[3][0].set("0")
-    gui.constantEntryPairs[3][1].set("4")'''
 
 
     # Start main loop
@@ -171,12 +192,16 @@ if __name__ == "__main__":
         events = pygame.event.get()
         keys = pygame.key.get_pressed()
 
-        # Execute input code
-        PygameInput(events, keys, graph)
-        currentEquationIndex = CurrentEquationInput(keys, currentEquationIndex)
+        # Execute input code for the mouse
+        mouse.ApplyMouseMovement(graph)
+        mouse.UpdateMouseFocus()
+        mousePos = mouse.GetMousePos()
+
+        # Execute keyboard input code
+        KeyboardInput(events, keys, graph)
+        currentEquationIndex = GetCurrentEquationInput(keys, currentEquationIndex)
 
         # Get data ready for next frames calculation
-        mousePos = pygame.mouse.get_pos() if (mouseFocusTime > 0) else None 
         currentEquation = functionManager.currentEquations[currentEquationIndex]
 
         # Update constants
@@ -187,13 +212,11 @@ if __name__ == "__main__":
 
         # Get latest list of equations        
         equList = gui.GetListOfEquations()[:maxEquations]
-        # Run replacement function on every equation in the list
-        equList = [evaluate.ReplaceEquation(equ) if equ != "" else "" for equ in equList]
         functionManager.UpdateEquations(equList)
 
         # Frame update code
         graphRenderer.NewFrame()
-        graph.DrawBaseGraphSurface(graphRenderer, mousePos) 
+        graph.DrawBaseGraphSurface(graphRenderer, mouse.GetMousePos()) 
         graphUI.UpdateUISurface(graph, mousePos, currentEquation, functionManager) 
         functionManager.UpdateThreads(graph)
         functionManager.BlitCurrentSurfaces(graph)
@@ -223,9 +246,10 @@ if __name__ == "__main__":
                 graphRenderer.ScreenHasBeenResized(screenSize)
                 graphUI.ScreenHasBeenResized(screenSize)
                 functionManager.ScreenHasBeenResized(screenSize)
-                panSpeed = sorted([screenSize[0], screenSize[1]])[1] * 0.00125 + 1
-                # the sorted()[1] expression finds the smallest of either the width or the height
 
+                smallestDimension = screenSize[0] if screenSize[0] < screenSize[1] else screenSize[1]
+                panSpeed = smallestDimension * 0.00125 + 1
+                
 
         # Wait for 60 FPS
         clock.tick(targetFPS)
@@ -233,8 +257,6 @@ if __name__ == "__main__":
         pygame.display.set_caption(f"Graphulator Screen View - {round(clock.get_fps(), 2)} FPS")
 
 
-    # run this code on exit
+    # kill all running processes
     for equ in functionManager.myThreads:
         equ.terminate()
-
-    print("Quitted")
