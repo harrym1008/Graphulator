@@ -1,8 +1,15 @@
 # sin(txxt)t^(-x)=y/sin x
 
+# Prevents the welcome message from pygame from spamming in the terminal
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
-# Prevents the welcome message from pygame from spamming in the terminal
+
+# Suppresses "RuntimeWarning" messages, these are not bugs that crash the program
+# They are just warnings that arise for example when an invalid operation is applied to a number
+# This is fine because my program accounts for such invalid operations that will return erroneous values
+# This code is here to prevent the message from being spammed in the terminal
+import warnings
+warnings.filterwarnings("ignore")
 
 # External modules
 import pygame
@@ -62,8 +69,8 @@ class MouseData:
 
     def __init__(self):
         self.mousePosition = (0, 0)
-        self.startPosition = (0, 0)
-        self.graphPosition = (0, 0)
+        self.startPosition = self.BLANK
+        self.graphPosition = self.BLANK
         self.focusTime = 0
         self.buttonDown = False
 
@@ -177,7 +184,7 @@ if __name__ == "__main__":
     currentEquationIndex = 0
     mouse = MouseData()
 
-    # Create equation instances and set one as default "y=sin x"
+    # Create equation instances and set the first as the default equation "y=sin x"
     for i in range(maxEquations):
         functionManager.AddAnotherEquation("")
     gui.entries[0].set("sin x")
@@ -260,3 +267,5 @@ if __name__ == "__main__":
     # kill all running processes
     for equ in functionManager.myThreads:
         equ.terminate()
+
+    # Program will quit
