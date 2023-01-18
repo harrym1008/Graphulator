@@ -39,12 +39,6 @@ maxEquations = 3 if cpu_count() == 2 else 10
 
 panSpeed = 2.5
 zoomSpeed = 0.05
-graphMouseStart = [-1, -1]
-mouseStart = [-1, -1]
-mouseMoved = (0, 0)
-mouseFocusTime = 0
-mouseButtonDown = False
-
 
 numberKeys = [[pygame.K_1, pygame.K_KP_1],
               [pygame.K_2, pygame.K_KP_2],
@@ -75,22 +69,32 @@ class MouseData:
         self.buttonDown = False
 
 
+    # Subtracts two tuples which contain coordinates
     @staticmethod
     def MousePositionSubtraction(val1, val2):
         return (val1[0] - val2[0], val1[1] - val2[1])
 
 
-    def ApplyMouseMovement(self, graph):
+    def ApplyMouseMovement(self, graph, events):
         self.buttonDown = pygame.mouse.get_pressed()[0] 
-        self.mousePosition = pygame.mouse.get_pos()
+        self.mousePosition = pygame.mouse.get_pos()                         
 
+        # Zoom in and out with the scroll wheel
+        for e in events:
+            if e.type == pygame.MOUSEBUTTONDOWN:
+                if e.button == 4:
+                    graph.zoom *= 1 + zoomSpeed
+                elif e.button == 5:
+                    graph.zoom /= 1 + zoomSpeed
+
+        # Main mouse click and drag functionality
         mouseMoved = (0, 0)
 
         if self.buttonDown and self.startPosition == self.BLANK:
             self.startPosition = self.mousePosition
             self.graphPosition = (graph.offset[0], graph.offset[1])
 
-        elif not self.buttonDown and mouseStart != self.BLANK:
+        elif not self.buttonDown and self.mousePosition != self.BLANK:
             mouseMoved = MouseData.MousePositionSubtraction(self.mousePosition, self.startPosition)
             self.startPosition = self.BLANK
             self.graphPosition = self.BLANK
@@ -100,7 +104,8 @@ class MouseData:
 
         if self.startPosition != self.BLANK:
             graph.offset = [self.graphPosition[0] - mouseMoved[0] / graph.zoom,
-                            self.graphPosition[1] + mouseMoved[1] / graph.zoom]
+                            self.graphPosition[1] + mouseMoved[1] / graph.zoom]   
+
 
     def UpdateMouseFocus(self):
         focused = pygame.mouse.get_focused()
@@ -119,7 +124,7 @@ class MouseData:
 
         
 
-def KeyboardInput(events, keys, graph):
+def KeyboardInput(keys, graph):
     # Reset offset and panning
     if keys[pygame.K_r]:
         graph.zoom = 50
@@ -145,14 +150,6 @@ def KeyboardInput(events, keys, graph):
     # Kill the program if escape is pressed
     if keys[pygame.K_ESCAPE]:
         Kill()
-
-    # Zoom in and out with the scroll wheel
-    for e in events:
-        if e.type == pygame.MOUSEBUTTONDOWN:
-            if e.button == 4:
-                graph.zoom *= 1 + zoomSpeed
-            elif e.button == 5:
-                graph.zoom /= 1 + zoomSpeed
 
 
 
@@ -200,12 +197,12 @@ if __name__ == "__main__":
         keys = pygame.key.get_pressed()
 
         # Execute input code for the mouse
-        mouse.ApplyMouseMovement(graph)
+        mouse.ApplyMouseMovement(graph, events)
         mouse.UpdateMouseFocus()
         mousePos = mouse.GetMousePos()
 
         # Execute keyboard input code
-        KeyboardInput(events, keys, graph)
+        KeyboardInput(keys, graph)
         currentEquationIndex = GetCurrentEquationInput(keys, currentEquationIndex)
 
         # Get data ready for next frames calculation
