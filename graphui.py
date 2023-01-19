@@ -127,7 +127,7 @@ class GraphUserInterface:
         points = GraphUserInterface.GetTraceValues(equation, mouseX, mouseY, funcMgr)
         writtenPoints = []
 
-        if len(equation.solutions["x"]) >= len(equation.solutions["y"]):
+        if GraphUserInterface.IsCircleTraceX(equation):
             for xPoint in points[0]:
                 if GraphUserInterface.CheckForNullValue(xPoint) or GraphUserInterface.CheckForNullValue(mouseY):
                     continue
@@ -150,6 +150,20 @@ class GraphUserInterface:
     
         return GraphUserInterface.RemoveDuplicates([point[0] for point in writtenPoints]), \
                GraphUserInterface.RemoveDuplicates([point[1] for point in writtenPoints])
+
+
+    @staticmethod
+    def IsCircleTraceX(equation):
+        xSolutions = len(equation.solutions["x"])
+        ySolutions = len(equation.solutions["y"])
+        
+        if xSolutions == 0:
+            return False
+        if ySolutions == 0:
+            return True
+
+        return xSolutions < ySolutions;
+
 
 
     def DrawCurrentEquationXY(self, equation, xPoints, yPoints, x, y):

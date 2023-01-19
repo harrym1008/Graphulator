@@ -33,12 +33,10 @@ class SerialisedSurface:
         
 
     # https://github.com/pygame/pygame/issues/1244
-    @classmethod
-    def MakeSurfaceRGBA(cls, array, null):
+    @staticmethod
+    def MakeSurfaceRGBA(array, null):
         if null:
             return pygame.Surface((2, 2), pygame.SRCALPHA, 32)
-
-        # s = time.perf_counter()
         
         shape = array.shape
 
@@ -53,5 +51,4 @@ class SerialisedSurface:
         surfaceAlpha = np.array(surface.get_view("A"), copy=False)
         surfaceAlpha[:,:] = array[:,:,3]
 
-        # print(time.perf_counter()-s)
         return surface

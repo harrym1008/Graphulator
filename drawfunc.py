@@ -19,25 +19,6 @@ from enum import IntEnum
 INCREMENT_FACTOR = getjson.GetData("graph_accuracy")
 TRANSFORMATIONS = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
-STR_GRAPH_TYPES = {
-    "≥": 4,
-    "≤": 3,
-    "=": 0,
-    "<": 1, 
-    ">": 2
-}
-
-FULL_LINES = [0, 3, 4]
-
-
-
-class EquationType(IntEnum):
-    Equals = 0
-    GreaterThanOrEqualTo = 1
-    LessThanOrEqualTo = 2
-    GreaterThan = 3
-    LessThan = 4
-
 
 
 class PlottedEquation:
@@ -47,19 +28,12 @@ class PlottedEquation:
         self.index = index
         self.colour = colours.GetColourForPlotIndex(index)
 
-        self.type = 0
-        self.isDottedLine = False
-        self.UpdateEquationType()
-
         self.boundsAtBeginning: CornerValues = CornerValues(None)
         self.solutions = {"y": [],"x": []}
 
 
     def ChangeMyEquation(self, new):
         self.equation = new
-        self.UpdateEquationType()
-
-
 
 
     def RecalculatePoints(self, inData, inQueue, outQueue, eventQueue):
@@ -275,7 +249,6 @@ class PlottedEquation:
 
         zoom = bounds.zoom
         screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
-        dottedCheckLine = 10
 
         extremeUpper, extremeLower = bounds.S[1], bounds.N[1]
         lastX, lastY = array[0]
@@ -292,15 +265,7 @@ class PlottedEquation:
                                  np.isnan(lastY) or np.isinf(lastY)
 
             if not asymptoteCheck and not invalidNumberCheck:
-                # pygame.draw.line(surface, equInstance.colour.faded, (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
-                if dottedCheckLine > 0:
-                    pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
-                
-            if equInstance.isDottedLine:
-                dottedCheckLine -= 1
-                if dottedCheckLine < -9:
-                    dottedCheckLine = 10
-                    
+                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)                    
 
             lastX, lastY = x, y
 
@@ -319,7 +284,6 @@ class PlottedEquation:
 
         zoom = bounds.zoom
         screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
-        dottedCheckLine = 10
 
         extremeUpper, extremeLower = bounds.S[1], bounds.N[1]
         lastX, lastY = array[0]
@@ -336,16 +300,7 @@ class PlottedEquation:
                                  np.isnan(lastY) or np.isinf(lastY)
 
             if not asymptoteCheck and not invalidNumberCheck:
-                # pygame.draw.line(surface, equInstance.colour.faded, 
-                #   (plotStart[0], plotStart[1] + 2), (x * zoom + drawOffset[0], screenSize[1]), 2)
-                if dottedCheckLine > 0:
-                    pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)
-                
-            if equInstance.isDottedLine:
-                dottedCheckLine -= 1
-                if dottedCheckLine < -9:
-                    dottedCheckLine = 10
-                    
+                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)                    
 
             lastX, lastY = x, y
 
@@ -354,60 +309,6 @@ class PlottedEquation:
 
 
 
-
-
-    @staticmethod
-    def GetLowHighValueXY(allPoints, length, high=True, forX=True):
-        if len(allPoints) == 1:
-            return allPoints
-        elif len(allPoints) == 0:
-            return [[]]
-
-        newArray = allPoints[0]
-
-        try:
-            if forX:
-                if high:
-                    for i in range(length):
-                        for current in range(1, allPoints):
-                            if allPoints[current][i][0] > newArray[i][0]:
-                                newArray[i][0] = allPoints[current][i][0]
-                else:
-                    for i in range(length):
-                        for current in range(1, allPoints):
-                            if allPoints[current][i][0] > newArray[i][0]:
-                                newArray[i][0] = allPoints[current][i][0]
-            else:
-                if high:
-                    for i in range(length):
-                        for current in range(1, allPoints):
-                            if allPoints[current][i][1] > newArray[i][1]:
-                                newArray[i][1] = allPoints[current][i][1]
-                else:
-                    for i in range(length):
-                        for current in range(1, allPoints):
-                            if allPoints[current][i][1] > newArray[i][1]:
-                                newArray[i][1] = allPoints[current][i][1]   
-        except:
-            pass     
-
-        return newArray              
-
-
-
-
-
-    def ConvertEquation(self):
-        return self.equation
-
-
-    def UpdateEquationType(self):
-        self.type = STR_GRAPH_TYPES["="]
-        for string in STR_GRAPH_TYPES.keys():
-            if string in self.equation:
-                self.type = STR_GRAPH_TYPES[string]
-                break
-        self.isDottedLine = self.type not in FULL_LINES
 
 
 
