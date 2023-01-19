@@ -37,8 +37,9 @@ running = True
 targetFPS = getjson.GetData("max_fps")
 maxEquations = min(getjson.GetData("max_equations"), 10)  # make sure maximum is 10
 
-panSpeed = getjson.GetData("base_pan_speed")
+basePanSpeed = getjson.GetData("base_pan_speed")
 zoomSpeed = getjson.GetData("base_zoom_speed")
+panSpeed = screenSize[0] * 0.0005 * basePanSpeed + 1
 
 numberKeys = [[pygame.K_1, pygame.K_KP_1],
               [pygame.K_2, pygame.K_KP_2],
@@ -255,7 +256,7 @@ if __name__ == "__main__":
 
                 # Change the pan speed to coincide with the screen size
                 smallestDimension = screenSize[0] if screenSize[0] < screenSize[1] else screenSize[1]
-                panSpeed = smallestDimension * 0.00125 + 1
+                panSpeed = smallestDimension * 0.0005 * basePanSpeed + 1
                 
 
         # Wait for 60 FPS

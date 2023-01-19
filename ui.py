@@ -1,7 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
-from multiprocessing import cpu_count
+
+import getjson
 
 from colours import *
 from uimath import UIMath
@@ -9,17 +10,11 @@ from evaluate import *
 from numstr import *
 
 
-numbersDropdown = [str(i+1) for i in range(10)]
-
-scrsz = "438x700" if cpu_count() > 2 else "350x600"
-
-
-
 class UserInterface:
     def __init__(self, graph, graphUI, killMethodReference):
         self.root = Tk()                  # Define the root window
         self.root.title("Graphulator")
-        self.root.geometry(scrsz)     # Default resolution of 350x600
+        self.root.geometry(getjson.GetData("gui_size"))
 
         self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
                                     # Run the kill method when the X is pressed
