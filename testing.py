@@ -5,37 +5,34 @@ import sympy as sp
 
 
 
-x, y = sp.symbols("x y")
+def FastLogFloor(value):
+    if value == 0:
+        return 0
 
-eq = sp.Eq(sp.sympify("x^2 - y"), 4)
-expr = sp.solve(eq, x)[1]
+    value = abs(value)
 
-f = sp.lambdify(x, expr, "numpy")
-a = np.arange(100, 10000, 1)
+    log = 0
+    while value < 1 or value >= 10:
+        if value < 1:
+            log -= 1
+            value *= 10
+        if value >= 10:
+            log += 1
+            value /= 10
 
-print(expr)
+    return value
 
-
-
-data1 = []
-data2 = []
 
 timer.ResetTimer()
-for i in range(10000):
-    data1.append(eval(f"np.sqrt(4+i)"))
-
-timer.GetTimeSince("Numpy sin")
-for i in range(10000):
-    data2.append(eval(f"math.sqrt(4+i)"))
-
-timer.GetTimeSince("Math sin")
-
-print(f(10.1))
+for i in range(1, 10001):
+    FastLogFloor(i)
+timer.GetTimeSince("Fast log")
 
 
-narr = np.arange(0, 10000, 0.9)
-narr2 = f(narr)
-timer.GetTimeSince("numpy array sin")
+for i in range(1, 10001):
+    math.floor(math.log(i))
+timer.GetTimeSince("Slow log maybe")
+
 
 
 
