@@ -14,7 +14,9 @@ class UserInterface:
     def __init__(self, graph, graphUI, killMethodReference):
         self.root = Tk()                  # Define the root window
         self.root.title("Graphulator")
-        self.root.geometry(getjson.GetData("gui_size"))
+
+        screenSize = f"{getjson.GetData('gui_size')[0]}x{getjson.GetData('gui_size')[1]}"
+        self.root.geometry(screenSize)
 
         self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
                                     # Run the kill method when the X is pressed
