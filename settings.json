@@ -1,0 +1,15 @@
+{
+    "screen_size": [
+        720,
+        480
+    ],
+    "gui_size": [
+        438,
+        700
+    ],
+    "max_equations": 10,
+    "max_fps": 60,
+    "graph_accuracy": 1.0,
+    "base_zoom_speed": 0.05,
+    "base_pan_speed": 2.5
+}

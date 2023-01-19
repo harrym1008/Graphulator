@@ -18,7 +18,7 @@ from multiprocessing import cpu_count
 
 # Internal modules
 import deltatime
-import evaluate
+import getjson
 from colours import *
 from numstr import *
 from timer import *
@@ -30,15 +30,15 @@ from ui import UserInterface
 from uimath import *
 
 # Screen starts at this resolution by default
-screenSize = (720, 480)
+screenSize = tuple(getjson.GetData("screen_size"))
 minScreenSize = (192, 192)
 
 running = True
-targetFPS = 30 if cpu_count() == 2 else 60
-maxEquations = 3 if cpu_count() == 2 else 10
+targetFPS = getjson.GetData("max_fps")
+maxEquations = min(getjson.GetData("max_equations"), 10)  # make sure maximum is 10
 
-panSpeed = 2.5
-zoomSpeed = 0.05
+panSpeed = getjson.GetData("base_pan_speed")
+zoomSpeed = getjson.GetData("base_zoom_speed")
 
 numberKeys = [[pygame.K_1, pygame.K_KP_1],
               [pygame.K_2, pygame.K_KP_2],
@@ -76,8 +76,10 @@ class MouseData:
 
 
     def ApplyMouseMovement(self, graph, events):
-        self.buttonDown = pygame.mouse.get_pressed()[0] 
-        self.mousePosition = pygame.mouse.get_pos()                         
+        # Check if button is down and get mouse position
+        self.buttonDown = pygame.mouse.get_pressed()[0]   # left click only
+        self.mousePosition = pygame.mouse.get_pos()
+        # this returns the pixel position of the mouse where the origin is the top left of the window             
 
         # Zoom in and out with the scroll wheel
         for e in events:
@@ -251,6 +253,7 @@ if __name__ == "__main__":
                 graphUI.ScreenHasBeenResized(screenSize)
                 functionManager.ScreenHasBeenResized(screenSize)
 
+                # Change the pan speed to coincide with the screen size
                 smallestDimension = screenSize[0] if screenSize[0] < screenSize[1] else screenSize[1]
                 panSpeed = smallestDimension * 0.00125 + 1
                 

@@ -154,7 +154,9 @@ class FunctionManager:
 
             dataSurface = data.surface
             b = data.bounds.boundMultiplier
-            ss = tuple([i // 2 for i in data.bounds.screenSize])
+
+            ss = data.bounds.screenSize
+            sc = tuple([i // 2 for i in ss])
 
             # equation for value: p = -oz + 0.5s + vz
             # p = position
@@ -164,11 +166,11 @@ class FunctionManager:
             # v = input value
 
             surfaceCorners = [(
-                -graph.zoomedOffset[0] + ss[0] + data.bounds.NW[0] * graph.zoom, 
-                graph.zoomedOffset[1] + ss[1] - data.bounds.NW[1] * graph.zoom
+                -graph.zoomedOffset[0] + sc[0] + data.bounds.NW[0] * graph.zoom, 
+                graph.zoomedOffset[1] + sc[1] - data.bounds.NW[1] * graph.zoom
                 ),(
-                -graph.zoomedOffset[0] + ss[0] + data.bounds.SE[0] * graph.zoom, 
-                graph.zoomedOffset[1] + ss[1] - data.bounds.SE[1] * graph.zoom
+                -graph.zoomedOffset[0] + sc[0] + data.bounds.SE[0] * graph.zoom, 
+                graph.zoomedOffset[1] + sc[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
             # pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 10)
@@ -200,16 +202,25 @@ class FunctionManager:
 
 
             try:
-                if newScale != graph.screenSize:
-                    tempSurface = pygame.transform.scale(dataSurface, newScale)
-                else:
-                    tempSurface = data.surface
-                self.surface.blit(tempSurface, newPosition)
-            except:
-                # print("Error when blitting surface - ignoring and continuing")
-                self.timeToNextUpdate = 0    # Force a frame update
-        
-        # print((time.perf_counter() - startTime) / (deltatime.deltaTime if deltatime.deltaTime != 0 else 1) * 100)
+                scaleX = ss[0] / newScale[0]
+                scaleY = ss[1] / newScale[1]
+            except ZeroDivisionError:
+                scaleX = 0.4
+                scaleY = 0.4
+
+            # Check if scaling should happen
+            skipDueToSize = scaleX <= 0.4 or scaleY <= 0.4
+
+            if skipDueToSize:           # Skip, the scaling will take too much CPU time
+                newPosition = (0, 0)
+                newScale = ss
+                tempSurface = data.surface
+            elif newScale != graph.screenSize:      # Scale to correct dimensions
+                tempSurface = pygame.transform.scale(dataSurface, newScale)
+            else:
+                tempSurface = data.surface   # Scaling not necessary
+
+            self.surface.blit(tempSurface, newPosition)
 
 
 

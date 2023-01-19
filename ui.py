@@ -1,18 +1,12 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter.font import Font
-from PIL import Image, ImageTk
 from multiprocessing import cpu_count
 
 from colours import *
-from graphui import GraphUserInterface
-from graph import Graph
 from uimath import UIMath
 from evaluate import *
 from numstr import *
-
-import drawfunc
-import random
 
 
 numbersDropdown = [str(i+1) for i in range(10)]

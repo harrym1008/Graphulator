@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import colours
 import time
+import getjson
 
 from sympy.parsing.sympy_parser import standard_transformations, \
     implicit_multiplication_application, \
@@ -15,8 +16,7 @@ from enum import IntEnum
 
 
 
-INCREMENT_FACTOR = 1 if cpu_count() == 2 else 1.5
-ANTIALIAS = False
+INCREMENT_FACTOR = getjson.GetData("graph_accuracy")
 TRANSFORMATIONS = (standard_transformations + (implicit_multiplication_application,) + (convert_xor,))
 
 STR_GRAPH_TYPES = {
@@ -87,7 +87,7 @@ class PlottedEquation:
             t = tLower + (tUpper-tLower) * (time.perf_counter() % 10) / 10
 
             while inQueue.qsize() < 1:
-                time.sleep(0.1)
+                time.sleep(0.08)
 
             # Get equation events (how the equation has changed so the thread can be updated)
             forceUpdate = False
