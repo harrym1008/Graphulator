@@ -58,7 +58,7 @@ class UserInterface:
         self.entries = []
         for i in range(10):
             self.entries.append(StringVar(self.equLF))
-            self.CreateLabel(f"[{i+1}]", 2, (0, 0.1*i, 0.15, 0.09), self.equLF) 
+            self.CreateLabel(f"[{i+1}]", 2, (0, 0.1*i, 0.15, 0.09), self.equLF, GetColourKeyForPlotIndex(i)) 
 
             entry = Entry(self.equLF, textvariable=self.entries[i])
             entry.config(font=self.fonts[6])
@@ -372,12 +372,12 @@ Message: {error.args[0]}""")
 
 
 
-    def CreateLabel(self, text, fontNum, placement, root=None):
+    def CreateLabel(self, text, fontNum, placement, root=None, colour="black"):
         if root is None:
             root = self.root
 
         lbl = Label(root, text=text)
-        lbl.config(font=self.fonts[fontNum])
+        lbl.config(font=self.fonts[fontNum], fg=colours[colour].hex)
         lbl.place(relx=placement[0], rely=placement[1], relwidth=placement[2], relheight=placement[3])
         return lbl
 
