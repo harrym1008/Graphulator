@@ -40,7 +40,6 @@ class PlottedEquation:
         currentEquation = inData.equation.equation
 
         lastBounds = None
-        savedPoints = []
 
         lastEquation = ""
         solutions = {"y": [],"x": []}
@@ -51,8 +50,8 @@ class PlottedEquation:
         a = 0
         b = 0
         c = 0
-        tUpper = -10
-        tLower = 10
+        tLower = -10
+        tUpper = 10
         
         while True:
             # wait for the in queue to have a length of 1 (this means data is present)
@@ -74,7 +73,6 @@ class PlottedEquation:
                     c = event.data[2]
                     tLower = event.data[3]
                     tUpper = event.data[4]
-
                 
 
             if not firstPass:
@@ -92,9 +90,7 @@ class PlottedEquation:
                 
             bounds = inData.bounds
 
-            skipNoEquation = currentEquation == ""            
-            skipSameBounds = (lastBounds == bounds if bounds is not None else False)
-            lastBounds = bounds
+            skipNoEquation = currentEquation == ""   
 
             points = []
             yPoints = []
@@ -109,7 +105,7 @@ class PlottedEquation:
 
 
             # Compute all the points on the graph
-            if (not skipNoEquation and not skipSameBounds) or (not skipNoEquation and forceUpdate):
+            if not skipNoEquation:
                 # Loop through all Y solutions
                 for i, solution in enumerate(solutions["y"]):
                     yPoints.append([])
@@ -130,25 +126,19 @@ class PlottedEquation:
                             point = (np.inf, y)
                         xPoints[i].append(point)
                 points = yPoints + xPoints
-
-                # points = PlottedEquation.GetLowHighValueXY(points, yRange)
-
-                savedPoints = points
-            elif not skipNoEquation and skipSameBounds:
-                points = savedPoints
                 
 
             surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
 
             # Produce a pygame surface from the points just calculated
             if solutionCount == 1:
-
                 if len(solutions["y"]) == 1:
                     surface = PlottedEquation.DrawSurfaceFromArray_YEquals(points[0], 
                                 inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
                 elif len(solutions["x"]) == 1:
                     surface = PlottedEquation.DrawSurfaceFromArray_XEquals(points[0], 
                                 inData.equation, inData.bounds, inData.zoomedOffset, inData.screenSize )
+
             elif solutionCount > 1:
                 for i in range(solutionCount):
                     isYEquals = i < len(solutions["y"])
@@ -162,7 +152,7 @@ class PlottedEquation:
                     surface.blit(tempSurface, (0, 0))
 
             else:       # if there are no solutions
-                time.sleep(0.3)
+                time.sleep(0.1)
 
 
             # Place into a class of thread output data
