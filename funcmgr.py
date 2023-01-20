@@ -1,4 +1,4 @@
-from multiprocessing import Process, Queue, cpu_count
+from multiprocessing import Process, Queue
 from typing import List
 from colours import *
 from timer import *
@@ -173,13 +173,8 @@ class FunctionManager:
                 graph.zoomedOffset[1] + sc[1] - data.bounds.SE[1] * graph.zoom
                 )]
 
-            # pygame.draw.circle(surface, colours["yellow"].colour, surfaceCorners[0], 10)
-            # pygame.draw.circle(surface, colours["orange"].colour, surfaceCorners[1], 10)
-
-
-            newScale = graph.screenSize # graph.screenSize[0] * b, graph.screenSize[1] * b
-            newPosition = (0, 0)     # ((graph.screenSize[0] - b * graph.screenSize[0]) // 2, 
-                                     #  (graph.screenSize[1] - b * graph.screenSize[1]) // 2)
+            newScale = graph.screenSize
+            newPosition = (0, 0)
 
             panOffset = (0, 0)
             zoomOffset = (0, 0)

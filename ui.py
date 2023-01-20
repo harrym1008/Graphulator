@@ -3,7 +3,6 @@ from tkinter import messagebox
 from tkinter.font import Font
 
 import getjson
-
 from colours import *
 from uimath import UIMath
 from evaluate import *

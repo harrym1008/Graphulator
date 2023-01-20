@@ -7,12 +7,10 @@ import getjson
 from sympy.parsing.sympy_parser import standard_transformations, \
     implicit_multiplication_application, \
     convert_xor
-from multiprocessing import cpu_count
 
 from evaluate import *
 from serialsurf import SerialisedSurface
 from graph import CornerValues
-from enum import IntEnum
 
 
 
@@ -118,7 +116,7 @@ class PlottedEquation:
                     for x in xRange:
                         try:
                             point = (x, float( eval(solution) ))
-                        except:
+                        except Exception:
                             point = (x, np.inf)
                         yPoints[i].append(point)
                             
@@ -128,7 +126,7 @@ class PlottedEquation:
                     for y in yRange:
                         try:
                             point = (float( eval(solution) ), y)
-                        except:
+                        except Exception:
                             point = (np.inf, y)
                         xPoints[i].append(point)
                 points = yPoints + xPoints
@@ -209,7 +207,7 @@ class PlottedEquation:
             solved = sp.solve(equ, solveFor)
             print(solved)
             return [ReplaceEquation(str(solution)) if replace else str(solution) for solution in solved]
-        except:
+        except Exception:
             return []
 
 
@@ -229,7 +227,7 @@ class PlottedEquation:
                 lhs, rhs = y, inf
                 
             returns = sp.Eq(lhs, rhs), str(lhs), str(rhs)
-        except:
+        except Exception:
             pass
 
         if getHandSides:

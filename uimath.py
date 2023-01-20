@@ -72,14 +72,12 @@ class UIMath:
 
     @classmethod
     def ConvertToFloats(cls, array):
-        a, b, c, t = cls.a, cls.b, cls.c, cls.t
-
         realPoints = []
         for point in array:
-            x = float(x)
-            y = float(y)
-
+            x = float(point[0])
+            y = float(point[1])
             realPoints.append((x, y))
+
         return realPoints
 
 
@@ -212,7 +210,7 @@ class UIMath:
     def TryConvertToFloat(x):
         try:
             return float(x)
-        except:
+        except Exception:
             return 0
 
 
