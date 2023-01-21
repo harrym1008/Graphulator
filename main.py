@@ -1,5 +1,3 @@
-# sin(txxt)t^(-x)=y/sin x
-
 # Prevents the welcome message from pygame from spamming in the terminal
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
@@ -186,6 +184,13 @@ if __name__ == "__main__":
     for i in range(maxEquations):
         functionManager.AddEquation("")
     gui.entries[0].set("sin x")
+
+
+    trigonometry = True
+    if trigonometry:
+        equs = ["sin x", "cos x", "tan x", "sec x", "csc x", "cot x", "asin x", "acos x", "atan x", "asec x"]
+        for i in range(10):
+            gui.entries[i].set(equs[i])
 
 
 
