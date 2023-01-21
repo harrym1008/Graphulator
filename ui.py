@@ -7,6 +7,7 @@ from colours import *
 from uimath import UIMath
 from evaluate import *
 from numstr import *
+from timer import *
 
 
 class UserInterface:
@@ -56,13 +57,15 @@ class UserInterface:
 
         # Create the equation entry widgets
         self.entries = []
-        for i in range(10):
-            self.entries.append(StringVar(self.equLF))
-            self.CreateLabel(f"[{i+1}]", 2, (0, 0.1*i, 0.15, 0.09), self.equLF, GetColourKeyForPlotIndex(i)) 
+        self.numberLabels = []
 
-            entry = Entry(self.equLF, textvariable=self.entries[i])
-            entry.config(font=self.fonts[6])
-            entry.place(relx=0.2, rely=0.1*i, relheight=0.09, relwidth=0.8) 
+        for i in range(10):
+            stringVar = StringVar(self.equLF)
+            self.entries.append(stringVar)
+            self.CreateEntry(stringVar, 6, (0.2, 0.1*i, 0.8, 0.09), self.equLF)
+
+            lbl = self.CreateLabel(f"[{i+1}]", 2, (0, 0.1*i, 0.15, 0.09), self.equLF, "black") 
+            self.numberLabels.append(lbl)
 
 
         # Create buttons inside the calculations frame
@@ -343,19 +346,12 @@ Message: {error.args[0]}""")
             self.entries[i].set(string)
 
 
-    def UpdateEquationNumberLabels(self, equationsList, selected, i):
-        self.currentEquation = selected
-        self.labels[i].forget()
-
-        if equationsList[i] != "":
-            colour = colours[graphColours[i % len(graphColours)]].hex
-        else:
-            colour = colours["black"].hex
-
-        fontNum = 4 if i == selected else 3
-        label = self.CreateNewLabel(f"  [{i+1}]  ", fontNum, colour)
-        label.grid(row=3+i, column=0)
-        self.labels[i] = label
+    def UpdateEquationNumberLabels(self, equationsList):
+        for i, lbl in enumerate(self.numberLabels):
+            if equationsList[i] != "":
+                lbl.config(fg=GetColourForPlotIndex(i).hex)
+            else:
+                lbl.config(fg=colours["black"].hex)
 
         
 

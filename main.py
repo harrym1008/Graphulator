@@ -220,6 +220,7 @@ if __name__ == "__main__":
         functionManager.UpdateEquations(equList)
 
         # Frame update code
+        gui.UpdateEquationNumberLabels(equList)
         graphRenderer.NewFrame()
         graph.DrawBaseGraphSurface(graphRenderer, mouse.GetMousePos()) 
         graphUI.UpdateUISurface(graph, mousePos, currentEquation, functionManager) 
