@@ -259,7 +259,7 @@ class Graph:
 
 
 class CornerValues:
-    def __init__(self, graph, boundMultiplier:float=1):
+    def __init__(self, graph):
         if graph is None:
             return
 
@@ -268,12 +268,12 @@ class CornerValues:
 
         x, y = 0, 1
 
-        screenSize = (graph.screenSize[0] * boundMultiplier, graph.screenSize[1] * boundMultiplier)
+        screenSize = (graph.screenSize[0], graph.screenSize[1])
         screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
 
         # Variables to make the calculations more readable in the code
         ox = graph.offset[0]
-        oy = graph.offset[1]   # make this value negative
+        oy = graph.offset[1]
         z = graph.zoom
         maxX = screenSize[0]
         maxY = screenSize[1]
@@ -299,7 +299,6 @@ class CornerValues:
         self.NW = W, N
         self.zoom = z
 
-        self.boundMultiplier = boundMultiplier
         self.screenSize = screenSize
 
 

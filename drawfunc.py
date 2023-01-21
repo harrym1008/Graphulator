@@ -21,13 +21,11 @@ TRANSFORMATIONS = (standard_transformations + (implicit_multiplication_applicati
 
 class PlottedEquation:
     def __init__(self, equation, index):
-        self.active = True
         self.equation = equation
         self.index = index
         self.colour = colours.GetColourForPlotIndex(index)
-
-        self.boundsAtBeginning: CornerValues = CornerValues(None)
         self.solutions = {"y": [],"x": []}
+        
 
 
     def ChangeMyEquation(self, new):

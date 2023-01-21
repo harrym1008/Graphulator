@@ -173,18 +173,18 @@ if __name__ == "__main__":
     pygame.display.set_caption(f"Graphulator Screen View")
     
     #  ***** Instantiation of main classes *****
-    graph = Graph(screenSize)                   # Create and initialise an instance of the graph class
-    graphUI = GraphUserInterface(graph)         # Create and initialise an instance of the graph UI class
-    gui = UserInterface(graph, graphUI, Kill)   # Create and initialise an instance of the UI class
-    graphRenderer = GraphRenderer(graph)        # Create and initialise an instance of the graph renderer class
-    functionManager = FunctionManager(graph)    # Create and initialise an instance of the function manager class
+    graph = Graph(screenSize)                               # Create and initialise an instance of the graph class
+    graphUI = GraphUserInterface(graph)                     # Create and initialise an instance of the graph UI class
+    gui = UserInterface(graph, graphUI, Kill)               # Create and initialise an instance of the UI class
+    graphRenderer = GraphRenderer(graph)                    # Create and initialise an instance of the graph renderer class
+    functionManager = FunctionManager(graph, maxEquations)  # Create and initialise an instance of the function manager class
 
     currentEquationIndex = 0
     mouse = MouseData()
 
     # Create equation instances and set the first as the default equation "y=sin x"
     for i in range(maxEquations):
-        functionManager.AddAnotherEquation("")
+        functionManager.AddEquation("")
     gui.entries[0].set("sin x")
 
 

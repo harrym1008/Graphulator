@@ -5,57 +5,42 @@ from timer import *
 from numstr import SigFig
 from graph import CornerValues
 
-import sys
+import getjson
 import numpy as np
 import pygame
-import deltatime
 import drawfunc
-import time
-
-
-BOUND_MULTIPLIER = 1
-
 
 
 class FunctionManager:
-    def __init__(self, graph):
+    def __init__(self, graph, maxEquations):
         self.currentEquations: List[drawfunc.PlottedEquation] = []
         self.surfaceBoundsData: List[drawfunc.SurfaceAndBounds] = []
         self.myThreads = []
         self.myInQueues = []
         self.myOutQueues = []
         self.myEventQueues = []
+
+        self.nextToUpdate = 0
+        self.maxEquations = maxEquations
+        self.updatesPerFrame = getjson.GetData("graph_updates_per_frame")
+
+        if self.updatesPerFrame > self.maxEquations:
+            self.updatesPerFrame = self.maxEquations
+        elif self.updatesPerFrame < 1:
+            self.updatesPerFrame = 1
         
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
         self.constants = (0, 0, 0, -10, 10)
 
+        self.waitingForThread = self.CreateWaitingForThreadSurface(graph)
 
-        s = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
-
-        # Create the please wait for threads message while the threads are starting
-        msg = "Please wait: threads are starting"
-
-        s.fill(colours["transparent"].colour)
-        txtWhite = graph.fonts[36].render(msg, True, colours["white"].colour)
-        txtBlack = graph.fonts[36].render(msg, True, colours["black"].colour)
-
-        for offset in [(0, -1), (0, 1), (1, 0), (-1, 0)]:
-            renderAt = (graph.screenSize[0] // 2 - txtBlack.get_width() // 2 + offset[0],
-                        graph.screenSize[1] // 2 - txtBlack.get_height() // 2 + offset[1])
-            s.blit(txtBlack, renderAt)
-        renderAt = (graph.screenSize[0] // 2 - txtWhite.get_width() // 2,
-                    graph.screenSize[1] // 2 - txtWhite.get_height() // 2)
-        s.blit(txtWhite, renderAt)
-
-        self.waitingForThread = s
-
-
+    
 
     def ScreenHasBeenResized(self, newSize):
         self.surface = pygame.Surface(newSize, pygame.SRCALPHA)
 
 
-    def AddAnotherEquation(self, equation):
+    def AddEquation(self, equation):
         index = len(self.currentEquations)
 
         newEquation = drawfunc.PlottedEquation(equation, index)
@@ -93,45 +78,57 @@ class FunctionManager:
 
 
     def UpdateThreads(self, graph):
-        for i, equ in enumerate(self.currentEquations):
-            # check if a thread should not be running, if so end it
-            if not equ.active:
-                self.myThreads[i].terminate()
-                continue
+        if self.updatesPerFrame == self.maxEquations:
+            for i in range(self.maxEquations):
+                self.UpdateSingleThread(graph, i)
 
-            # if a thread should be running but is not (because it has just finished or 
-            # the class has just been instantiated)
+        elif self.updatesPerFrame == 1:
+            self.UpdateSingleThread(graph, self.nextToUpdate)
+            self.nextToUpdate = (self.nextToUpdate + 1) % self.maxEquations
 
-            threadIsNotNone = self.myThreads[i] is not None
-            newDataIsAvailable = self.myOutQueues[i].qsize() > 0
-
-            # print(self.myOutQueues[i].qsize())
-
-            if equ.active and newDataIsAvailable if threadIsNotNone else True:  
-                bounds = CornerValues(graph, BOUND_MULTIPLIER)              
-                threadData = drawfunc.ThreadInput(bounds, graph.screenSize, graph.zoomedOffset, equ)
-
-                if self.myThreads[i] is None:
-                    print("Created the new thread")
-                    self.myThreads[i] = Process(target=equ.RecalculatePoints, 
-                                          args=(threadData, self.myInQueues[i], self.myOutQueues[i], self.myEventQueues[i]))
-                    self.myThreads[i].start()
-                    self.myInQueues[i].put(threadData)
-                    continue
-
-                ResetTimer()
-
-                data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
+        else:
+            threadsToUpdate = []
+            for i in range(self.updatesPerFrame):
+                threadsToUpdate.append(self.nextToUpdate)
+                self.nextToUpdate = (self.nextToUpdate + 1) % self.maxEquations
                 
-                self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
-                self.currentEquations[i].solutions = data.solutions
-                
-                # Put new events
-                for event in self.GetEventData(i):
-                    self.myEventQueues[i].put(event)
+            for i in threadsToUpdate:
+                self.UpdateSingleThread(graph, i)
 
-                self.myInQueues[i].put(threadData)         
-                # save the drawn surface to the array, so it does not have to be redrawn every frame
+
+
+
+    def UpdateSingleThread(self, graph, i):
+        equ = self.currentEquations[i]
+
+        # if a thread should be running but is not (because it has just finished or 
+        # the class has just been instantiated)
+
+        threadIsNone = self.myThreads[i] is None
+        newDataIsAvailable = self.myOutQueues[i].qsize() > 0
+
+        bounds = CornerValues(graph)              
+        threadData = drawfunc.ThreadInput(bounds, graph.screenSize, graph.zoomedOffset, equ)
+
+        if newDataIsAvailable and not threadIsNone:  
+            data: drawfunc.ThreadOutput = self.myOutQueues[i].get()         # get data from return queue
+            
+            self.surfaceBoundsData[i] = drawfunc.SurfaceAndBounds(data.serialisedSurface.GetSurface(), data.bounds)
+            self.currentEquations[i].solutions = data.solutions
+            
+            # Put new events
+            for event in self.GetEventData(i):
+                self.myEventQueues[i].put(event)
+
+            self.myInQueues[i].put(threadData)         
+            # save the drawn surface to the array, so it does not have to be redrawn every frame
+
+        elif threadIsNone:
+            print("Created the new thread")
+            self.myThreads[i] = Process(target=equ.RecalculatePoints, 
+                                    args=(threadData, self.myInQueues[i], self.myOutQueues[i], self.myEventQueues[i]))
+            self.myThreads[i].start()
+            self.myInQueues[i].put(threadData)
 
 
 
@@ -153,7 +150,6 @@ class FunctionManager:
                 continue
 
             dataSurface = data.surface
-            b = data.bounds.boundMultiplier
 
             ss = data.bounds.screenSize
             sc = tuple([i // 2 for i in ss])
@@ -190,26 +186,26 @@ class FunctionManager:
             if panned or zoomed:
                 newScale = (surfaceCorners[1][0] - surfaceCorners[0][0],
                             surfaceCorners[1][1] - surfaceCorners[0][1])
-                newScale = tuple(int(np.abs(i) / b) for i in newScale)
+                newScale = tuple(int(np.abs(i)) for i in newScale)
 
-                newPosition = (int(surfaceCorners[0][0]) // data.bounds.boundMultiplier, 
-                               int(surfaceCorners[0][1]) // data.bounds.boundMultiplier) 
+                newPosition = (int(surfaceCorners[0][0]), int(surfaceCorners[0][1])) 
 
 
             try:
                 scaleX = ss[0] / newScale[0]
                 scaleY = ss[1] / newScale[1]
             except ZeroDivisionError:
-                scaleX = 0.4
-                scaleY = 0.4
+                scaleX = 0.25
+                scaleY = 0.25
 
             # Check if scaling should happen
-            skipDueToSize = scaleX <= 0.4 or scaleY <= 0.4
+            skipDueToSize = scaleX <= 0.25 or scaleY <= 0.25
 
-            if skipDueToSize:           # Skip, the scaling will take too much CPU time
+            if skipDueToSize:           # Clear the surface, scaling will take too much time, wait an updated surface
                 newPosition = (0, 0)
                 newScale = ss
-                tempSurface = data.surface
+                tempSurface = pygame.Surface(newScale, pygame.SRCALPHA)
+                
             elif newScale != graph.screenSize:      # Scale to correct dimensions
                 tempSurface = pygame.transform.scale(dataSurface, newScale)
             else:
@@ -217,6 +213,25 @@ class FunctionManager:
 
             self.surface.blit(tempSurface, newPosition)
 
+    def CreateWaitingForThreadSurface(self, graph):
+        s = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
+
+        # Create the please wait for threads message while the threads are starting
+        msg = "Please wait: threads are starting"
+
+        s.fill(colours["transparent"].colour)
+        txtWhite = graph.fonts[36].render(msg, True, colours["white"].colour)
+        txtBlack = graph.fonts[36].render(msg, True, colours["black"].colour)
+
+        for offset in [(0, -1), (0, 1), (1, 0), (-1, 0)]:
+            renderAt = (graph.screenSize[0] // 2 - txtBlack.get_width() // 2 + offset[0],
+                        graph.screenSize[1] // 2 - txtBlack.get_height() // 2 + offset[1])
+            s.blit(txtBlack, renderAt)
+        renderAt = (graph.screenSize[0] // 2 - txtWhite.get_width() // 2,
+                    graph.screenSize[1] // 2 - txtWhite.get_height() // 2)
+        s.blit(txtWhite, renderAt)
+
+        return s
 
 
 class Event:
