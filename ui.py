@@ -347,6 +347,8 @@ Message: {error.args[0]}""")
 
 
     def UpdateEquationNumberLabels(self, equationsList):
+        equationsList.extend(["" for i in range(10 - len(equationsList))])
+
         for i, lbl in enumerate(self.numberLabels):
             if equationsList[i] != "":
                 lbl.config(fg=GetColourForPlotIndex(i).hex)
