@@ -184,6 +184,9 @@ class GraphUserInterface:
         pygame.draw.rect(self.surface, colours["faded white"].colour, rectangle)
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * pushPixels))
 
+        if invalidInputValues:
+           return 
+
         xString = "x="
         yString = "y="
 
