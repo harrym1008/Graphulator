@@ -1,7 +1,8 @@
 from evaluate import *
-
 from drawfunc import PlottedEquation
 import numstr
+
+import time
 
 
 
@@ -31,7 +32,7 @@ class UIMath:
 
         try:
             x, y = 0, sp.Symbol("y")
-            strEqu = UnreplaceEquation(strEqu)
+            strEqu = TranslateNumpyToSympy(strEqu)
             equ = PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             ySolutions = PlottedEquation.ProduceEquationSolutions(equ, "y")
             return ySolutions
@@ -45,7 +46,7 @@ class UIMath:
 
         try:
             x, y = sp.Symbol("x"), 0
-            strEqu = UnreplaceEquation(strEqu)
+            strEqu = TranslateNumpyToSympy(strEqu)
             equ = PlottedEquation.ProduceSympyEquation(strEqu, getHandSides=False)
             xSolutions = PlottedEquation.ProduceEquationSolutions(equ, "x")
 
@@ -90,8 +91,8 @@ class UIMath:
     def FindIntersections(cls, strEqu1, strEqu2):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
 
-        strEqu1 = UnreplaceEquation(strEqu1)
-        strEqu2 = UnreplaceEquation(strEqu2)
+        strEqu1 = TranslateNumpyToSympy(strEqu1)
+        strEqu2 = TranslateNumpyToSympy(strEqu2)
 
         equ1 = PlottedEquation.ProduceSympyEquation(strEqu1, getHandSides=False)
         equ2 = PlottedEquation.ProduceSympyEquation(strEqu2, getHandSides=False)
@@ -123,7 +124,7 @@ class UIMath:
                     shortestSolutions = yValues1 if len(yValues1) <= len(yValues2) else yValues2
 
                     for solution in shortestSolutions:    
-                        yNum = eval(ReplaceEquation(str(solution)))                            
+                        yNum = eval(TranslateSympyToNumpy(str(solution)))                            
                         points.append((xNum, yNum))
                         
 
@@ -151,7 +152,7 @@ class UIMath:
                     shortestSolutions = xValues1 if len(xValues1) <= len(xValues2) else xValues2
 
                     for solution in shortestSolutions:   
-                        xNum = eval(ReplaceEquation(str(solution)))                            
+                        xNum = eval(TranslateSympyToNumpy(str(solution)))                            
                         points.append((xNum, yNum))
 
         points = UIMath.ConvertToFloats(points)
@@ -164,7 +165,7 @@ class UIMath:
 
         x, y = sp.symbols("x y")
 
-        equation = UnreplaceEquation(equation)
+        equation = TranslateNumpyToSympy(equation)
         equation = PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
         
         solvedForX = sp.solve(equation, x)
@@ -185,7 +186,7 @@ class UIMath:
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
 
         x, y = sp.symbols("x y")
-        equation = UnreplaceEquation(equation)
+        equation = TranslateNumpyToSympy(equation)
         equation = PlottedEquation.ProduceSympyEquation(equation, getHandSides=False)
         
         solvedForY = sp.solve(equation, y)

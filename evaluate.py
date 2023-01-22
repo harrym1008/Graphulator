@@ -2,9 +2,8 @@ import numpy as np
 import sympy as sp
 from scipy.special import lambertw
 from math import exp, log, log10
-import time
 
-replacements = []
+translations = []
 
 
 π = pi = np.pi
@@ -18,8 +17,8 @@ inf = np.inf
 
 
 def GetReplacements():
-    # Open replacements.txt in read mode
-    with open("replacements.txt", "r") as file:
+    # Open tlacements.txt in read mode
+    with open("translations.txt", "r") as file:
         # read all the lines
         lines = file.readlines()
         # loop through the lines
@@ -30,30 +29,31 @@ def GetReplacements():
             # 3. Loop through both the words in the list
             # 4. Get rid of the double quotes in the string
             # 5. Convert the final list into a tuple
-            # This is ready for appending into the replacements list
+            # This is ready for appending into the translations list
             parts = [x.strip('"') for x in line.strip().split(",")]
             parts.append(f"#{i}#")
-            replacements.append(parts)
+            translations.append(parts)
 
 
-def ReplaceEquation(equation: str):
-    for rep in replacements:
-        equation = equation.replace(rep[0], rep[2])
-    for rep in replacements:
-        equation = equation.replace(rep[2], rep[1])
+def TranslateSympyToNumpy(equation: str):
+    for t in translations:
+        equation = equation.replace(t[0], t[2])
+    for t in translations:
+        equation = equation.replace(t[2], t[1])
     return equation
 
 
-def UnreplaceEquation(equation: str):
-    for rep in replacements:
-        equation = equation.replace(rep[1], rep[2])
-    for rep in replacements:
-        equation = equation.replace(rep[2], rep[0])
+def TranslateNumpyToSympy(equation: str):
+    for t in translations:
+        equation = equation.replace(t[1], t[2])
+    for t in translations:
+        equation = equation.replace(t[2], t[0])
     return equation
 
 
 
 def factorial(x):
+    # This is a good rough estimation for the factorial method
     return np.sqrt(2 * pi * x) * (x/e)**x
 
 

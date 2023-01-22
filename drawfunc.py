@@ -83,7 +83,7 @@ class PlottedEquation:
                 lastEquation = currentEquation
                 solutions = PlottedEquation.GetSolutions(currentEquation)
                 solutionCount = len(solutions["x"]) + len(solutions["y"])
-                print(solutions, UnreplaceEquation(currentEquation))
+                print(solutions, TranslateNumpyToSympy(currentEquation))
 
                 
             bounds = inData.bounds
@@ -163,7 +163,7 @@ class PlottedEquation:
 
     @staticmethod
     def GetSolutions(strEqu):
-        strEqu = UnreplaceEquation(strEqu)
+        strEqu = TranslateNumpyToSympy(strEqu)
         equ, lhs, rhs = PlottedEquation.ProduceSympyEquation(strEqu)
         print(equ, lhs, rhs)
         ySolutions = PlottedEquation.ProduceEquationSolutions(equ, "y")
@@ -194,7 +194,7 @@ class PlottedEquation:
             solveFor = x if category == "x" else y
             solved = sp.solve(equ, solveFor)
             print(solved)
-            return [ReplaceEquation(str(solution)) if replace else str(solution) for solution in solved]
+            return [TranslateSympyToNumpy(str(solution)) if replace else str(solution) for solution in solved]
         except Exception:
             return []
 
