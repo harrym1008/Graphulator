@@ -202,7 +202,7 @@ Message: {error.args[0]}""")
 
         try:
             xValue = float(self.evalStringVars[0].get())
-            points = UIMath.EvaluateX(strEqu, xValue)
+            points = UIMath.EvaluateY(strEqu, xValue)
             pointsString = ""
 
             for point in points:
