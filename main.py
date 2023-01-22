@@ -183,10 +183,10 @@ if __name__ == "__main__":
     # Create equation instances and set the first as the default equation "y=sin x"
     for i in range(maxEquations):
         functionManager.AddEquation("")
-    gui.entries[0].set("sin x")
+    gui.entries[0].set("asin x")
 
 
-    trigonometry = True
+    trigonometry = False
     if trigonometry:
         equs = ["sin x", "cos x", "tan x", "sec x", "csc x", "cot x", "asin x", "acos x", "atan x", "asec x"]
         for i in range(10):
