@@ -1,4 +1,5 @@
 import pygame
+import time
 import numpy as np
 
 from colours import *
@@ -130,6 +131,7 @@ class GraphUserInterface:
         if GraphUserInterface.IsCircleTraceX(equation):
             for xPoint in points[0]:
                 if GraphUserInterface.CheckForNullValue(xPoint) or GraphUserInterface.CheckForNullValue(mouseY):
+                    writtenPoints.append((inf, mouseY))
                     continue
                 screenX = -graph.zoomedOffset[0] + graph.screenCentre[0] + xPoint * graph.zoom
                 screenY = graph.zoomedOffset[1] + graph.screenCentre[1] - mouseY * graph.zoom
@@ -140,14 +142,14 @@ class GraphUserInterface:
         else:
             for yPoint in points[1]:
                 if GraphUserInterface.CheckForNullValue(yPoint) or GraphUserInterface.CheckForNullValue(mouseX):
-                    continue                
+                    writtenPoints.append((mouseX, inf))
+                    continue
                 screenX = -graph.zoomedOffset[0] + graph.screenCentre[0] + mouseX * graph.zoom
                 screenY = graph.zoomedOffset[1] + graph.screenCentre[1] - yPoint * graph.zoom
                 
                 pygame.draw.circle(self.surface, equation.colour.colour, (screenX, screenY), 4)
                 writtenPoints.append((mouseX, yPoint))
 
-    
         return GraphUserInterface.RemoveDuplicates([point[0] for point in writtenPoints]), \
                GraphUserInterface.RemoveDuplicates([point[1] for point in writtenPoints])
 
@@ -171,10 +173,10 @@ class GraphUserInterface:
             return
             
         font = self.fonts[16]
-        invalidInputValues = GraphUserInterface.XAndYCheckForNullValues(equation, x, y)
+        invalidInputValues = GraphUserInterface.CheckForNullValue(x) or GraphUserInterface.CheckForNullValue(y)
         pushPixels = 2 if not invalidInputValues else 1.2
 
-        equString = UnreplaceEquation(equation.equation)
+        equString = TranslateNumpyToSympy(equation.equation)
         equationText = font.render(f"[{equation.index+1}] {equString}", True, equation.colour.colour)
         
         rectangle = pygame.Rect(0, self.screenSize[1] - equationText.get_height()*pushPixels - 2, self.screenSize[0], 
@@ -182,20 +184,13 @@ class GraphUserInterface:
         pygame.draw.rect(self.surface, colours["faded white"].colour, rectangle)
         self.surface.blit(equationText, (0, self.screenSize[1] - equationText.get_height() * pushPixels))
 
-        if invalidInputValues:
-            return
-
         xString = "x="
         yString = "y="
 
         for xPoint in xPoints:
-            if GraphUserInterface.CheckForNullValue(xPoint):
-                xString += "ERROR, "
             xString += NStr(xPoint) + ", "
 
         for yPoint in yPoints:
-            if GraphUserInterface.CheckForNullValue(yPoint):
-                yString += "ERROR, "
             yString += NStr(yPoint) + ", "
 
         xString = xString[:-2]
@@ -237,14 +232,14 @@ class GraphUserInterface:
         for solution in equation.solutions["y"]:
             try:
                 yArr.append(float(eval(solution)))
-            except Exception as e:
-                pass
+            except Exception:
+                yArr.append(inf)
 
         for solution in equation.solutions["x"]:
             try:
                 xArr.append(float(eval(solution)))
-            except Exception as e:
-                pass
+            except Exception:
+                yArr.append(inf)
                 
 
         return xArr, yArr
