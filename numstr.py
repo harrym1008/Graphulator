@@ -1,14 +1,15 @@
 import math
 import numpy as np
 
+# Get superscript numbers by using SUPERSCRIPT[3]
 SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"  # ⁺⁻⁼⁽⁾"
 
-
+# Converts a float number into a string with significant figures
+# and standard form provided the number is long enough to require it
 def NStr(n: float, short: bool = False) -> str:
-    if n in [np.inf, np.NINF, np.nan] or math.isnan(n):
+    if math.isinf(n) or math.isnan(n):
         return "ERROR"
-
-    if n == 0:
+    elif n == 0:
         return "0"
 
     powersOf10 = int(math.log(math.fabs(n), 10))
@@ -22,11 +23,12 @@ def NStr(n: float, short: bool = False) -> str:
     return StandardForm(n, 2 if short else 5)
 
 
+# Creates a co-ordinate string from two X and Y values
 def GetCoordString(x: float, y: float):
     return f"({NStr(x, short=True)}, {NStr(y, short=True)})"
 
 
-
+# Rounds a number to a specific number of decimal places based on its magnitude
 def GetFractionalNumber(n, powersOf10, maxdp=6) -> str:
     dp = maxdp - powersOf10 if maxdp - powersOf10 >= 0 else 0
     dp = dp if powersOf10 > -2 else 2+maxdp
@@ -37,13 +39,14 @@ def GetFractionalNumber(n, powersOf10, maxdp=6) -> str:
     return str(floatN)
 
 
+# Rounds a number to a number of significant figures
 def SigFig(x, sig):
     if x == 0:
         return 0
     return round(x, sig - int(math.log(abs(x), 10)) - 1)
 
 
-
+# Converts a float to a standard form string 
 def StandardForm(n: float, dp: int = 3) -> str:
     if n == 0:
         return "0"
@@ -62,10 +65,11 @@ def StandardForm(n: float, dp: int = 3) -> str:
             normalisedN *= 10
             x -= 1
 
-    return f"{negative}{round(normalisedN, dp)}×10{StringToSuperscript(int(x))}"  #
+    return f"{negative}{round(normalisedN, dp)}×10{NumberToSuperscriptStr(int(x))}"  #
 
 
-def StringToSuperscript(n: int) -> str:
+# Convert a number into a string of superscript letters
+def NumberToSuperscriptStr(n: int) -> str:
     string = ""
 
     for i in range(len(str(n))):
@@ -76,3 +80,4 @@ def StringToSuperscript(n: int) -> str:
         string += SUPERSCRIPT[int(str(n)[i])]
 
     return string
+    

@@ -169,7 +169,7 @@ class UserInterface:
 
 
 
-    # This code finds rusn the evaluate function for finding the X value, then creates a window displaying the points
+    # This code finds runs the evaluate function for finding the X value, then creates a window displaying the points
     def DisplayXEvaluation(self):
         strEqu = self.entries[self.currentEquation].get()
 
@@ -196,7 +196,7 @@ Message: {error.args[0]}""")
 
 
 
-    # This code finds rusn the evaluate function for finding the Y value, then creates a window displaying the points
+    # This code finds runs the evaluate function for finding the Y value, then creates a window displaying the points
     def DisplayYEvaluation(self):
         strEqu = self.entries[self.currentEquation].get()
 

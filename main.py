@@ -35,7 +35,8 @@ maxEquations = min(getjson.GetData("max_equations"), 10)  # make sure maximum is
 
 basePanSpeed = getjson.GetData("base_pan_speed")
 zoomSpeed = getjson.GetData("base_zoom_speed")
-panSpeed = screenSize[0] * 0.0005 * basePanSpeed + 1
+panSpeed = screenSize[0] * 0.0005 * basePanSpeed + 1     
+# predefined equation to calculate what pan speed will be
 
 numberKeys = [[pygame.K_1, pygame.K_KP_1],
               [pygame.K_2, pygame.K_KP_2],
@@ -47,6 +48,8 @@ numberKeys = [[pygame.K_1, pygame.K_KP_1],
               [pygame.K_8, pygame.K_KP_8],
               [pygame.K_9, pygame.K_KP_9],
               [pygame.K_0, pygame.K_KP_0]]
+# This array references both of the possible number keys 
+# for the numpad and the top row of the keyboard
 
 
 def Kill():
@@ -55,6 +58,7 @@ def Kill():
     running = False
 
 
+# This class performs all the necessary input actions for the mouse
 class MouseData:
     BLANK = (-1, -1)
 
@@ -89,23 +93,28 @@ class MouseData:
         # Main mouse click and drag functionality
         mouseMoved = (0, 0)
 
+        # When the mouse has just been pressed
         if self.buttonDown and self.startPosition == self.BLANK:
             self.startPosition = self.mousePosition
             self.graphPosition = (graph.offset[0], graph.offset[1])
 
+        # When the mouse has just stopped being pressed
         elif not self.buttonDown and self.mousePosition != self.BLANK:
             mouseMoved = MouseData.MousePositionSubtraction(self.mousePosition, self.startPosition)
             self.startPosition = self.BLANK
             self.graphPosition = self.BLANK
 
+        # While the mouse is being pressed
         elif self.buttonDown:
             mouseMoved = MouseData.MousePositionSubtraction(self.mousePosition, self.startPosition)
 
+        # Update the graph offset accordingly
         if self.startPosition != self.BLANK:
             graph.offset = [self.graphPosition[0] - mouseMoved[0] / graph.zoom,
                             self.graphPosition[1] + mouseMoved[1] / graph.zoom]   
 
 
+    # Check if the mouse is on the window or not
     def UpdateMouseFocus(self):
         focused = pygame.mouse.get_focused()
         
@@ -151,15 +160,13 @@ def KeyboardInput(keys, graph):
         Kill()
 
 
-
+# Loops through the key buttons, check which one is pressed
 def GetCurrentEquationInput(keys, currentEquationIndex):
     for i, nums in enumerate(numberKeys):
         if keys[nums[0]] or keys[nums[1]]:
             if i < maxEquations:
                 return i
     return currentEquationIndex
-
-
 
 
 
@@ -177,20 +184,14 @@ if __name__ == "__main__":
     graphRenderer = GraphRenderer(graph)                    # Create and initialise an instance of the graph renderer class
     functionManager = FunctionManager(graph, maxEquations)  # Create and initialise an instance of the function manager class
 
+    # Defines a variable that holds the index of the currently selected equation
     currentEquationIndex = 0
     mouse = MouseData()
 
     # Create equation instances and set the first as the default equation "y=sin x"
     for i in range(maxEquations):
         functionManager.AddEquation("")
-    gui.entries[0].set("asin x")
-
-
-    trigonometry = False
-    if trigonometry:
-        equs = ["sin x", "cos x", "tan x", "sec x", "csc x", "cot x", "asin x", "acos x", "atan x", "asec x"]
-        for i in range(10):
-            gui.entries[i].set(equs[i])
+    gui.entries[0].set("sin x")
 
 
 
@@ -266,6 +267,7 @@ if __name__ == "__main__":
         # Wait for 60 FPS
         clock.tick(targetFPS)
         deltatime.Update()
+
         pygame.display.set_caption(f"Graphulator Screen View - {round(clock.get_fps(), 2)} FPS")
 
 
@@ -273,4 +275,4 @@ if __name__ == "__main__":
     for equ in functionManager.myThreads:
         equ.terminate()
 
-    # Program will quit
+    # Program will now quit

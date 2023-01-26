@@ -1,0 +1,12 @@
+colours         Done
+deltatime       Done
+drawfunc
+evaluate
+funcmgr
+getjson         Done
+graph
+graphui
+main            Done
+numstr          Done
+ui              Partially
+uimath          Done

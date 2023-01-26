@@ -12,6 +12,7 @@ class UIMath:
     c = 0
     t = 0
 
+    # Resets constants to the inputted values, and calculates T
     @classmethod
     def DefineConstants(cls, constants):
         cls.a = constants[0]
@@ -20,11 +21,13 @@ class UIMath:
         cls.t = cls.Lerp(constants[3], constants[4], (time.perf_counter() % 10) / 10)
 
 
+    # Return an ordered tuple of the constants
     @classmethod
     def GetConstants(cls):
         return (cls.a, cls.b, cls.c, cls.t)
 
 
+    # Find the points on an equation where X = 0
     @classmethod
     def FindYIntercept(cls, strEqu):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
@@ -40,6 +43,7 @@ class UIMath:
             return error
             
 
+    # Find the points on an equation where Y = 0
     @classmethod
     def FindXIntercept(cls, strEqu):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
@@ -57,10 +61,9 @@ class UIMath:
             return error
 
 
+    # Removes duplicate points from the array
     @classmethod
     def RemoveDuplicatesFromArray(cls, array, sf=6):
-        a, b, c, t = cls.a, cls.b, cls.c, cls.t
-
         new = []
         newRounded = []
         for point in array:
@@ -71,6 +74,7 @@ class UIMath:
         return new
 
 
+    # Convert a set of either real or imaginary points to all real points
     @classmethod
     def ConvertToFloats(cls, array):
         realPoints = []
@@ -82,11 +86,14 @@ class UIMath:
         return realPoints
 
 
+    # Compare a value by rounding to significant figures first.
+    # This is done so the smallest floating point imprecision doesn't affect the comparison.
     @staticmethod
     def CompareFloatsWithSigFig(x, y, sf=6):
         return numstr.SigFig(x, sf) == numstr.SigFig(y, sf)
 
 
+    # Finds the intersections of two equations
     @classmethod
     def FindIntersections(cls, strEqu1, strEqu2):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
@@ -113,18 +120,18 @@ class UIMath:
                 
                 for xValue in xValues:
                     xNum = xValue.evalf()                    
-                    if not xNum.is_real:
+                    if not xNum.is_real:    # Imaginary number
                         xNum = sp.re(xNum)
 
-                    x = xNum
 
                     yValues1 = sp.solve( sp.Eq(equ1Solution, y), y)
                     yValues2 = sp.solve( sp.Eq(equ2Solution, y), y)
 
                     shortestSolutions = yValues1 if len(yValues1) <= len(yValues2) else yValues2
 
-                    for solution in shortestSolutions:    
-                        yNum = eval(TranslateSympyToNumpy(str(solution)))                            
+                    for solution in shortestSolutions:
+                        newSolution = TranslateSympyToNumpy(str(solution))    
+                        yNum = eval( newSolution )                            
                         points.append((xNum, yNum))
                         
 
@@ -143,9 +150,6 @@ class UIMath:
 
                     y = yNum
 
-                    if True in [UIMath.CompareFloatsWithSigFig(point[1], yNum) for point in points]:
-                        continue
-
                     xValues1 = sp.solve( sp.Eq(equ1Solution, x), x)
                     xValues2 = sp.solve( sp.Eq(equ2Solution, x), x)
 
@@ -155,10 +159,11 @@ class UIMath:
                         xNum = eval(TranslateSympyToNumpy(str(solution)))                            
                         points.append((xNum, yNum))
 
-        points = UIMath.ConvertToFloats(points)
-        return UIMath.RemoveDuplicatesFromArray(points)
+        points = UIMath.ConvertToFloats(points)   # Make sure there are no imaginary values
+        return UIMath.RemoveDuplicatesFromArray(points)     # Remove duplicate points from the array
 
 
+    # Evaluates X for an equation at a given Y value
     @classmethod
     def EvaluateX(cls, equation, yValue: float):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
@@ -181,6 +186,7 @@ class UIMath:
         return UIMath.RemoveDuplicatesFromArray(points)
 
 
+    # Evaluates Y for an equation at a given X value
     @classmethod
     def EvaluateY(cls, equation, xValue: float):
         a, b, c, t = cls.a, cls.b, cls.c, cls.t
@@ -201,26 +207,17 @@ class UIMath:
 
         return UIMath.RemoveDuplicatesFromArray(points)
             
-
+    # Lerp stands for Linear Interpolation
     @staticmethod
-    def Lerp(x, y, t):          # Stands for Linear Interpolation
+    def Lerp(x, y, t):          
         return x + (y-x) * t
 
 
+    # Attempt to convert an object to a float
     @staticmethod
     def TryConvertToFloat(x):
         try:
             return float(x)
         except Exception:
-            return 0
+            return np.inf
 
-
-
-
-
-        
-if __name__ == "__main__":
-    equations = [ "2y=.75x+.2", "4xxx+4xx+x" ]
-
-    print(UIMath.EvaluateX(equations[1], 2))
-    print(UIMath.EvaluateY(equations[1], 2))
