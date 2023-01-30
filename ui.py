@@ -11,18 +11,18 @@ from timer import *
 
 
 class UserInterface:
-    def __init__(self, graph, graphUI, killMethodReference):
+    def __init__(self, mainClass):
         self.root = Tk()                  # Define the root window
         self.root.title("Graphulator")
 
         screenSize = f"{getjson.GetData('gui_size')[0]}x{getjson.GetData('gui_size')[1]}"
         self.root.geometry(screenSize)
 
-        self.root.protocol("WM_DELETE_WINDOW", killMethodReference)  
+        self.root.protocol("WM_DELETE_WINDOW", mainClass.Kill)  
                                     # Run the kill method when the X is pressed
 
-        self.graph = graph
-        self.graphUI = graphUI
+        self.graph = mainClass.graph
+        self.graphUI = mainClass.graphUI
 
         self.currentEquation = 0
         self.dropdownOptions = [str(i+1) for i in range(10)]

@@ -19,6 +19,9 @@ class FunctionManager:
         self.myInQueues = []
         self.myOutQueues = []
         self.myEventQueues = []
+        
+        for i in range(maxEquations):
+            self.AddEquation("")
 
         self.nextToUpdate = 0
         self.maxEquations = maxEquations
@@ -32,7 +35,9 @@ class FunctionManager:
         self.surface = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
         self.constants = (0, 0, 0, -10, 10)
 
-        self.waitingForThread = self.CreateWaitingForThreadSurface(graph)
+        self.waitingForThread = self.CreateWaitingForThreadSurface(graph)        
+
+
 
     
 

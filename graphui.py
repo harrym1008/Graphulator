@@ -31,13 +31,13 @@ class GraphUserInterface:
         self.screenSize = newSize
 
 
-    def UpdateUISurface(self, graph, mousePos, equation, funcMgr):
+    def UpdateUISurface(self, mainClass, equation):
         self.ClearUISurface()
-        self.TopRightDebugData(graph)
-        self.DrawHighlightedPoints(graph)
+        self.TopRightDebugData(mainClass.graph)
+        self.DrawHighlightedPoints(mainClass.graph)
         # self.DrawFramerateGraph()
-        x, y = self.WriteMousePosition(mousePos, graph)
-        xPoints, yPoints = self.DrawCircleAtTracePoint(equation, x, y, funcMgr, graph)
+        x, y = self.WriteMousePosition(mainClass.mousePos, mainClass.graph)
+        xPoints, yPoints = self.DrawCircleAtTracePoint(equation, x, y, mainClass.functionManager, mainClass.graph)
         self.DrawCurrentEquationXY(equation, xPoints, yPoints, x, y)
         
 
