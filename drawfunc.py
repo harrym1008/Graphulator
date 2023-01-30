@@ -37,8 +37,6 @@ class PlottedEquation:
         
         currentEquation = inData.equation.equation
 
-        lastBounds = None
-
         lastEquation = ""
         solutions = {"y": [],"x": []}
         solutionCount = len(solutions["x"]) + len(solutions["y"])

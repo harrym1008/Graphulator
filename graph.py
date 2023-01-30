@@ -30,7 +30,7 @@ class Graph:
         self.offset = [0, 0]
         self.zoom = 50
 
-        self.bounds = CornerValues(self)
+        self.bounds = GraphBounds(self)
 
         self.fonts = []
         self.AssignFonts()
@@ -92,8 +92,8 @@ class Graph:
 
         # calculating the bounds of the window, accounting for zooms and offsets.
         # this is calculated similarly to how WritePosOnGraph() is calculated
-        # this is executed in the __init__ function of the class CornerValues.
-        self.bounds = CornerValues(self)
+        # this is executed in the __init__ function of the class GraphBounds.
+        self.bounds = GraphBounds(self)
 
 
 
@@ -258,7 +258,7 @@ class Graph:
 
 
 
-class CornerValues:
+class GraphBounds:
     def __init__(self, graph):
         if graph is None:
             return
@@ -310,7 +310,7 @@ class CornerValues:
 
 
     def __eq__(self, __o: object) -> bool:
-        if isinstance(__o, CornerValues):
+        if isinstance(__o, GraphBounds):
             if __o.NW == self.NW and __o.SE == self.SE:
                 return True
         return False
