@@ -3,7 +3,7 @@ from typing import List
 from colours import *
 from timer import *
 from numstr import SigFig
-from graph import CornerValues
+from graph import GraphBounds
 
 import getjson
 import numpy as np
@@ -112,7 +112,7 @@ class FunctionManager:
         threadIsNone = self.myThreads[i] is None
         newDataIsAvailable = self.myOutQueues[i].qsize() > 0
 
-        bounds = CornerValues(graph)              
+        bounds = GraphBounds(graph)              
         threadData = drawfunc.ThreadInput(bounds, graph.screenSize, graph.zoomedOffset, equ)
 
         if newDataIsAvailable and not threadIsNone:  

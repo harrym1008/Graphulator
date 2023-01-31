@@ -10,7 +10,7 @@ from sympy.parsing.sympy_parser import standard_transformations, \
 
 from evaluate import *
 from serialsurf import SerialisedSurface
-from graph import CornerValues
+from graph import GraphBounds
 
 
 
