@@ -177,9 +177,6 @@ class FunctionManager:
             newScale = graph.screenSize
             newPosition = (0, 0)
 
-            panOffset = (0, 0)
-            zoomOffset = (0, 0)
-
             # check if the graph has been panned or zoomed and store if they have into boolean variables
             zoomed = data.zoom != graph.zoom
             panned = SigFig(data.bounds.CENTRE[0], 6) != SigFig(graph.bounds.CENTRE[0], 6) or \
@@ -217,6 +214,7 @@ class FunctionManager:
                 tempSurface = data.surface   # Scaling not necessary
 
             self.surface.blit(tempSurface, newPosition)
+
 
     def CreateWaitingForThreadSurface(self, graph):
         s = pygame.Surface(graph.screenSize, pygame.SRCALPHA)
