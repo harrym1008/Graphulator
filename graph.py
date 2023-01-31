@@ -268,15 +268,15 @@ class CornerValues:
 
         x, y = 0, 1
 
-        screenSize = (graph.screenSize[0], graph.screenSize[1])
-        screenCentre = (screenSize[0] // 2, screenSize[1] // 2)
+        self.screenSize = (graph.screenSize[0], graph.screenSize[1])
+        screenCentre = (self.screenSize[0] // 2, self.screenSize[1] // 2)
 
         # Variables to make the calculations more readable in the code
         ox = graph.offset[0]
         oy = graph.offset[1]
         z = graph.zoom
-        maxX = screenSize[0]
-        maxY = screenSize[1]
+        maxX = self.screenSize[0]
+        maxY = self.screenSize[1]
         bound = {x: (-maxX / 2, maxX / 2), y: (-maxY / 2, maxY / 2)}
 
         # Calculating once all possible X and Y values
@@ -298,8 +298,6 @@ class CornerValues:
         self.W = W, CENTRE_Y
         self.NW = W, N
         self.zoom = z
-
-        self.screenSize = screenSize
 
 
     def __str__(self):

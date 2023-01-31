@@ -59,7 +59,7 @@ class MouseData:
         return (val1[0] - val2[0], val1[1] - val2[1])
 
 
-    def ApplyMouseMovement(self, graph, events):
+    def ApplyMouseMovement(self, graph, events, zoomSpeed):
         # Check if button is down and get mouse position
         self.buttonDown = pygame.mouse.get_pressed()[0]   # left click only
         self.mousePosition = pygame.mouse.get_pos()
@@ -69,9 +69,9 @@ class MouseData:
         for e in events:
             if e.type == pygame.MOUSEBUTTONDOWN:
                 if e.button == 4:
-                    graph.zoom *= 1 + self.zoomSpeed
+                    graph.zoom *= 1 + zoomSpeed
                 elif e.button == 5:
-                    graph.zoom /= 1 + self.zoomSpeed
+                    graph.zoom /= 1 + zoomSpeed
 
         # Main mouse click and drag functionality
         mouseMoved = (0, 0)
@@ -98,13 +98,13 @@ class MouseData:
 
 
     # Check if the mouse is on the window or not
-    def UpdateMouseFocus(self, deltatime):
+    def UpdateMouseFocus(self, dt):
         focused = pygame.mouse.get_focused()
         
         if focused:
             self.focusTime = 0.1
         else:
-            self.focusTime -= deltatime.deltaTime
+            self.focusTime -= dt.deltatime
 
     def GetMousePos(self):
         if self.focusTime > 0:
@@ -124,8 +124,8 @@ class Graphulator:
         self.screenSize = tuple(getjson.GetData("screen_size"))
         self.maxEquations = min(getjson.GetData("max_equations"), 10)  # make sure maximum is 10
 
-        basePanSpeed = getjson.GetData("base_pan_speed")
-        self.panSpeed = self.screenSize[0] * 0.0005 * basePanSpeed + 1
+        self.basePanSpeed = getjson.GetData("base_pan_speed")
+        self.panSpeed = self.screenSize[0] * 0.0005 * self.basePanSpeed + 1
         self.zoomSpeed = getjson.GetData("base_zoom_speed")
 
         self.clock = pygame.time.Clock()
@@ -178,7 +178,7 @@ class Graphulator:
 
     # Method which executes all necessary input functions 
     def HandleInput(self, keys, events):
-        self.mouse.ApplyMouseMovement(self.graph, events)
+        self.mouse.ApplyMouseMovement(self.graph, events, self.zoomSpeed)
         self.mouse.UpdateMouseFocus(self.deltatime)
         self.mousePos = self.mouse.GetMousePos()
 
@@ -233,8 +233,6 @@ class Graphulator:
 
 
     def MainLoop(self):
-        currentEquation: str
-
         # Loop until the program stops
         while self.running:
             # Get pygame events and keys pressed
