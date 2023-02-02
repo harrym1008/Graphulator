@@ -10,6 +10,7 @@ from numstr import *
 from timer import *
 
 
+# Main class for the Graphical User Interface
 class UserInterface:
     def __init__(self, mainClass):
         self.root = Tk()                  # Define the root window
@@ -41,7 +42,7 @@ class UserInterface:
 
 
 
-
+    # Places all Tkinter 'Widgets' onto the GUI window
     def CreateWindow(self, mainClass):
         self.CreateLabel("Graphulator", 0, (0.02, 0.01, 0.81, 0.07) )
 

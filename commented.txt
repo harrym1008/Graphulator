@@ -1,10 +1,10 @@
 colours         Done
 deltatime       Done
 drawfunc
-evaluate
+evaluate        Done
 funcmgr
 getjson         Done
-graph
+graph           Done
 graphui
 main            Done
 numstr          Done

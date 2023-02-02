@@ -1,19 +1,17 @@
 from colours import *
 from numstr import *
 from evaluate import *
-from graphui import GraphUserInterface
 
 import pygame
-import math
 import numpy as np
      
 
+# Creating some constants
 LOG_2 = np.math.log(2, 10)
 LOG_4 = np.math.log(4, 10)
 
-
-MAX_ZOOM = 1e800
-MIN_ZOOM = 1e-80
+MAX_ZOOM = 10**48
+MIN_ZOOM = 10**-52
 
 
 class Graph:
@@ -64,7 +62,7 @@ class Graph:
 
 
 
-
+    # Runs some calculations for the next frame before beginning to render to it
     def PerformPrecalculation(self):
         # Cap the zoom between min and max
         if self.zoom > MAX_ZOOM:
@@ -91,14 +89,13 @@ class Graph:
         self.croppedOrgPos = tuple(self.croppedOrgPos)   
 
         # calculating the bounds of the window, accounting for zooms and offsets.
-        # this is calculated similarly to how WritePosOnGraph() is calculated
         # this is executed in the __init__ function of the class GraphBounds.
         self.bounds = GraphBounds(self)
 
 
 
+    # Get how much the values increment by on the origin lines
     def GetGraphLineIncrement(self):
-        # Get how much the values increment by on the origin lines
         logarithm = np.math.log(self.zoom, 10)
 
         lineGap: float
@@ -130,9 +127,8 @@ class Graph:
 
 
 
+    # Draw the cyan lines that stretch across the graph
     def DrawGraphLines(self, renderer):
-        # Draw the cyan lines that stretch across the graph
-
         increment, realGap = self.GetGraphLineIncrement()
         lineOffset = [self.orgPos[0] % increment, self.orgPos[1] % increment]
 
@@ -151,8 +147,8 @@ class Graph:
 
 
 
+    # At regular intervals, write X and Y values in text onto the screen
     def DrawCommonXYWordsOnAxis(self, renderer, realGap):
-        # Write the current
         realGap *= 2
 
         if self.zoom <= 1 and self.zoom != MIN_ZOOM:
@@ -199,12 +195,10 @@ class Graph:
 
             renderer.surface.blit(txtSurface, (posX, posY))
 
-        # print((xStart, xEnd), (yStart, yEnd), realGap)   
 
 
 
-
-
+    # Draw the thicker origin lines
     def DrawLinesFromOrigin(self, renderer):
         orgPosX, orgPosY = orgPos = self.croppedOrgPos
 
@@ -218,8 +212,13 @@ class Graph:
         for i, line in enumerate(lines):
             pygame.draw.line(renderer.surface, colours["black"].colour, line[0], line[1], 1)
             pygame.draw.line(renderer.surface, colours["grey"].colour, greyLines[i][0], greyLines[i][1], 1)
+            
+            # Drawing one black line then another thinner grey line gives the illusion
+            # the line is anti-aliased. Anti-aliasing is not supported in Pygame but
+            # using this method makes the line look a lot smoother
 
 
+    # Write a number zero to the bottom right of the origin
     def DrawZeroAtOrigin(self, renderer):
         txtSurface = self.fonts[16].render("0", True, colours["black"].colour)
         renderPos = list(self.orgPos)   # Convert to list so individual values can be changed
@@ -228,6 +227,7 @@ class Graph:
         renderer.surface.blit(txtSurface, tuple(renderPos))  # Convert back to tuple
 
 
+    # Write the letter x and y under each axis
     def DrawXAndYWords(self, renderer):
         txtSurfaceX = self.fonts[16].render("x", True, colours["black"].colour)
         txtSurfaceY = self.fonts[16].render("y", True, colours["black"].colour)
@@ -240,6 +240,8 @@ class Graph:
         renderer.surface.blit(txtSurfaceY, renderPosY)
 
 
+    # Render the faded trace lines over the mouse position
+
     def DrawFadedTraceLines(self, renderer, mousePos):
         if mousePos is None:
             return
@@ -249,7 +251,7 @@ class Graph:
 
 
 
-        
+    # Finds the closest multiple to a number 
     @staticmethod
     def FindNearestMultiple(number, multiple):
         if multiple == 0:
