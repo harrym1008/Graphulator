@@ -21,13 +21,14 @@ class UserInterface:
         self.root.protocol("WM_DELETE_WINDOW", mainClass.Kill)  
                                     # Run the kill method when the X is pressed
 
+        # Set up some references to other classes
         self.graph = mainClass.graph
         self.graphUI = mainClass.graphUI
 
         self.currentEquation = 0
         self.dropdownOptions = [str(i+1) for i in range(10)]
 
-        # Define constants
+        # Define the variables for the constants
         self.a = 0
         self.b = 0
         self.c = 0
@@ -98,6 +99,7 @@ class UserInterface:
         self.constantEntryPairs = []
         self.constantValues = []
 
+        # Loop over all of the constants to be placed
         for letter, y in [("a", -0.03), ("b", 0.22), ("c", 0.47), ("t", 0.72)]:
             variable = DoubleVar(self.constLF)
             self.constantSliderValues.append(variable)
@@ -121,6 +123,7 @@ class UserInterface:
             lbl.config(font=self.fonts[5])
             lbl.place(relx=0.44, rely=y, relwidth=0.14, relheight=0.25) 
 
+        # Set the constants
         for i in range(4):
             normalisedValue = 0.5
             self.constantSliderValues[i].set(normalisedValue)
@@ -129,7 +132,7 @@ class UserInterface:
             self.constantValues[i].set(NStr(UIMath.Lerp(-10, 10, normalisedValue), short=True))
         
 
-
+    # Update the constants based on their position the sliders position
     def ResetConstants(self):
         aLower = UIMath.TryConvertToFloat(self.constantEntryPairs[0][0].get())
         aUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[0][1].get())
@@ -161,15 +164,8 @@ class UserInterface:
 
 
 
-    def Reset(self):        
-        self.graph.zoom = 50
-        self.graph.offset = [0, 0]
-        self.graphUI.highlightedPoints.clear()
-
-
-
-
-    # This code finds runs the evaluate function for finding the X value, then creates a window displaying the points
+    # This code finds runs the evaluate function for finding the X value, 
+    # then creates a window displaying the points
     def DisplayXEvaluation(self):
         strEqu = self.entries[self.currentEquation].get()
 
@@ -196,7 +192,10 @@ Message: {error.args[0]}""")
 
 
 
-    # This code finds runs the evaluate function for finding the Y value, then creates a window displaying the points
+
+
+    # This code finds runs the evaluate function for finding the Y value, 
+    # then creates a window displaying the points
     def DisplayYEvaluation(self):
         strEqu = self.entries[self.currentEquation].get()
 
@@ -267,7 +266,7 @@ Message: {error.args[0]}""")
 
 
 
-
+    # This function finds the Y-intercept, and then displays them in a pop-up message window
     def DisplayYIntercept(self):
         try:
             strEqu = self.entries[self.currentEquation].get()
@@ -298,6 +297,9 @@ Error:   {type(error).__name__}
 Message: {error.args[0]}""")
         
         
+
+
+    # This function finds the X-intercept, and then displays them in a pop-up message window
     def DisplayXIntercept(self):
         try:
             strEqu = self.entries[self.currentEquation].get()
@@ -336,6 +338,7 @@ Message: {error.args[0]}""")
         return array
 
 
+    # Replaces the word "pi" with the pi symbol, and other similar replacements
     def ReplaceConstantWords(self, array):
         for i, string in enumerate(array):
             string = string.replace("golden", "ϕ")
@@ -346,6 +349,7 @@ Message: {error.args[0]}""")
             self.entries[i].set(string)
 
 
+    # Set the colours of the number to on or off
     def UpdateEquationNumberLabels(self, equationsList):
         equationsList.extend(["" for i in range(10 - len(equationsList))])
 
@@ -356,7 +360,7 @@ Message: {error.args[0]}""")
                 lbl.config(fg=colours["black"].hex)
 
         
-
+    # Create fonts for tkinter
     def CreateFonts(self):
         self.fonts = [
             Font(family="monofonto", size=20, weight="bold"),
@@ -369,7 +373,7 @@ Message: {error.args[0]}""")
         ]
 
 
-
+    # Create label
     def CreateLabel(self, text, fontNum, placement, root=None, colour="black"):
         if root is None:
             root = self.root
@@ -380,6 +384,8 @@ Message: {error.args[0]}""")
         return lbl
 
 
+
+    # Create label frame
     def CreateLabelFrame(self, text, fontNum, placement, root=None):
         if root is None:
             root = self.root
@@ -390,6 +396,8 @@ Message: {error.args[0]}""")
         return lf
         
 
+
+    # Create button
     def CreateButton(self, text, fontNum, methodReference, placement, root=None):
         if root is None:
             root = self.root
@@ -400,6 +408,7 @@ Message: {error.args[0]}""")
         return btn
         
 
+    # Create entry
     def CreateEntry(self, strVar, fontNum, placement, root=None):
         if root is None:
             root = self.root
@@ -412,7 +421,7 @@ Message: {error.args[0]}""")
 
 
 
-
+    # Create pop-up window with points, highlight if the user says so
     def AskToHighlightPoints(self, title, content, points):
         pointWord = "these points" if len(points) > 1 else "this point"
         content += f"\nWould you like to highlight {pointWord} in the graph window?"
@@ -424,5 +433,6 @@ Message: {error.args[0]}""")
 
 
 
+# Own exception for my program to throw 
 class NotFoundException(Exception):
     pass

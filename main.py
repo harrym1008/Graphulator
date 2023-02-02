@@ -114,7 +114,7 @@ class MouseData:
             
 
 
-
+# Define the main class where the mainloop runs
 class Graphulator:
     def __init__(self):
         # Predefined values are defined

@@ -8,5 +8,5 @@ graph
 graphui
 main            Done
 numstr          Done
-ui              Partially
+ui              Done
 uimath          Done
