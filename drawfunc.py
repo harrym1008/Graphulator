@@ -10,7 +10,7 @@ from sympy.parsing.sympy_parser import standard_transformations, \
 
 from evaluate import *
 from serialsurf import SerialisedSurface
-from graph import GraphBounds
+import sys
 
 
 
@@ -40,6 +40,9 @@ class PlottedEquation:
         lastEquation = ""
         solutions = {"y": [],"x": []}
         solutionCount = len(solutions["x"]) + len(solutions["y"])
+        
+        surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
+        print(sys.getsizeof(surface))
 
         print(f"Thread {self.index} has been started")
 
@@ -123,7 +126,7 @@ class PlottedEquation:
                         xPoints[i].append(point)
                 points = yPoints + xPoints
                 
-
+                
             surface = pygame.Surface(inData.screenSize, pygame.SRCALPHA)
 
             # Produce a pygame surface from the points just calculated
@@ -158,10 +161,9 @@ class PlottedEquation:
             # print(f"Full process took {time.perf_counter() - startTime}")
 
 
-
+    # Get all solutions for X= and Y= for a single equation
     @staticmethod
     def GetSolutions(strEqu):
-        strEqu = TranslateNumpyToSympy(strEqu)
         equ, lhs, rhs = PlottedEquation.ProduceSympyEquation(strEqu)
         print(equ, lhs, rhs)
         ySolutions = PlottedEquation.ProduceEquationSolutions(equ, "y")
@@ -173,6 +175,10 @@ class PlottedEquation:
         return solutions
 
 
+    # Assign solutions into a dictionary
+    # If the equation is already Y=, only the y= solution is required.
+    # If the equation is instead X=, only the x= solution is required.
+    # Otherwise use both solutions
     @staticmethod
     def AssignSolutions(lhs, rhs, yS, xS):
         empty = []
@@ -184,6 +190,7 @@ class PlottedEquation:
         return {"y": yS, "x": xS}
 
 
+    # Solve an equation for either x or y, 
     @staticmethod
     def ProduceEquationSolutions(equ, category, replace=True):
         x, y = sp.symbols("x y")
@@ -191,12 +198,16 @@ class PlottedEquation:
         try:
             solveFor = x if category == "x" else y
             solved = sp.solve(equ, solveFor)
-            print(solved)
+            print(solved)   
+
+            # only replace sympy with numpy if the argument is true
             return [TranslateSympyToNumpy(str(solution)) if replace else str(solution) for solution in solved]
         except Exception:
             return []
 
 
+    # Convert a regular string equation like "3y=2x-1" into a Sympy "Eq" class
+    # This allows symbolic operations to be executed on the equation
     @staticmethod
     def ProduceSympyEquation(strEqu, getHandSides=True):
         y = sp.symbols("y")
@@ -222,7 +233,7 @@ class PlottedEquation:
 
 
 
-
+    # Draws a surface from an array. This can only be used for Y= solutions
     @staticmethod
     def DrawSurfaceFromArray_YEquals(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
@@ -241,23 +252,29 @@ class PlottedEquation:
         for x, y in array:
             plotStart = lastX * zoom + drawOffset[0], lastY * zoom + drawOffset[1]
             plotEnd = x * zoom + drawOffset[0], y * zoom + drawOffset[1]
+            # Calculate where the point is on the screen (pixel position)
 
             asymptoteCheck = (y > extremeLower and lastY < extremeUpper) or (lastY > extremeLower and y < extremeUpper)
             invalidNumberCheck = np.isnan(x) or np.isinf(x) or \
                                  np.isnan(y) or np.isinf(y) or \
                                  np.isnan(lastX) or np.isinf(lastX) or \
                                  np.isnan(lastY) or np.isinf(lastY)
+            # Check if it is not an asymptote or an invalid number
 
             if not asymptoteCheck and not invalidNumberCheck:
-                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)                    
+                # draw a line from the last position to the final position
+                pygame.draw.line(surface, equInstance.colour.colour, plotStart, plotEnd, 3)             
 
             lastX, lastY = x, y
 
+        # flip the surface on the Y, it is rendered upside down
         surface = pygame.transform.flip(surface, False, True)
         return surface
 
 
 
+    # Draws a surface from an array. This can only be used for Y= solutions.
+    # The procedure is the same but with different equations and variables in some places.
     @staticmethod
     def DrawSurfaceFromArray_XEquals(array, equInstance, bounds, zoomedOffset, screenSize) -> pygame.Surface:
         surface = pygame.Surface(screenSize, pygame.SRCALPHA)
@@ -299,20 +316,20 @@ class PlottedEquation:
 
 # Cluster of data inputted into the thread
 class ThreadInput:
-    def __init__(self, bounds, screenSize, zoomedOffset, equation):
+    def __init__(self, bounds, zoomedOffset, equation):
         self.bounds = bounds
-        self.screenSize = screenSize
+        self.screenSize = bounds.screenSize
         self.zoomedOffset = zoomedOffset
         self.equation = equation
 
 
 # Cluster of data outputted from the thread
 class ThreadOutput:
-    def __init__(self, surface, bounds, zoomedOffset, null, solutions):
+    def __init__(self, surface, bounds, zoomedOffset, nullSurface, solutions):
         self.bounds = bounds
         self.zoom = bounds.zoom
         self.zoomedOffset = zoomedOffset
-        self.serialisedSurface = SerialisedSurface(surface, null)
+        self.serialisedSurface = SerialisedSurface(surface, nullSurface)
         self.solutions = solutions
 
 

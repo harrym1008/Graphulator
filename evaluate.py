@@ -61,6 +61,11 @@ def TranslateNumpyToSympy(equation: str):
 
 
 
+def Lerp(x, y, t):          # Stands for Linear Interpolation
+    return x + (y-x) * t
+
+
+
 def factorial(val):
     return m.factorial(int(val))
 

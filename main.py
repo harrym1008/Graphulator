@@ -2,13 +2,6 @@
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
-# Suppresses "RuntimeWarning" messages, these are not exceptions that crash the program
-# They are just warnings that arise for example when an invalid operation is applied to a number
-# This is fine because my program accounts for such invalid operations that will return erroneous values
-# This code is here to prevent the message from being spammed in the terminal
-import warnings
-warnings.filterwarnings("ignore")
-
 # External modules
 import pygame
 
@@ -289,8 +282,9 @@ class Graphulator:
 
 
         # Kill all running threads
-        for t in self.functionManager.myThreads:
-            t.terminate()
+        for equData in self.functionManager.equationsData:
+            equData.thread.terminate()
+            
 
 
 

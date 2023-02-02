@@ -7,7 +7,7 @@ from colours import *
 from uimath import UIMath
 from evaluate import *
 from numstr import *
-from timer import *
+import time
 
 
 # Main class for the Graphical User Interface
@@ -130,27 +130,27 @@ class UserInterface:
             self.constantSliderValues[i].set(normalisedValue)
             self.constantEntryPairs[i][0].set("-10")
             self.constantEntryPairs[i][1].set("10")
-            self.constantValues[i].set(NStr(UIMath.Lerp(-10, 10, normalisedValue), short=True))
+            self.constantValues[i].set(NStr(Lerp(-10, 10, normalisedValue), short=True))
         
 
     # Update the constants based on their position the sliders position
     def ResetConstants(self):
         aLower = UIMath.TryConvertToFloat(self.constantEntryPairs[0][0].get())
         aUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[0][1].get())
-        self.a = UIMath.Lerp(aLower, aUpper, self.constantSliderValues[0].get())
+        self.a = Lerp(aLower, aUpper, self.constantSliderValues[0].get())
         
         bLower = UIMath.TryConvertToFloat(self.constantEntryPairs[1][0].get())
         bUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[1][1].get())
-        self.b = UIMath.Lerp(bLower, bUpper, self.constantSliderValues[1].get())
+        self.b = Lerp(bLower, bUpper, self.constantSliderValues[1].get())
         
         cLower = UIMath.TryConvertToFloat(self.constantEntryPairs[2][0].get())
         cUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[2][1].get())
-        self.c = UIMath.Lerp(cLower, cUpper, self.constantSliderValues[2].get())
+        self.c = Lerp(cLower, cUpper, self.constantSliderValues[2].get())
 
         tTimer = (time.perf_counter() % 10) / 10
         tLower = UIMath.TryConvertToFloat(self.constantEntryPairs[3][0].get())
         tUpper = UIMath.TryConvertToFloat(self.constantEntryPairs[3][1].get())
-        tValue = UIMath.Lerp(tLower, tUpper, tTimer) 
+        tValue = Lerp(tLower, tUpper, tTimer) 
         self.t = (tLower, tUpper)
 
         self.constantValues[0].set(NStr(self.a))
