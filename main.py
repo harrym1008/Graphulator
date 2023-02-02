@@ -24,7 +24,8 @@ from funcmgr import FunctionManager
 from ui import UserInterface
 from uimath import *
 
-minScreenSize = (192, 192)
+# Set a constant for the minimum screen size
+MIN_SCREEN_SIZE = (192, 192)
 
 
 numberKeys = [[pygame.K_1, pygame.K_KP_1],
@@ -116,38 +117,47 @@ class MouseData:
 
 class Graphulator:
     def __init__(self):
+        # Predefined values are defined
         self.running = True
         self.currentEquationNumber = 0
         self.mousePos = (0, 0)
 
+        # Load some data from the JSON file
         self.targetFPS = getjson.GetData("max_fps")
         self.screenSize = tuple(getjson.GetData("screen_size"))
         self.maxEquations = min(getjson.GetData("max_equations"), 10)  # make sure maximum is 10
 
+        # Get default speeds from JSON file and calculate pan speed
         self.basePanSpeed = getjson.GetData("base_pan_speed")
         self.panSpeed = self.screenSize[0] * 0.0005 * self.basePanSpeed + 1
         self.zoomSpeed = getjson.GetData("base_zoom_speed")
 
+        # Define pygame clock and the main screen
         self.clock = pygame.time.Clock()
         self.graphScreen = pygame.display.set_mode(self.screenSize, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
         pygame.display.set_caption(f"Graphulator Screen View")
 
+        # Create an instance of all the main classes
         self.graph = Graph(self.screenSize)
         self.graphUI = GraphUserInterface(self.graph)
         self.graphRenderer = GraphRenderer(self.graph)
         self.gui = UserInterface(self)
         self.functionManager = FunctionManager(self.graph, self.maxEquations)
 
+        # Additional smaller classes which handle small areas of the program
         self.mouse = MouseData()
         self.deltatime = DeltaTime()
 
+        # Set the program to show a sine wave be default
         self.gui.entries[0].set("sin x")
 
         
+    # Stops mainloop() from looping
     def Kill(self):
         self.running = False
 
 
+    # Update the constants in the static class UIMath
     def UpdateConstants(self):
         self.gui.ResetConstants()
         constants = self.gui.GetConstants()
@@ -159,11 +169,14 @@ class Graphulator:
     # Handles Pygame events: quitting and resizing the screen
     def HandleEvents(self, events):
         for e in events:
+            # When the cross button is pressed on the window
             if e.type == pygame.QUIT:
                 self.Kill()
+
+            # When the window is resized
             elif e.type == pygame.VIDEORESIZE:
-                self.screenSize = ( max(e.w, minScreenSize[0]),
-                                    max(e.h, minScreenSize[1]))
+                self.screenSize = ( max(e.w, MIN_SCREEN_SIZE[0]),
+                                    max(e.h, MIN_SCREEN_SIZE[1]))
                 self.graphScreen = pygame.display.set_mode(self.screenSize, 
                             pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
                 
@@ -174,6 +187,7 @@ class Graphulator:
                 
                 smallestDimension = min(self.screenSize[0], self.screenSize[1])
                 self.panSpeed = smallestDimension * 0.0005 * self.basePanSpeed + 1
+                # Change pan speed to align with the new screen dimensions
 
 
     # Method which executes all necessary input functions 
@@ -186,13 +200,18 @@ class Graphulator:
         self.GetCurrentEquationInput(keys)   
         
 
+    # Reset procedure 
+    def ResetButtonPressed(self):
+        self.graph.zoom = 50
+        self.graph.offset = [0, 0]
+        self.graphUI.highlightedPoints.clear()
+
+
     # Run the main keyboard input functions
     def KeyboardInput(self, keys):
-        # Reset offset and panning
+        # Reset offset and panning if R is pressed
         if keys[pygame.K_r]:
-            self.graph.zoom = 50
-            self.graph.offset = [0, 0]
-            self.graphUI.highlightedPoints.clear()
+            self.ResetButtonPressed()
 
         # Pan the screen with the keyboard arrow keys
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -216,6 +235,7 @@ class Graphulator:
 
 
     # Loops through the key buttons, check which one is pressed
+    # This changes the current selected equation
     def GetCurrentEquationInput(self, keys):
         for i, nums in enumerate(numberKeys):
             if keys[nums[0]] or keys[nums[1]]:
@@ -261,22 +281,25 @@ class Graphulator:
             self.gui.root.update()
 
             self.HandleEvents(events)
+
+            # Wait for the next frame
             self.clock.tick(self.targetFPS)
             self.deltatime.Update()
-
             pygame.display.set_caption(f"Graphulator Screen View - {round(self.clock.get_fps(), 2)} FPS")
 
+
+        # Kill all running threads
         for t in self.functionManager.myThreads:
             t.terminate()
-
-        quit()
 
 
 
 if __name__ == "__main__":
-    # Create pygame window and run the required initiation script
+    # Run the required initiation script for pygame
     pygame.init()
 
     # Create an instance of the main class then run the main loop
     graphulator = Graphulator()
     graphulator.MainLoop()
+
+    quit()

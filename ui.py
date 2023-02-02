@@ -33,19 +33,19 @@ class UserInterface:
         self.c = 0
         self.t = (-10, 10)
 
-        self.CreateFonts()      # Create fonts array
-        self.CreateWindow()     # Place all tkinter widgets onto the window
-        self.ResetConstants()
+        self.CreateFonts()               # Create fonts array
+        self.CreateWindow(mainClass)     # Place all tkinter widgets onto the window
+        self.ResetConstants()            # Set up all the constants
 
 
 
 
 
-    def CreateWindow(self):
+    def CreateWindow(self, mainClass):
         self.CreateLabel("Graphulator", 0, (0.02, 0.01, 0.81, 0.07) )
 
         # Create reset button
-        self.CreateButton("Reset", 3, self.Reset, (0.83, 0.005, 0.17, 0.07))
+        self.CreateButton("Reset", 3, mainClass.ResetButtonPressed, (0.83, 0.005, 0.17, 0.07))
 
         # Define all of the label frames
         self.equLF = self.CreateLabelFrame("Equation Input", 1, (0.04, 0.08, 0.92, 0.49))
