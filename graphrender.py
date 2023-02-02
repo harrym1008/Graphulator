@@ -30,6 +30,4 @@ class GraphRenderer:
         horzLine.fill(colours["faded black"].colour)
 
         return (horzLine, vertLine)
-
-
-        
+    

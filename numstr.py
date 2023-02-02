@@ -1,7 +1,7 @@
 import math
 import numpy as np
 
-# Get superscript numbers by using SUPERSCRIPT[3]
+# Get superscript numbers by using SUPERSCRIPT[3] for example to get 3 in superscript
 SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"  # ⁺⁻⁼⁽⁾"
 
 # Converts a float number into a string with significant figures

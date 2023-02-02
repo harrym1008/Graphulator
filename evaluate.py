@@ -16,9 +16,6 @@ e = euler = np.e
 inf = np.inf
 
 
-
-
-
 # Load in all of the translations from the TXT file
 def GetReplacements():
     # Open translations.txt in read mode
