@@ -1,3 +1,7 @@
+from ctypes import windll
+windll.shcore.SetProcessDpiAwareness(1)
+# so tkinter scales properly
+
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 # Prevents the welcome message from pygame from spamming in the terminal
